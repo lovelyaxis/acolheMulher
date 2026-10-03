@@ -1,6 +1,7 @@
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 
+
 import { Search, MapPin, FileText } from "lucide-react";
 
 const etapas = [
@@ -99,7 +100,7 @@ export default function Home() {
             <div className="mt-6 flex flex-wrap gap-3">
               <a
                 href="#buscar"
-                className="rounded-full bg-brand px-5 py-3 text-sm font-semibold text-white transition hover:bg-[#63308A]"
+                className="rounded-full bg-brand px-5 py-3 text-sm font-semibold text-white transition hover:bg-primary-hover"
               >
                 Encontrar atendimento
               </a>
@@ -229,7 +230,7 @@ export default function Home() {
               />
               <button
                 type="submit"
-                className="rounded-xl bg-brand px-5 py-3 text-sm font-semibold text-white hover:bg-[#63308A]"
+                className="rounded-xl bg-brand px-5 py-3 text-sm font-semibold text-white hover:bg-primary-hover"
               >
                 Buscar atendimento
               </button>
@@ -262,16 +263,16 @@ export default function Home() {
       </section>
 
       {/* Canais de ajuda */}
-      <section className="bg-[#FCE7EC]">
+      <section className="bg-danger-soft">
         <div className="mx-auto grid max-w-6xl gap-5 px-5 py-7 md:grid-cols-3">
           <div className="md:col-span-3">
-            <span className="text-xs font-bold uppercase tracking-wider text-[#DC3B57]">
+            <span className="text-xs font-bold uppercase tracking-wider text-danger">
               Precisa de ajuda agora?
             </span>
           </div>
 
           <article>
-            <h3 className="font-[Poppins] text-lg font-bold text-[#DC3B57]">
+            <h3 className="font-[Poppins] text-lg font-bold text-danger">
               Ligue 180
             </h3>
             <p className="mt-1 text-sm text-gray-700">
@@ -279,14 +280,14 @@ export default function Home() {
             </p>
             <a
               href="tel:180"
-              className="mt-3 inline-block rounded-full bg-[#DC3B57] px-4 py-2 text-sm font-semibold text-white"
+              className="mt-3 inline-block rounded-full bg-danger px-4 py-2 text-sm font-semibold text-white"
             >
               Ligar 180
             </a>
           </article>
 
           <article>
-            <h3 className="font-[Poppins] text-lg font-bold text-[#DC3B57]">
+            <h3 className="font-[Poppins] text-lg font-bold text-danger">
               Emergência
             </h3>
             <p className="mt-1 text-sm text-gray-700">
@@ -294,7 +295,7 @@ export default function Home() {
             </p>
             <a
               href="tel:190"
-              className="mt-3 inline-block rounded-full bg-[#DC3B57] px-4 py-2 text-sm font-semibold text-white"
+              className="mt-3 inline-block rounded-full bg-danger px-4 py-2 text-sm font-semibold text-white"
             >
               Ligar 190
             </a>
