@@ -187,20 +187,20 @@ export default function Login() {
                   htmlFor="login"
                   className="mb-1.5 block text-xs font-semibold text-navy"
                 >
-                  E-mail ou CPF
+                  E-mail
                 </label>
 
                 <input
                   id="login"
                   name="login"
-                  type="text"
+                  type="email"
                   autoComplete="username"
                   value={login}
                   onChange={(event) => {
                     setLogin(event.target.value);
                     setMensagem("");
                   }}
-                  placeholder="Digite seu e-mail ou CPF"
+                  placeholder="Digite seu e-mail"
                   required
                   className="w-full rounded-full border border-gray-200 px-4 py-3 text-sm outline-none placeholder:text-gray-400 focus:border-primary focus:ring-2 focus:ring-primary/20"
                 />
@@ -311,37 +311,8 @@ export default function Login() {
               )}
             </form>
 
-            <div className="my-5 flex items-center gap-3">
-              <span className="h-px flex-1 bg-gray-200" />
-              <span className="text-xs text-gray-400">ou</span>
-              <span className="h-px flex-1 bg-gray-200" />
-            </div>
 
-            <button
-              type="button"
-              onClick={() =>
-                setMensagem("O acesso pelo Gov.br ainda não foi integrado.")
-              }
-              className="flex w-full items-center justify-center gap-2 rounded-full border border-gray-200 py-3 text-sm font-semibold text-navy transition hover:bg-gray-50"
-            >
-              <span
-                className="flex h-5 w-5 items-center justify-center rounded-full bg-[#1351B4] text-[8px] font-bold text-white"
-                aria-hidden="true"
-              >
-                gb
-              </span>
-              Entrar com Gov.br
-            </button>
-
-            <p className="mt-5 text-center text-xs text-gray-500">
-              Não tem uma conta?{" "}
-              <Link
-                to="/cadastro"
-                className="font-semibold text-primary hover:text-primary-hover"
-              >
-                Cadastre-se
-              </Link>
-            </p>
+            
           </section>
         </div>
       </main>
