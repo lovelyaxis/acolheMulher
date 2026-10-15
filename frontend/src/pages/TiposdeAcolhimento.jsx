@@ -1,31 +1,32 @@
 import React from 'react';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
+import { Brain, Scale, Handshake, House } from 'lucide-react';
 
 export default function TiposDeAcolhimento() {
   const tipos = [
     {
       titulo: 'Acolhimento Psicológico',
       descricao: 'Atendimento e escuta qualificada por profissionais de psicologia, oferecendo suporte emocional e fortalecimento para mulheres em situação de vulnerabilidade ou violência.',
-      icone: '🧠',
+      icone: Brain,
       tag: 'Saúde & Emocional'
     },
     {
       titulo: 'Assistência Jurídica',
       descricao: 'Orientação e acompanhamento legal com advogadas e defensoras públicas para garantia de direitos, medidas protetivas de urgência e processos de família.',
-      icone: '⚖️',
+      icone: Scale,
       tag: 'Direitos & Proteção'
     },
     {
       titulo: 'Apoio Social e Assistencial',
       descricao: 'Atendimento via CRAS/CREAS para inclusão em programas sociais, auxílios emergenciais e encaminhamento para serviços da rede pública.',
-      icone: '🤝',
+      icone: Handshake,
       tag: 'Assistência Social'
     },
     {
       titulo: 'Casas de Acolhimento e Abrigos',
       descricao: 'Locais seguros de moradia provisória e proteção integral para mulheres e seus dependentes em risco iminente de violência.',
-      icone: '🏠',
+      icone: House,
       tag: 'Moradia Provisória'
     }
   ];
@@ -57,7 +58,12 @@ export default function TiposDeAcolhimento() {
             >
               <div>
                 <div className="flex items-center justify-between mb-4">
-                  <span className="text-3xl">{item.icone}</span>
+                  <item.icone
+                      size={28}
+                      strokeWidth={1.8}
+                      className="text-purple-700"
+                      aria-hidden="true"
+                    />
                   <span className="text-[11px] font-semibold bg-purple-50 text-purple-700 px-3 py-1 rounded-full border border-purple-100">
                     {item.tag}
                   </span>

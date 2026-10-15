@@ -16,29 +16,29 @@ export default function Header() {
     const [menuOpen, setMenuOpen] = useState(false);
     
     return (
-        <header className='sticky top-0 z-50 border-b border-[#E7E1F5] bg-white'>
-            <div className='mx-auto flex max-w-[1200] items-center gap-6 px-6 py-4 md:px-8'>
+        <header className='sticky top-0 z-50 border-b border-[#E7E1F5] bg-white font-inter'>
+            <div className='mx-auto flex max-w-[1200] items-center gap-6 px-6 py-4 md:px-8 font-inter'>
                 {/* logo paezão */}
 
-                <Link to='/' className='flex shrink-0 items-center gap-2.5'>
-                <img src={logo} alt="logo acolhe mulher" className='h-10 w-auto'/>
+                <Link to='/' className='flex shrink-0 items-center gap-2.5 font-inter'>
+                <img src={logo} alt="logo acolhe mulher" className='h-10 w-auto font-inter'/>
 
-                <span className='flex flex-col leading-tight'>
-                    <span className='text-lg font-bold text-navy'>
+                <span className='flex flex-col leading-tight font-inter'>
+                    <span className='text-lg font-bold text-navy font-inter'>
                     AcolheMulher
                     </span>
                 </span>
                 </Link>
 
                         {/* Navegação (desktop) */}
-        <nav className="ml-auto hidden items-center gap-7 md:flex">
+        <nav className="ml-auto hidden items-center gap-7 md:flex font-inter">
           {navItems.map((item) => (
             <NavLink
               key={item.to}
               to={item.to}
               end={item.to === "/"}
               className={({ isActive }) =>
-                `border-b-2 pb-1 text-sm font-medium ${
+                `border-b-2 pb-1 text-sm font-medium font-inter ${
                   isActive
                     ? "border-brand font-semibold text-brand"
                     : "border-transparent text-[#5B5770] hover:text-brand"
@@ -51,10 +51,10 @@ export default function Header() {
         </nav>
 
         {/* Botões (desktop) */}
-        <div className="hidden items-center gap-3 md:flex">
+        <div className="hidden items-center gap-3 md:flex font-inter">
           <a
             href="#"
-            className="flex items-center gap-2 rounded-full bg-[#F1E9FB] px-5 py-2.5 text-sm font-semibold text-brand hover:bg-[#E6D9F7]"
+            className="flex items-center gap-2 rounded-full bg-[#F1E9FB] px-5 py-2.5 text-sm font-semibold text-brand hover:bg-[#E6D9F7] font-inter"
           >
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
@@ -65,7 +65,7 @@ export default function Header() {
           </a>
           <Link
             to="/rede-atendimento"
-            className="flex items-center gap-2 rounded-full bg-brand px-5 py-2.5 text-sm font-semibold text-white hover:bg-primary-hover"
+            className="flex items-center gap-2 rounded-full bg-brand px-5 py-2.5 text-sm font-semibold text-white hover:bg-primary-hover font-inter"
           >
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <circle cx="11" cy="11" r="8" />
@@ -80,17 +80,17 @@ export default function Header() {
           onClick={() => setMenuOpen((open) => !open)}
           aria-label="Abrir menu"
           aria-expanded={menuOpen}
-          className="ml-auto flex h-9 w-9 flex-col items-center justify-center gap-1.5 md:hidden"
+          className="ml-auto flex h-9 w-9 flex-col items-center justify-center gap-1.5 md:hidden font-inter"
         >
-          <span className={`h-0.5 w-6 bg-navy transition-transform ${menuOpen ? "translate-y-2 rotate-45" : ""}`} />
-          <span className={`h-0.5 w-6 bg-navy transition-opacity ${menuOpen ? "opacity-0" : ""}`} />
-          <span className={`h-0.5 w-6 bg-navy transition-transform ${menuOpen ? "-translate-y-2 -rotate-45" : ""}`} />
+          <span className={`h-0.5 w-6 bg-navy transition-transform font-inter ${menuOpen ? "translate-y-2 rotate-45" : ""}`} />
+          <span className={`h-0.5 w-6 bg-navy transition-opacity font-inter ${menuOpen ? "opacity-0" : ""}`} />
+          <span className={`h-0.5 w-6 bg-navy transition-transform font-inter ${menuOpen ? "-translate-y-2 -rotate-45" : ""}`} />
         </button>
       </div>
 
       {/* Navegação (mobile, só aparece se menuOpen for true) */}
       {menuOpen && (
-        <nav className="flex flex-col border-t border-[#E7E1F5] bg-white px-6 py-2 md:hidden">
+        <nav className="flex flex-col border-t border-[#E7E1F5] bg-white px-6 py-2 md:hidden font-inter">
           {navItems.map((item) => (
             <NavLink
               key={item.to}

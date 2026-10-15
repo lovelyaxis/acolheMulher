@@ -20,7 +20,10 @@
   --font-poppins: "Poppins", sans-serif;
 }
 
-body {
+  header,
+  header a,
+  header button,
+  header nav {
   margin: 0;
-  font-family: var(--font-inter);
+  font-family: var(--font-inter), sans-serif;
 }
