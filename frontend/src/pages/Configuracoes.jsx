@@ -5,7 +5,7 @@ export default function Configuracoes() {
     <div className="flex min-h-screen bg-purple-50/50 font-sans">
       
       {/* Sidebar */}
-      <aside className="w-64 bg-slate-900 text-white flex flex-col justify-between p-6 hidden md:flex">
+      <aside className="w-64 bg-slate-900 text-white flex flex-col justify-between p-6  md:flex">
         <div>
           <div className="flex items-center gap-2 mb-10">
             <div className="w-8 h-8 rounded-full bg-purple-600 flex items-center justify-center font-bold text-white">
