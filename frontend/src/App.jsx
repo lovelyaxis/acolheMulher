@@ -6,7 +6,6 @@ import Login from "./pages/Login";
 import RedeDeAtendimento from "./pages/RedeDeAtendimento";
 import DashboardProfissional from "./pages/DashboardProfissional";
 
-import CadastroHaikyu from './pages/CadastroHaikyu'
 import CadastroLuna from './pages/CadastroLuna'
 
 export default function App() {
@@ -23,8 +22,6 @@ export default function App() {
         element={<DashboardProfissional />}
       />
       <Route path="*" element={<Navigate to="/login" replace />} />
-      
-      <Route path="/cadastro-haikyu" element={<CadastroHaikyu />} />
       <Route path="/cadastro-luna" element={<CadastroLuna />} />
     </Routes>
   );
