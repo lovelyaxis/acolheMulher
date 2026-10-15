@@ -2,6 +2,7 @@ import React from 'react';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import { Link } from 'react-router-dom';
+import { Target, Eye, HeartHandshake } from 'lucide-react';
 
 export default function Sobre() {
     return (
@@ -29,7 +30,7 @@ export default function Sobre() {
                 <section className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
                     <div className="bg-white p-6 rounded-2xl border border-purple-100 shadow-sm text-center">
                         <div className="w-12 h-12 rounded-2xl bg-purple-100 text-purple-700 flex items-center justify-center font-bold mx-auto mb-4 text-xl">
-                            🎯
+                            <Target size={24} strokeWidth={1.8} aria-hidden="true" />
                         </div>
                         <h3 className="font-bold text-slate-900 text-sm mb-2">Missão</h3>
                         <p className="text-xs text-slate-500 leading-relaxed">
@@ -39,7 +40,7 @@ export default function Sobre() {
 
                     <div className="bg-white p-6 rounded-2xl border border-purple-100 shadow-sm text-center">
                         <div className="w-12 h-12 rounded-2xl bg-purple-100 text-purple-700 flex items-center justify-center font-bold mx-auto mb-4 text-xl">
-                            👁️
+                            <Eye size={24} strokeWidth={1.8} aria-hidden="true" />
                         </div>
                         <h3 className="font-bold text-slate-900 text-sm mb-2">Visão</h3>
                         <p className="text-xs text-slate-500 leading-relaxed">
@@ -49,7 +50,7 @@ export default function Sobre() {
 
                     <div className="bg-white p-6 rounded-2xl border border-purple-100 shadow-sm text-center">
                         <div className="w-12 h-12 rounded-2xl bg-purple-100 text-purple-700 flex items-center justify-center font-bold mx-auto mb-4 text-xl">
-                            💜
+                            <HeartHandshake size={24} strokeWidth={1.8} aria-hidden="true" />
                         </div>
                         <h3 className="font-bold text-slate-900 text-sm mb-2">Valores</h3>
                         <p className="text-xs text-slate-500 leading-relaxed">

@@ -2,6 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
+import { Search, Handshake, MapPin, ShieldCheck } from 'lucide-react';
 
 export default function ComoFunciona() {
   const passos = [
@@ -9,25 +10,25 @@ export default function ComoFunciona() {
       numero: '01',
       titulo: 'Acesse e Explore a Rede',
       descricao: 'Navegue pelo site sem necessidade de cadastro inicial para consultar os pontos de apoio, delegacias, abrigos e centros assistenciais mais próximos.',
-      icone: '🔍'
+      icone: Search
     },
     {
       numero: '02',
       titulo: 'Identifique o Tipo de Ajuda',
       descricao: 'Escolha o tipo de suporte necessário: acolhimento psicológico, orientação jurídica, abrigo temporário ou apoio social emergencial.',
-      icone: '🤝'
+      icone: Handshake
     },
     {
       numero: '03',
       titulo: 'Entre em Contato ou Visite',
       descricao: 'Veja os horários de funcionamento, telefone e endereço direto de cada unidade cadastrada para receber atendimento humanizado e seguro.',
-      icone: '📍'
+      icone: MapPin
     },
     {
       numero: '04',
       titulo: 'Acompanhamento Integrado',
       descricao: 'Os profissionais da rede cadastrados utilizam a plataforma para encaminhar e acompanhar casos em total sigilo e proteção.',
-      icone: '🛡️'
+      icone: ShieldCheck
     }
   ];
 
@@ -56,9 +57,10 @@ export default function ComoFunciona() {
               key={idx}
               className="bg-white p-6 md:p-8 rounded-2xl border border-purple-100 shadow-sm flex gap-5 items-start hover:shadow-md transition"
             >
-              <div className="w-12 h-12 rounded-2xl bg-purple-100 text-purple-700 flex items-center justify-center font-bold text-lg shrink-0">
-                {p.icone}
+              <div className="w-12 h-12 rounded-2xl bg-purple-100 text-purple-700 flex items-center justify-center shrink-0">
+                  <p.icone size={24} strokeWidth={1.8} aria-hidden="true" />
               </div>
+              
               <div>
                 <span className="text-xs font-extrabold text-purple-600 tracking-wider uppercase mb-1 block">
                   Passo {p.numero}
