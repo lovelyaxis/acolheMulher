@@ -1,4 +1,3 @@
-
 import { useMemo, useState } from "react";
 import {
   Heart,
@@ -82,17 +81,18 @@ const unidadesDisponiveis = [
   "Unidade de atendimento",
 ];
 
+
 function BadgeStatus({ status }) {
   const estilos = {
-    Concluído: "bg-[#E3F5EA] text-[#237B46]",
-    Pendente: "bg-[#FFF1D9] text-[#98600A]",
-    Cancelado: "bg-[#FCE7EC] text-[#B4233D]",
+    Concluído: "bg-emerald-50 text-emerald-700",
+    Pendente: "bg-amber-50 text-amber-700",
+    Cancelado: "bg-rose-50 text-rose-700",
   };
 
   return (
     <span
       className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold ${
-        estilos[status] || "bg-gray-100 text-gray-700"
+        estilos[status] || "bg-slate-100 text-slate-700"
       }`}
     >
       {status === "Concluído" && <CheckCircle2 size={13} />}
@@ -103,6 +103,7 @@ function BadgeStatus({ status }) {
   );
 }
 
+
 function CartaoMetrica({ titulo, valor, icone, cor }) {
   return (
     <article className="flex min-w-0 items-center gap-3 rounded-xl border border-[#EAE3F4] bg-white p-4 shadow-[0_3px_14px_rgba(36,29,69,0.05)] transition duration-200 hover:-translate-y-0.5 hover:shadow-md sm:gap-4 sm:p-5">
@@ -112,11 +113,11 @@ function CartaoMetrica({ titulo, valor, icone, cor }) {
         {icone}
       </div>
 
-      <div className="min-w-0">
-        <p className="font-poppins text-2xl font-bold leading-tight text-[#241D45]">
+      <div className="bg-white p-6 rounded-2xl border border-purple-100 shadow-sm">
+        <p className="text-3xl font-extrabold text-slate-900">
           {valor}
         </p>
-        <p className="mt-1 text-xs leading-5 text-[#716A88] sm:text-sm">
+        <p className="text-xs text-slate-500 mt-1">
           {titulo}
         </p>
       </div>
@@ -262,7 +263,7 @@ export default function DashboardProfissional() {
   }
 
   return (
-    <div className="min-h-screen bg-[#F5F0FC] font-inter text-[#241D45] md:flex">
+    <div className="min-h-screen bg-purple-50/50 font-inter text-[#241D45] md:flex">
       {/* Fundo escuro para o menu em telas pequenas */}
       {menuAberto && (
         <button
@@ -275,7 +276,7 @@ export default function DashboardProfissional() {
 
       {/* MENU LATERAL */}
       <aside
-        className={`fixed inset-y-0 left-0 z-50 flex w-64 flex-col bg-[#241D45] text-white transition-transform duration-300 md:sticky md:top-0 md:h-screen md:translate-x-0 ${
+        className={`fixed inset-y-0 left-0 z-50 flex w-64 flex-col bg-slate-900 text-white transition-transform duration-300 md:sticky md:top-0 md:h-screen md:translate-x-0 ${
           menuAberto ? "translate-x-0" : "-translate-x-full"
         }`}
       >
@@ -308,7 +309,7 @@ export default function DashboardProfissional() {
           <a
             href="#inicio"
             onClick={() => setMenuAberto(false)}
-            className="flex items-center gap-3 rounded-lg bg-[#7B3FA6] px-3 py-3 text-sm font-medium text-white transition hover:bg-[#8C4DB7]"
+            className="flex items-center gap-3 rounded-lg bg-purple-600 px-3 py-3 text-sm font-medium text-white transition hover:bg-[#8C4DB7]"
           >
             <House size={17} />
             Início
@@ -370,7 +371,7 @@ export default function DashboardProfissional() {
       {/* CONTEÚDO PRINCIPAL */}
       <main id="inicio" className="min-w-0 flex-1">
         {/* CABEÇALHO */}
-        <header className="sticky top-0 z-30 flex min-h-[76px] items-center justify-between gap-3 border-b border-[#EAE3F4] bg-white px-4 py-3 sm:px-6 lg:px-8">
+        <header className="sticky top-0 z-30 flex min-h-[76px] items-center justify-between gap-3 border-b border-purple-100 bg-white px-4 py-3 sm:px-6 lg:px-8">
           <div className="flex min-w-0 items-center gap-3">
             <button
               type="button"
@@ -383,10 +384,10 @@ export default function DashboardProfissional() {
             </button>
 
             <div className="min-w-0">
-              <h1 className="font-poppins text-base font-bold sm:text-lg">
+              <h1  className="text-2xl font-bold text-slate-900">
                 Olá, Ana Paula
               </h1>
-              <p className="mt-0.5 text-xs text-[#827A99]">
+              <p className="text-sm text-slate-500 mt-1">
                 Painel do Profissional da Rede
               </p>
             </div>
@@ -546,9 +547,9 @@ export default function DashboardProfissional() {
           {/* TABELA E FILTROS */}
           <section
             id="encaminhamentos"
-            className="scroll-mt-24 overflow-hidden rounded-xl border border-[#EAE3F4] bg-white shadow-[0_3px_14px_rgba(36,29,69,0.05)]"
+            className="scroll-mt-24 overflow-hidden rounded-2xl border border-purple-100 bg-white shadow-sm"
           >
-            <div className="flex flex-col gap-4 border-b border-[#EAE3F4] p-4 sm:p-5 lg:flex-row lg:items-center lg:justify-between">
+            <div className="flex flex-col gap-4 border-b border-slate-100 p-6 lg:flex-row lg:items-center lg:justify-between">
               <div>
                 <h2 className="font-poppins text-base font-bold">
                   Últimos atendimentos
@@ -572,7 +573,7 @@ export default function DashboardProfissional() {
                     value={busca}
                     onChange={(evento) => setBusca(evento.target.value)}
                     placeholder="Buscar código ou serviço"
-                    className="min-h-10 w-full rounded-lg border border-[#E5DFEF] bg-white py-2.5 pl-9 pr-3 text-sm outline-none transition placeholder:text-[#A19AAF] focus:border-[#7B3FA6] focus:ring-2 focus:ring-[#7B3FA6]/15 sm:w-56"
+                    className="min-h-10 w-full rounded-xl border border-slate-200 bg-white py-2.5 pl-9 pr-3 text-sm text-slate-700 outline-none transition placeholder:text-slate-400 focus:border-purple-500 focus:ring-2 focus:ring-purple-100 sm:w-56"
                   />
                 </label>
 
@@ -581,7 +582,7 @@ export default function DashboardProfissional() {
                   <select
                     value={filtro}
                     onChange={(evento) => setFiltro(evento.target.value)}
-                    className="min-h-10 w-full appearance-none rounded-lg border border-[#E5DFEF] bg-white py-2.5 pl-3 pr-9 text-sm outline-none transition focus:border-[#7B3FA6] focus:ring-2 focus:ring-[#7B3FA6]/15 sm:w-40"
+                    className="min-h-10 w-full appearance-none rounded-xl border border-slate-200 bg-white py-2.5 pl-3 pr-9 text-sm text-slate-700 outline-none transition focus:border-purple-500 focus:ring-2 focus:ring-purple-100 sm:w-40"
                   >
                     <option value="Todos">Todas as situações</option>
                     <option value="Pendente">Pendente</option>
@@ -598,7 +599,7 @@ export default function DashboardProfissional() {
                   <button
                     type="button"
                     onClick={limparFiltros}
-                    className="rounded-lg px-3 py-2 text-sm font-semibold text-[#7B3FA6] transition hover:bg-[#F5F0FC]"
+                    className="rounded-lg px-3 py-2 text-sm font-semibold text-purple-700 transition hover:bg-purple-50"
                   >
                     Limpar
                   </button>
@@ -609,7 +610,7 @@ export default function DashboardProfissional() {
             {/* TABELA PARA COMPUTADOR */}
             <div className="hidden overflow-x-auto md:block">
               <table className="w-full min-w-[650px] text-left text-sm">
-                <thead className="bg-white text-[11px] uppercase tracking-wide text-[#827A99]">
+                <thead className="border-b border-slate-100 text-[11px] uppercase tracking-wider text-slate-400">
                   <tr>
                     <th scope="col" className="px-6 py-4 font-semibold">
                       Data
@@ -629,25 +630,25 @@ export default function DashboardProfissional() {
                   </tr>
                 </thead>
 
-                <tbody className="divide-y divide-[#EEE8F5]">
+                <tbody className="divide-y divide-slate-50 text-slate-700">
                   {encaminhamentosFiltrados.map((item) => (
                     <tr
                       key={item.codigo}
-                      className="transition-colors hover:bg-[#FAF8FD]"
+                      className="transition-colors hover:bg-purple-50/30"
                     >
-                      <td className="whitespace-nowrap px-6 py-4 text-xs text-[#716A88]">
+                      <td className="whitespace-nowrap px-6 py-4 text-xs text-slate-500">
                         {item.data}
                       </td>
-                      <td className="px-6 py-4 text-xs font-medium text-[#241D45]">
+                      <td className="px-6 py-4 text-xs font-semibold text-slate-800">
                         {item.destino}
                       </td>
-                      <td className="px-6 py-4 text-xs text-[#716A88]">
+                      <td className="px-6 py-4 text-xs text-slate-500">
                         {item.servico}
                       </td>
                       <td className="px-6 py-4">
                         <BadgeStatus status={item.status} />
                       </td>
-                      <td className="whitespace-nowrap px-6 py-4 text-xs font-semibold text-[#7B3FA6]">
+                      <td className="whitespace-nowrap px-6 py-4 text-xs font-semibold text-purple-700">
                         {item.codigo}
                       </td>
                     </tr>
