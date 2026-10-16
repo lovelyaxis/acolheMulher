@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import { useMemo, useState } from "react";
 import {
   Heart,
@@ -126,9 +127,19 @@ function CartaoMetrica({ titulo, valor, icone, cor }) {
 }
 
 export default function DashboardProfissional() {
-  const [encaminhamentos, setEncaminhamentos] = useState(
-    encaminhamentosIniciais
-  );
+  const [encaminhamentos, setEncaminhamentos] = useState(() => {
+  const salvos = sessionStorage.getItem("acolheMulherEncaminhamentos");
+
+  return salvos
+    ? [...JSON.parse(salvos), ...encaminhamentosIniciais]
+        .filter(
+          (item, indice, lista) =>
+            lista.findIndex(
+              (outro) => outro.codigo === item.codigo
+            ) === indice
+        )
+    : encaminhamentosIniciais;
+});
   const [menuAberto, setMenuAberto] = useState(false);
   const [busca, setBusca] = useState("");
   const [filtro, setFiltro] = useState("Todos");
@@ -315,14 +326,14 @@ export default function DashboardProfissional() {
             Início
           </a>
 
-          <button
-            type="button"
-            onClick={abrirModal}
-            className="flex w-full items-center gap-3 rounded-lg px-3 py-3 text-left text-sm text-white/75 transition hover:bg-white/10 hover:text-white"
-          >
-            <ClipboardList size={17} />
-            Registrar encaminhamento
-          </button>
+          <Link
+  to="/registrar-encaminhamento"
+  onClick={() => setMenuAberto(false)}
+  className="flex w-full items-center gap-3 rounded-lg px-3 py-3 text-left text-sm text-white/75 transition hover:bg-white/10 hover:text-white"
+>
+  <ClipboardList size={17} />
+  Registrar encaminhamento
+</Link>
 
           <a
             href="/rede-de-atendimento"
@@ -334,14 +345,14 @@ export default function DashboardProfissional() {
             <ArrowUpRight className="ml-auto" size={15} />
           </a>
 
-          <button
-            type="button"
-            onClick={abrirPerfil}
-            className="flex w-full items-center gap-3 rounded-lg px-3 py-3 text-left text-sm text-white/75 transition hover:bg-white/10 hover:text-white"
-          >
-            <UserRound size={17} />
-            Meu perfil
-          </button>
+          <Link
+  to="/meu-perfil"
+  onClick={() => setMenuAberto(false)}
+  className="flex w-full items-center gap-3 rounded-lg px-3 py-3 text-left text-sm text-white/75 transition hover:bg-white/10 hover:text-white"
+>
+  <UserRound size={17} />
+  Meu perfil
+</Link>
         </nav>
 
         <div className="border-t border-white/10 p-3">
@@ -468,7 +479,7 @@ export default function DashboardProfissional() {
               )}
             </div>
 
-            <button
+            <Link
               type="button"
               onClick={abrirPerfil}
               className="flex items-center gap-2 rounded-xl p-1.5 text-left transition hover:bg-[#F5F0FC] sm:gap-3 sm:px-2"
@@ -488,7 +499,7 @@ export default function DashboardProfissional() {
                 size={14}
                 className="hidden text-[#827A99] sm:block"
               />
-            </button>
+            </Link>
           </div>
         </header>
 
@@ -507,14 +518,13 @@ export default function DashboardProfissional() {
               </p>
             </div>
 
-            <button
-              type="button"
-              onClick={abrirModal}
-              className="inline-flex min-h-11 items-center justify-center gap-2 self-start rounded-full bg-[#7B3FA6] px-5 py-3 text-sm font-semibold text-white shadow-sm transition duration-200 hover:-translate-y-0.5 hover:bg-[#63308A] hover:shadow-md focus:outline-none focus:ring-4 focus:ring-[#7B3FA6]/20 active:translate-y-0 sm:self-center"
-            >
-              <Plus size={17} />
-              Novo encaminhamento
-            </button>
+            <Link
+  to="/registrar-encaminhamento"
+  className="inline-flex min-h-11 items-center justify-center gap-2 self-start rounded-full bg-[#7B3FA6] px-5 py-3 text-sm font-semibold text-white shadow-sm transition duration-200 hover:-translate-y-0.5 hover:bg-[#63308A] hover:shadow-md focus:outline-none focus:ring-4 focus:ring-[#7B3FA6]/20 active:translate-y-0 sm:self-center"
+>
+  <Plus size={17} />
+  Novo encaminhamento
+</Link>
           </section>
 
           {/* INDICADORES */}
