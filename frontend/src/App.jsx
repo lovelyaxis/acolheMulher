@@ -19,6 +19,8 @@ import GestaoEncaminhamentos from './pages/GestaoEncaminhamentos';
 import VagasAbrigos from './pages/VagasAbrigos';
 import RegistroOcorrencias from './pages/RegistroOcorrencias';
 import CadastroLuna from './pages/CadastroLuna'
+import RegistrarEncaminhamento from "./pages/RegistrarEncaminhamento";
+import MeuPerfil from "./pages/MeuPerfil";
 
 export default function App() {
   return (
@@ -61,6 +63,16 @@ export default function App() {
       <Route path="/admin/vagas-abrigos" element={<VagasAbrigos />} />
 
       <Route path="/admin/registro-ocorrencias" element={<RegistroOcorrencias />} />
+
+      <Route
+  path="/registrar-encaminhamento"
+  element={<RegistrarEncaminhamento />}
+/>
+
+<Route
+  path="/meu-perfil"
+  element={<MeuPerfil />}
+/>
     </Routes>
   );
 }
