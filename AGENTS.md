@@ -27,6 +27,23 @@ Dentro de `frontend/` (confira a estrutura real antes de criar arquivos):
 
 Antes de criar um arquivo novo, verifique se já existe um equivalente. Não duplique componentes. Tarefas de tela mexem só em `frontend/`; só mexa em `backend/` se o pedido disser isso.
 
+## Módulo Unidades de atendimento
+
+Mock compartilhado em `frontend/src/mocks/unidades.js`. Toda tela usa este formato:
+
+- `id` (string), `nome`, `tipo`, `endereco`, `bairro`, `cep` (8 dígitos, sem traço), `telefone`, `horario`
+- `vagas` (número ou null), `ativa` (boolean), `totalEncaminhamentos` (número, só para simular a RN003)
+- `tipo` aceita apenas: "Delegacia da Mulher", "CRAS/CREAS", "Casa de Acolhimento", "Defensoria Pública", "Hospital de Referência"
+
+Regras:
+- As páginas nunca importam o mock direto. Elas usam `frontend/src/services/unidadesService.js` (listar, buscar, criar, atualizar, inativar), para trocar por chamadas reais depois.
+- Consulta pública (RF003): não mostra `vagas` nem unidades inativas.
+- Consulta interna (RF012): mostra `vagas`; só para Profissional e Administrador logados.
+- Duplicidade (RN004): comparar nome + endereço ignorando maiúsculas, acentos e espaços extras.
+- Unidade com `totalEncaminhamentos > 0` só pode ser inativada, nunca excluída (RN003).
+- Proteção de rotas: se já existir contexto ou guard de autenticação no projeto, reutilize. Não crie outro.
+- Não faça `git commit` nem `git push`. Quem faz isso é o usuário.
+
 ## Regras de código
 
 - Componentes funcionais com hooks. Nomes de componentes em PascalCase, um componente por arquivo.
