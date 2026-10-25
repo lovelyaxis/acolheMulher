@@ -19,6 +19,8 @@ import GestaoEncaminhamentos from './pages/GestaoEncaminhamentos';
 import VagasAbrigos from './pages/VagasAbrigos';
 import RegistroOcorrencias from './pages/RegistroOcorrencias';
 import CadastroLuna from './pages/CadastroLuna'
+import RegistrarEncaminhamento from "./pages/RegistrarEncaminhamento";
+import MeuPerfil from "./pages/MeuPerfil";
 
 import { AuthProvider } from "./auth/AuthContext";
 import ProtectedRoute from "./auth/ProtectedRoute";
@@ -89,14 +91,21 @@ export default function App() {
         }
       />
 
-      <Route
-        path="/admin/registro-ocorrencias"
-        element={
-          <ProtectedRoute perfil="ADMINISTRADOR">
-            <RegistroOcorrencias />
-          </ProtectedRoute>
-        }
-      />
+<Route
+  path="/admin/registro-ocorrencias"
+  element={
+    <ProtectedRoute perfil="ADMINISTRADOR">
+      <RegistroOcorrencias />
+    </ProtectedRoute>
+  }
+/>
+
+<Route
+  path="/registrar-encaminhamento"
+  element={<RegistrarEncaminhamento />}
+/>
+
+<Route path="/meu-perfil" element={<MeuPerfil />} />
     </Routes>
     </AuthProvider>
   );
