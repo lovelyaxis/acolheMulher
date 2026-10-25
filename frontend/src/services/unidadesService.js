@@ -8,6 +8,10 @@
 
 import { unidades } from "../mocks/unidades.js";
 
+// A lista de tipos é reexportada aqui para que as telas importem apenas
+// deste serviço e nunca acessem o mock diretamente (AGENTS.md).
+export { TIPOS_UNIDADE } from "../mocks/unidades.js";
+
 const normalizarTexto = (valor = "") =>
   String(valor)
     .normalize("NFD")
