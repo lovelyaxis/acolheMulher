@@ -1,7 +1,16 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '../auth/AuthContext';
 
 export default function DashboardAdmin() {
+  const navigate = useNavigate();
+  const { logout } = useAuth();
+
+  function handleSair() {
+    logout();
+    navigate('/login');
+  }
+
   const dadosGrafico = [
     { mes: 'Abr', altura: 'h-16' },
     { mes: 'Mai', altura: 'h-20' },
@@ -39,7 +48,11 @@ export default function DashboardAdmin() {
           </nav>
         </div>
 
-        <button className="flex items-center gap-3 text-slate-400 hover:text-red-400 px-4 py-3 font-medium text-sm transition">
+        <button
+          type="button"
+          onClick={handleSair}
+          className="flex items-center gap-3 text-slate-400 hover:text-red-400 px-4 py-3 font-medium text-sm transition"
+        >
           Sair
         </button>
       </aside>

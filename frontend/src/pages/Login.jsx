@@ -1,18 +1,50 @@
-import { useState } from "react";
-import { Link } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
+import { useAuth } from "../auth/AuthContext";
 
 export default function Login() {
+  const navigate = useNavigate();
+  const { login: fazerLogin, bloqueadoAte, tentativasRestantes } = useAuth();
   const [login, setLogin] = useState("");
   const [senha, setSenha] = useState("");
   const [mostrarSenha, setMostrarSenha] = useState(false);
   const [lembrar, setLembrar] = useState(false);
   const [mensagem, setMensagem] = useState("");
+  const [enviando, setEnviando] = useState(false);
+  const [minutosBloqueio, setMinutosBloqueio] = useState(0);
 
-  function handleSubmit(event) {
+  useEffect(() => {
+    if (!bloqueadoAte) {
+      setMinutosBloqueio(0);
+      return;
+    }
+    const atualizar = () =>
+      setMinutosBloqueio(Math.max(0, Math.ceil((bloqueadoAte - Date.now()) / 60000)));
+    atualizar();
+    const timer = setInterval(atualizar, 1000);
+    return () => clearInterval(timer);
+  }, [bloqueadoAte]);
+
+  async function handleSubmit(event) {
     event.preventDefault();
-    setMensagem("O formulário ainda precisa ser conectado ao sistema de login.");
+    setMensagem("");
+    setEnviando(true);
+
+    const resultado = await fazerLogin(login, senha);
+
+    setEnviando(false);
+    if (resultado.ok) {
+      const destino =
+        resultado.usuario.perfil === "ADMINISTRADOR"
+          ? "/dashboard-admin"
+          : "/dashboard-profissional";
+      navigate(destino, { replace: true });
+      return;
+    }
+
+    setMensagem(resultado.mensagem || "E-mail ou senha inválidos.");
   }
 
   return (
@@ -181,7 +213,25 @@ export default function Login() {
               Faça login para acessar sua conta e continuar seu atendimento.
             </p>
 
-            <form onSubmit={handleSubmit} className="mt-6 space-y-4">
+            {bloqueadoAte && (
+              <p className="text-center text-sm text-[#DC3B57]" role="alert">
+                Sua conta está temporariamente bloqueada por várias tentativas
+                incorretas. Tente novamente em 
+                 <strong>  {minutosBloqueio} minuto(s)</strong>.
+              </p>
+            )}
+            {!bloqueadoAte && tentativasRestantes < 5 && (
+              <p className="text-center text-sm text-[#827A99]">
+                Tentativa{tentativasRestantes === 1 ? "" : "s"} restante(s):
+                <strong>{tentativasRestantes}</strong> de 5
+              </p>
+            )}
+
+            <form
+              onSubmit={handleSubmit}
+              className="mt-6 space-y-4"
+              disabled={bloqueadoAte || enviando}
+            >
               <div>
                 <label
                   htmlFor="login"
@@ -202,6 +252,7 @@ export default function Login() {
                   }}
                   placeholder="Digite seu e-mail"
                   required
+                  disabled={bloqueadoAte || enviando}
                   className="w-full rounded-full border border-gray-200 px-4 py-3 text-sm outline-none placeholder:text-gray-400 focus:border-primary focus:ring-2 focus:ring-primary/20"
                 />
               </div>
@@ -227,6 +278,7 @@ export default function Login() {
                     }}
                     placeholder="Digite sua senha"
                     required
+                    disabled={bloqueadoAte || enviando}
                     className="w-full rounded-full border border-gray-200 px-4 py-3 pr-12 text-sm outline-none placeholder:text-gray-400 focus:border-primary focus:ring-2 focus:ring-primary/20"
                   />
 
@@ -299,13 +351,22 @@ export default function Login() {
 
               <button
                 type="submit"
-                className="w-full rounded-full bg-primary py-3 text-sm font-semibold text-white transition hover:bg-primary-hover focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
+                disabled={bloqueadoAte || enviando}
+                className={`w-full rounded-full py-3 text-sm font-semibold text-white transition focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 ${
+                  bloqueadoAte || enviando
+                    ? "bg-gray-400 cursor-not-allowed"
+                    : "bg-primary hover:bg-primary-hover"
+                }`}
               >
-                Entrar
+                {enviando ? "Entrando..." : "Entrar"}
               </button>
 
               {mensagem && (
-                <p className="text-center text-sm text-gray-600" role="status">
+                <p
+                  className="text-center text-sm text-[#DC3B57]"
+                  role="alert"
+                  aria-live="polite"
+                >
                   {mensagem}
                 </p>
               )}
