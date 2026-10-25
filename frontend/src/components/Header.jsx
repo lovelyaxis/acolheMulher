@@ -1,6 +1,7 @@
 import {useState} from 'react';
-import { NavLink ,Link } from 'react-router-dom';
+import { NavLink ,Link, useNavigate } from 'react-router-dom';
 import logo from "../assets/logo-acolhemulher.png"
+import { useAuth } from "../auth/AuthContext";
 
 
 
@@ -14,6 +15,8 @@ const navItems = [
 ]
 export default function Header() {
     const [menuOpen, setMenuOpen] = useState(false);
+    const navigate = useNavigate();
+    const { usuario, estaAutenticado, logout } = useAuth();
     
     return (
         <header className='sticky top-0 z-50 border-b border-[#E7E1F5] bg-white font-inter'>
@@ -73,6 +76,31 @@ export default function Header() {
             </svg>
             Buscar atendimento
           </Link>
+
+          {estaAutenticado ? (
+            <div className="flex items-center gap-2">
+              <span className="hidden sm:block text-xs text-[#5B5770]">
+                {usuario?.nome}
+              </span>
+              <button
+                type="button"
+                onClick={() => {
+                  logout();
+                  navigate("/login");
+                }}
+                className="flex items-center gap-2 rounded-full border border-gray-200 px-5 py-2.5 text-sm font-semibold text-[#DC3B57] hover:bg-[#FCE7EC] font-inter"
+              >
+                Sair
+              </button>
+            </div>
+          ) : (
+            <Link
+              to="/login"
+              className="flex items-center gap-2 rounded-full border border-gray-200 px-5 py-2.5 text-sm font-semibold text-[#7B3FA6] hover:bg-[#F0E5FA] font-inter"
+            >
+              Entrar
+            </Link>
+          )}
         </div>
 
         {/* Botão hamburguer (mobile) */}

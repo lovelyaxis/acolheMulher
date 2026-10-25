@@ -1,5 +1,7 @@
 import { Link } from "react-router-dom";
 import { useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../auth/AuthContext";
 import {
   Heart,
   HeartHandshake,
@@ -154,6 +156,13 @@ export default function DashboardProfissional() {
     observacoes: "",
   });
   const [erros, setErros] = useState({});
+  const navigate = useNavigate();
+  const { logout } = useAuth();
+
+  function handleSair() {
+    logout();
+    navigate("/login");
+  }
 
   const pendentes = encaminhamentos.filter(
     (item) => item.status === "Pendente"
@@ -369,13 +378,14 @@ export default function DashboardProfissional() {
             </p>
           </div>
 
-          <a
-            href="/login"
+          <button
+            type="button"
+            onClick={handleSair}
             className="flex items-center gap-3 rounded-lg px-3 py-3 text-sm text-white/70 transition hover:bg-white/10 hover:text-white"
           >
             <LogOut size={17} />
             Sair
-          </a>
+          </button>
         </div>
       </aside>
 
