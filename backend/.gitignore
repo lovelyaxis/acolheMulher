@@ -1,0 +1,16 @@
+
+# Dependências do Node.js
+node_modules/
+
+# Arquivos de ambiente e informações sensíveis
+.env
+.env.*
+!.env.example
+
+# Logs
+npm-debug.log*
+*.log
+
+# Arquivos temporários
+.tmp/
+temp/
