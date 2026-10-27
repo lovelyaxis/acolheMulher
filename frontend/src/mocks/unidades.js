@@ -1,6 +1,8 @@
 // Dados simulados de unidades de atendimento (RF003, RF012).
 // Todos os registros são fictícios: nomes genéricos, endereços inventados
 // e telefones no formato (00) 0000-0000.
+// Somente Casas de Acolhimento têm vagasTotal e vagasDisponiveis (RF012);
+// os demais tipos não possuem campos de vagas.
 
 export const TIPOS_UNIDADE = Object.freeze([
   "Delegacia da Mulher",
@@ -20,7 +22,6 @@ export const unidades = [
     cep: "00000001",
     telefone: "(00) 0000-0001",
     horario: "Segunda a sexta, das 8h às 17h",
-    vagas: null,
     ativa: true,
     totalEncaminhamentos: 18,
   },
@@ -33,7 +34,6 @@ export const unidades = [
     cep: "00000002",
     telefone: "(00) 0000-0002",
     horario: "Segunda a sexta, das 8h às 17h",
-    vagas: null,
     ativa: false,
     totalEncaminhamentos: 3,
   },
@@ -46,7 +46,6 @@ export const unidades = [
     cep: "00000003",
     telefone: "(00) 0000-0003",
     horario: "Segunda a sexta, das 8h às 18h",
-    vagas: null,
     ativa: true,
     totalEncaminhamentos: 0,
   },
@@ -59,7 +58,6 @@ export const unidades = [
     cep: "00000004",
     telefone: "(00) 0000-0004",
     horario: "Segunda a sexta, das 8h às 18h",
-    vagas: null,
     ativa: true,
     totalEncaminhamentos: 6,
   },
@@ -72,7 +70,8 @@ export const unidades = [
     cep: "00000005",
     telefone: "(00) 0000-0005",
     horario: "24 horas, todos os dias",
-    vagas: 12,
+    vagasTotal: 18,
+    vagasDisponiveis: 12,
     ativa: true,
     totalEncaminhamentos: 4,
   },
@@ -85,7 +84,8 @@ export const unidades = [
     cep: "00000006",
     telefone: "(00) 0000-0006",
     horario: "24 horas, todos os dias",
-    vagas: 5,
+    vagasTotal: 10,
+    vagasDisponiveis: 0,
     ativa: true,
     totalEncaminhamentos: 0,
   },
@@ -98,7 +98,6 @@ export const unidades = [
     cep: "00000007",
     telefone: "(00) 0000-0007",
     horario: "Segunda a sexta, das 9h às 17h",
-    vagas: null,
     ativa: true,
     totalEncaminhamentos: 0,
   },
@@ -111,7 +110,6 @@ export const unidades = [
     cep: "00000008",
     telefone: "(00) 0000-0008",
     horario: "24 horas, todos os dias",
-    vagas: null,
     ativa: true,
     totalEncaminhamentos: 9,
   },

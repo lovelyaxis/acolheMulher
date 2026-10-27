@@ -4,6 +4,7 @@ import { Routes, Route, Navigate } from "react-router-dom";
 import Home from "./pages/Home";
 import Login from "./pages/Login";
 import RedeDeAtendimento from "./pages/RedeDeAtendimento";
+import RedeDeAtendimentoInterno from "./pages/RedeDeAtendimentoInterno";
 import DashboardProfissional from "./pages/DashboardProfissional";
 
 import DashboardAdmin from "./pages/DashboardAdmin";
@@ -40,6 +41,14 @@ export default function App() {
         element={
           <ProtectedRoute perfil="PROFISSIONAL">
             <DashboardProfissional />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/profissional/rede"
+        element={
+          <ProtectedRoute perfil={["PROFISSIONAL", "ADMINISTRADOR"]}>
+            <RedeDeAtendimentoInterno />
           </ProtectedRoute>
         }
       />
