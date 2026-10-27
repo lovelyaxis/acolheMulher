@@ -1,6 +1,6 @@
-// Card de unidade de atendimento para a consulta pública (RF003).
-// Não exibe `vagas`: esse dado é exclusivo da consulta interna (RF012).
-import { Clock, MapPin, Phone } from "lucide-react";
+// Card de unidade de atendimento para a consulta pública (RF003) e interna (RF012).
+// As vagas só são exibidas quando `mostrarVagas` é verdadeiro.
+import { BedDouble, Clock, MapPin, Phone } from "lucide-react";
 
 const formatarCep = (cep = "") => {
   const digitos = String(cep).replace(/\D/g, "");
@@ -13,10 +13,25 @@ const formatarCep = (cep = "") => {
 const linkTelefone = (telefone = "") =>
   `tel:${String(telefone).replace(/\D/g, "")}`;
 
-export default function CardUnidade({ unidade }) {
+export default function CardUnidade({ unidade, mostrarVagas = false }) {
   if (!unidade) return null;
 
   const { nome, tipo, endereco, bairro, cep, telefone, horario } = unidade;
+  const { vagasTotal, vagasDisponiveis } = unidade;
+
+  const exibirVagas =
+    mostrarVagas &&
+    tipo === "Casa de Acolhimento" &&
+    Number.isFinite(vagasTotal) &&
+    Number.isFinite(vagasDisponiveis) &&
+    vagasTotal >= 0 &&
+    vagasDisponiveis >= 0 &&
+    vagasDisponiveis <= vagasTotal;
+
+  const textoVagas =
+    vagasDisponiveis > 0
+      ? `${vagasDisponiveis} de ${vagasTotal} vagas disponíveis`
+      : "Nenhuma vaga disponível no momento";
 
   return (
     <article className="flex h-full flex-col rounded-2xl border border-brand/15 bg-white p-5 shadow-sm transition hover:border-brand/40 hover:shadow-md">
@@ -66,6 +81,17 @@ export default function CardUnidade({ unidade }) {
 
         <span>{horario}</span>
       </p>
+
+      {exibirVagas && (
+        <p className="mt-4 flex items-start gap-2 rounded-xl border border-brand/15 bg-page/60 px-4 py-3 text-sm font-medium text-navy">
+          <BedDouble
+            className="mt-0.5 h-4 w-4 shrink-0 text-brand"
+            aria-hidden="true"
+          />
+
+          <span>{textoVagas}</span>
+        </p>
+      )}
     </article>
   );
 }

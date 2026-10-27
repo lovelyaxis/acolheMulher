@@ -32,13 +32,13 @@ Antes de criar um arquivo novo, verifique se já existe um equivalente. Não dup
 Mock compartilhado em `frontend/src/mocks/unidades.js`. Toda tela usa este formato:
 
 - `id` (string), `nome`, `tipo`, `endereco`, `bairro`, `cep` (8 dígitos, sem traço), `telefone`, `horario`
-- `vagas` (número ou null), `ativa` (boolean), `totalEncaminhamentos` (número, só para simular a RN003)
+- `vagasTotal` e `vagasDisponiveis` (números, apenas em Casa de Acolhimento), `ativa` (boolean), `totalEncaminhamentos` (número, só para simular a RN003)
 - `tipo` aceita apenas: "Delegacia da Mulher", "CRAS/CREAS", "Casa de Acolhimento", "Defensoria Pública", "Hospital de Referência"
 
 Regras:
-- As páginas nunca importam o mock direto. Elas usam `frontend/src/services/unidadesService.js` (listar, buscar, criar, atualizar, inativar), para trocar por chamadas reais depois.
-- Consulta pública (RF003): não mostra `vagas` nem unidades inativas.
-- Consulta interna (RF012): mostra `vagas`; só para Profissional e Administrador logados.
+- As páginas nunca importam o mock direto. Elas usam `frontend/src/services/unidadesService.js` (listar, buscar, listar para a visão interna, criar, atualizar, inativar), para trocar por chamadas reais depois.
+- Consulta pública (RF003): não mostra vagas nem unidades inativas. As funções públicas do service (`listarUnidades` e `buscarUnidades`) removem os campos de vagas da resposta.
+- Consulta interna (RF012): usa `listarUnidadesInternas`, que devolve as vagas (ativas por padrão, com opção de incluir inativas); só para Profissional e Administrador logados.
 - Duplicidade (RN004): comparar nome + endereço ignorando maiúsculas, acentos e espaços extras.
 - Unidade com `totalEncaminhamentos > 0` só pode ser inativada, nunca excluída (RN003).
 - Proteção de rotas: se já existir contexto ou guard de autenticação no projeto, reutilize. Não crie outro.
