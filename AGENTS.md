@@ -40,6 +40,7 @@ Regras:
 - Consulta pública (RF003): não mostra vagas nem unidades inativas. As funções públicas do service (`listarUnidades` e `buscarUnidades`) removem os campos de vagas da resposta.
 - Consulta interna (RF012): usa `listarUnidadesInternas`, que devolve as vagas (ativas por padrão, com opção de incluir inativas); só para Profissional e Administrador logados.
 - Duplicidade (RN004): comparar nome + endereço ignorando maiúsculas, acentos e espaços extras.
+- Cadastro (RF014): usar `cadastrarUnidade`; a duplicidade é verificada por `existeUnidadeDuplicada` e rejeitada com `ErroUnidade` (código `UNIDADE_DUPLICADA`).
 - Unidade com `totalEncaminhamentos > 0` só pode ser inativada, nunca excluída (RN003).
 - Proteção de rotas: se já existir contexto ou guard de autenticação no projeto, reutilize. Não crie outro.
 - Não faça `git commit` nem `git push`. Quem faz isso é o usuário.

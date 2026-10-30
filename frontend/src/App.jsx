@@ -66,7 +66,14 @@ export default function App() {
         }
       />
 
-      <Route path="/cadastrar-unidade" element={<CadastroUnidade />} />
+      <Route
+        path="/cadastrar-unidade"
+        element={
+          <ProtectedRoute perfil="ADMINISTRADOR">
+            <CadastroUnidade />
+          </ProtectedRoute>
+        }
+      />
 
       <Route path="/tipos-de-acolhimento" element={<TiposDeAcolhimento />} />
 
