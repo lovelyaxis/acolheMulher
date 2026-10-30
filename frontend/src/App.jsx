@@ -9,6 +9,7 @@ import DashboardProfissional from "./pages/DashboardProfissional";
 
 import DashboardAdmin from "./pages/DashboardAdmin";
 import CadastroUnidade from "./pages/CadastroUnidade";
+import GerenciarUnidades from "./pages/GerenciarUnidades";
 import TiposDeAcolhimento from "./pages/TiposdeAcolhimento";
 import Ajuda from "./pages/Ajuda";
 import Sobre from "./pages/Sobre";
@@ -71,6 +72,15 @@ export default function App() {
         element={
           <ProtectedRoute perfil="ADMINISTRADOR">
             <CadastroUnidade />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/admin/unidades"
+        element={
+          <ProtectedRoute perfil="ADMINISTRADOR">
+            <GerenciarUnidades />
           </ProtectedRoute>
         }
       />
