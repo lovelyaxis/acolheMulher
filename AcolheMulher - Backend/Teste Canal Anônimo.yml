@@ -1,0 +1,22 @@
+info:
+  name: Teste Canal Anônimo
+  type: http
+  seq: 1
+
+http:
+  method: POST
+  url: http://localhost:3000/api/orientacoes-anonimas
+  body:
+    type: json
+    data: |-
+      {
+        "mensagem": "Mensagem fictícia para testar o canal de orientação.",
+        "categoria": "direitos"
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

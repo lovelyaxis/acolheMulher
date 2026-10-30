@@ -1,0 +1,25 @@
+info:
+  name: Teste Encaminhamento
+  type: http
+  seq: 1
+
+http:
+  method: POST
+  url: http://localhost:3000/api/encaminhamentos
+  body:
+    type: json
+    data: |-
+      {
+        "codigoCaso": "BRUNO-TESTE-001",
+        "tipoAtendimento": "Acolhimento social",
+        "unidadeDestinoId": "unidade-001",
+        "observacoes": "Encaminhamento fictício para teste.",
+        "profissionalId": "prof-demo-001"
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
