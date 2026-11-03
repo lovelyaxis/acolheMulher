@@ -1,0 +1,22 @@
+info:
+  name: Teste Dashboard Profissional
+  type: http
+  seq: 1
+
+http:
+  method: GET
+  url: http://localhost:3000/api/dashboard-profissional?profissionalId=prof-demo-001
+  params:
+    - name: profissionalId
+      value: prof-demo-001
+      type: query
+  body:
+    type: json
+    data: ""
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
