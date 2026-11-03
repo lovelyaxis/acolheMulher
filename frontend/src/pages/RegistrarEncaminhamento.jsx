@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Heart,
@@ -11,22 +11,18 @@ import {
   CheckCircle2,
 } from "lucide-react";
 
+const API_URL = "http://localhost:3000";
+
+// Identificador fictício do profissional para o protótipo.
+// Na versão real, deve vir da autenticação.
+const PROFISSIONAL_ID = "prof-demo-001";
+
 const servicosDisponiveis = [
   "Assistência social",
   "Apoio psicológico",
   "Orientação jurídica",
   "Atendimento de saúde",
   "Acolhimento especializado",
-];
-
-const unidadesDisponiveis = [
-  "Casa da Mulher Brasileira",
-  "Centro de referência",
-  "CRAS Centro",
-  "Defensoria Pública",
-  "Delegacia da Mulher (DEAM)",
-  "Hospital de Referência",
-  "Unidade de atendimento",
 ];
 
 export default function RegistrarEncaminhamento() {
@@ -38,8 +34,42 @@ export default function RegistrarEncaminhamento() {
     observacoes: "",
   });
 
+  const [unidadesDisponiveis, setUnidadesDisponiveis] = useState([]);
+  const [carregandoUnidades, setCarregandoUnidades] = useState(true);
+  const [enviando, setEnviando] = useState(false);
   const [erros, setErros] = useState({});
   const [mensagem, setMensagem] = useState("");
+  const [erroApi, setErroApi] = useState("");
+
+  // Buscar as unidades no backend quando abrir o formulário.
+  useEffect(() => {
+    async function carregarUnidades() {
+      try {
+        setCarregandoUnidades(true);
+        setErroApi("");
+
+        const resposta = await fetch(`${API_URL}/api/unidades`);
+
+        if (!resposta.ok) {
+          throw new Error("Não foi possível carregar as unidades.");
+        }
+
+        const dados = await resposta.json();
+
+        setUnidadesDisponiveis(
+          dados.filter((unidade) => unidade.ativa === true)
+        );
+      } catch (erro) {
+        setErroApi(
+          "Não foi possível carregar as unidades. Confira se o backend está funcionando."
+        );
+      } finally {
+        setCarregandoUnidades(false);
+      }
+    }
+
+    carregarUnidades();
+  }, []);
 
   function alterarCampo(campo, valor) {
     setFormulario((anterior) => ({
@@ -51,9 +81,11 @@ export default function RegistrarEncaminhamento() {
       ...anteriores,
       [campo]: "",
     }));
+
+    setErroApi("");
   }
 
-  function registrarEncaminhamento(evento) {
+  async function registrarEncaminhamento(evento) {
     evento.preventDefault();
 
     const novosErros = {};
@@ -66,46 +98,95 @@ export default function RegistrarEncaminhamento() {
       novosErros.destino = "Selecione a unidade de destino.";
     }
 
+    if (formulario.observacoes.length > 1000) {
+      novosErros.observacoes =
+        "As observações devem ter no máximo 1000 caracteres.";
+    }
+
     setErros(novosErros);
+    setErroApi("");
 
     if (Object.keys(novosErros).length > 0) {
       return;
     }
 
-    const chave = "acolheMulherEncaminhamentos";
+    // Gerar um código fictício para identificar o caso.
+    const codigoCaso = `AM-${Date.now()}`;
 
-    const encaminhamentosSalvos = JSON.parse(
-      sessionStorage.getItem(chave) || "[]"
-    );
-
-    const maiorCodigo = encaminhamentosSalvos.reduce(
-      (maior, item) => {
-        const numero = Number(item.codigo.replace("AM-", ""));
-        return Math.max(maior, numero);
-      },
-      24
-    );
-
-    const novoEncaminhamento = {
-      codigo: `AM-${String(maiorCodigo + 1).padStart(3, "0")}`,
-      servico: formulario.servico,
-      destino: formulario.destino,
-      data: new Date().toLocaleDateString("pt-BR"),
-      status: "Pendente",
+    // Enviar o ID da unidade, não apenas seu nome.
+    const dadosEnvio = {
+      codigoCaso,
+      tipoAtendimento: formulario.servico,
+      unidadeDestinoId: formulario.destino,
       observacoes: formulario.observacoes.trim(),
+      profissionalId: PROFISSIONAL_ID,
     };
 
-    sessionStorage.setItem(
-      chave,
-      JSON.stringify([
-        novoEncaminhamento,
-        ...encaminhamentosSalvos,
-      ])
-    );
+    try {
+      setEnviando(true);
 
-    setMensagem(
-      `Encaminhamento ${novoEncaminhamento.codigo} registrado nesta demonstração.`
-    );
+      const resposta = await fetch(`${API_URL}/api/encaminhamentos`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(dadosEnvio),
+      });
+
+      const resultado = await resposta.json();
+
+      if (!resposta.ok) {
+        throw new Error(
+          resultado.erro || "Não foi possível registrar o encaminhamento."
+        );
+      }
+
+      const encaminhamentoApi = resultado.encaminhamento;
+      const unidadeSelecionada = unidadesDisponiveis.find(
+        (unidade) => unidade.id === formulario.destino
+      );
+
+      // Guardar também na sessão do navegador para manter
+      // compatibilidade com partes existentes do frontend.
+      // O registro oficial desta operação foi enviado à API.
+      const chave = "acolheMulherEncaminhamentos";
+
+      const encaminhamentosSalvos = JSON.parse(
+        sessionStorage.getItem(chave) || "[]"
+      );
+
+      const novoEncaminhamento = {
+        codigo: codigoCaso,
+        codigoCaso: encaminhamentoApi.codigoCaso,
+        servico: encaminhamentoApi.tipoAtendimento,
+        destino: unidadeSelecionada?.nome || formulario.destino,
+        unidadeDestinoId: encaminhamentoApi.unidadeDestinoId,
+        data: new Date().toLocaleDateString("pt-BR"),
+        status: "Pendente",
+        observacoes: encaminhamentoApi.observacoes,
+        profissionalId: encaminhamentoApi.profissionalId,
+        id: encaminhamentoApi.id,
+      };
+
+      sessionStorage.setItem(
+        chave,
+        JSON.stringify([
+          novoEncaminhamento,
+          ...encaminhamentosSalvos,
+        ])
+      );
+
+      setMensagem(
+        `Encaminhamento ${codigoCaso} registrado com sucesso no backend.`
+      );
+    } catch (erro) {
+      setErroApi(
+        erro.message ||
+          "Não foi possível conectar ao backend. Tente novamente."
+      );
+    } finally {
+      setEnviando(false);
+    }
   }
 
   function voltarAoDashboard() {
@@ -201,6 +282,16 @@ export default function RegistrarEncaminhamento() {
               noValidate
               className="space-y-5 p-5 sm:p-6"
             >
+              {erroApi && (
+                <div
+                  role="alert"
+                  className="flex items-start gap-2 rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-red-700"
+                >
+                  <AlertCircle size={18} className="mt-0.5 shrink-0" />
+                  <p>{erroApi}</p>
+                </div>
+              )}
+
               <div>
                 <label
                   htmlFor="servico"
@@ -253,17 +344,25 @@ export default function RegistrarEncaminhamento() {
                   onChange={(evento) =>
                     alterarCampo("destino", evento.target.value)
                   }
+                  disabled={
+                    carregandoUnidades || unidadesDisponiveis.length === 0
+                  }
                   aria-invalid={Boolean(erros.destino)}
-                  className={`w-full rounded-xl border bg-white px-3 py-3 text-sm outline-none focus:ring-2 focus:ring-purple-100 ${
+                  className={`w-full rounded-xl border bg-white px-3 py-3 text-sm outline-none focus:ring-2 focus:ring-purple-100 disabled:cursor-not-allowed disabled:bg-gray-100 ${
                     erros.destino
                       ? "border-[#DC3B57]"
                       : "border-[#E5DFEF] focus:border-[#7B3FA6]"
                   }`}
                 >
-                  <option value="">Selecione uma unidade</option>
+                  <option value="">
+                    {carregandoUnidades
+                      ? "Carregando unidades..."
+                      : "Selecione uma unidade"}
+                  </option>
+
                   {unidadesDisponiveis.map((unidade) => (
-                    <option key={unidade} value={unidade}>
-                      {unidade}
+                    <option key={unidade.id} value={unidade.id}>
+                      {unidade.nome}
                     </option>
                   ))}
                 </select>
@@ -289,17 +388,24 @@ export default function RegistrarEncaminhamento() {
                 <textarea
                   id="observacoes"
                   rows={4}
-                  maxLength={300}
+                  maxLength={1000}
                   value={formulario.observacoes}
                   onChange={(evento) =>
                     alterarCampo("observacoes", evento.target.value)
                   }
                   placeholder="Informações gerais, sem dados pessoais identificáveis"
+                  aria-invalid={Boolean(erros.observacoes)}
                   className="w-full resize-y rounded-xl border border-[#E5DFEF] px-3 py-3 text-sm outline-none placeholder:text-[#A19AAF] focus:border-[#7B3FA6] focus:ring-2 focus:ring-purple-100"
                 />
 
+                {erros.observacoes && (
+                  <p className="mt-1.5 text-xs text-[#DC3B57]">
+                    {erros.observacoes}
+                  </p>
+                )}
+
                 <p className="mt-1 text-right text-xs text-[#948CA8]">
-                  {formulario.observacoes.length}/300
+                  {formulario.observacoes.length}/1000
                 </p>
               </div>
 
@@ -309,9 +415,9 @@ export default function RegistrarEncaminhamento() {
                     size={17}
                     className="mt-0.5 shrink-0 text-[#7B3FA6]"
                   />
-                  Não informe nomes, CPF, endereços ou outros
-                  dados que identifiquem a pessoa atendida.
-                  Este formulário é apenas demonstrativo.
+                  Não informe nomes, CPF, endereços ou outros dados
+                  que identifiquem a pessoa atendida. Este formulário
+                  é demonstrativo.
                 </p>
               </div>
 
@@ -319,17 +425,21 @@ export default function RegistrarEncaminhamento() {
                 <button
                   type="button"
                   onClick={voltarAoDashboard}
-                  className="min-h-11 rounded-full border border-[#E5DFEF] px-5 py-3 text-sm font-semibold text-[#625879] transition hover:bg-[#F5F0FC]"
+                  disabled={enviando}
+                  className="min-h-11 rounded-full border border-[#E5DFEF] px-5 py-3 text-sm font-semibold text-[#625879] transition hover:bg-[#F5F0FC] disabled:opacity-50"
                 >
                   Cancelar
                 </button>
 
                 <button
                   type="submit"
-                  className="inline-flex min-h-11 items-center justify-center gap-2 rounded-full bg-[#7B3FA6] px-5 py-3 text-sm font-semibold text-white transition hover:bg-[#63308A]"
+                  disabled={enviando || carregandoUnidades}
+                  className="inline-flex min-h-11 items-center justify-center gap-2 rounded-full bg-[#7B3FA6] px-5 py-3 text-sm font-semibold text-white transition hover:bg-[#63308A] disabled:cursor-not-allowed disabled:opacity-60"
                 >
                   <Send size={16} />
-                  Registrar encaminhamento
+                  {enviando
+                    ? "Enviando..."
+                    : "Registrar encaminhamento"}
                 </button>
               </div>
             </form>
@@ -338,8 +448,9 @@ export default function RegistrarEncaminhamento() {
 
         <p className="mt-5 flex items-start gap-2 text-xs leading-5 text-[#827A99]">
           <AlertCircle size={15} className="mt-0.5 shrink-0" />
-          Os dados são fictícios e ficam armazenados temporariamente
-          nesta sessão do navegador. Não são enviados a um banco de dados.
+          Os dados são fictícios. O encaminhamento é enviado à API
+          do protótipo e também fica temporariamente na sessão do
+          navegador. A API atual mantém os registros em memória.
         </p>
       </main>
     </div>

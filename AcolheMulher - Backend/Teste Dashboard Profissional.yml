@@ -10,6 +10,9 @@ http:
     - name: profissionalId
       value: prof-demo-001
       type: query
+  body:
+    type: json
+    data: ""
   auth: inherit
 
 settings:

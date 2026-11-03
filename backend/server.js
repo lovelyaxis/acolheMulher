@@ -4,6 +4,7 @@ const cors = require("cors");
 
 const {
   unidades,
+  usuarios,
   encaminhamentos,
   orientacoesAnonimas
 } = require("./data/mockData");
@@ -11,15 +12,21 @@ const {
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Permite chamadas do frontend durante o desenvolvimento.
-// Em produção, restringir a origem e configurar HTTPS.
 app.use(cors());
 app.use(express.json({ limit: "10kb" }));
 
-// Não adicionar middleware de log de requisições que registre
-// IP, cabeçalhos ou conteúdo de mensagens anônimas.
+// Não adicionar logs que armazenem IP ou conteúdo
+// de mensagens do canal anônimo.
 
-// Rota inicial para verificar se a API está funcionando.
+function buscarProfissional(id) {
+  return usuarios.find(
+    usuario =>
+      usuario.id === id &&
+      usuario.perfil === "profissional"
+  );
+}
+
+// Verificar se a API está funcionando.
 app.get("/api", (req, res) => {
   res.status(200).json({
     mensagem: "API AcolheMulher funcionando.",
@@ -27,10 +34,20 @@ app.get("/api", (req, res) => {
   });
 });
 
-// RF006 + RN001
-// Recebe uma mensagem sem exigir dados pessoais.
+// Listar usuários fictícios para testes.
+app.get("/api/usuarios", (req, res) => {
+  res.status(200).json(usuarios);
+});
+
+// Listar unidades de atendimento.
+app.get("/api/unidades", (req, res) => {
+  res.status(200).json(unidades);
+});
+
+// T15 / RF006 / RN001 - Canal de orientação anônima.
 app.post("/api/orientacoes-anonimas", (req, res) => {
-  const { mensagem, categoria } = req.body || {};
+  const corpo = req.body || {};
+  const { mensagem, categoria } = corpo;
 
   const categoriasPermitidas = [
     "direitos",
@@ -41,7 +58,7 @@ app.post("/api/orientacoes-anonimas", (req, res) => {
 
   if (
     typeof mensagem !== "string" ||
-    mensagem.trim().length === 0
+    mensagem.trim() === ""
   ) {
     return res.status(400).json({
       erro: "A mensagem é obrigatória."
@@ -63,29 +80,47 @@ app.post("/api/orientacoes-anonimas", (req, res) => {
     });
   }
 
-  // Guardamos exclusivamente o conteúdo e a categoria.
-  // Campos adicionais enviados pelo cliente são ignorados.
+  // Guardar somente a mensagem e a categoria.
+  // Não salvar campos adicionais enviados pelo cliente.
   orientacoesAnonimas.push({
     mensagem: mensagem.trim(),
     categoria
   });
 
   return res.status(201).json({
-    mensagem:
-      "Mensagem recebida no protótipo de orientação anônima."
+    mensagem: "Orientação recebida com sucesso."
   });
 });
 
-// RF011 + RN002
-// Registra um encaminhamento sem nome da pessoa atendida.
+// T13 / RF011 / RN002 - Registrar encaminhamento.
 app.post("/api/encaminhamentos", (req, res) => {
+  const corpo = req.body || {};
+
   const {
     codigoCaso,
     tipoAtendimento,
     unidadeDestinoId,
     observacoes,
     profissionalId
-  } = req.body || {};
+  } = corpo;
+
+  // Impedir dados pessoais da pessoa atendida.
+  const camposProibidos = [
+    "nome",
+    "nomeCompleto",
+    "cpf",
+    "telefone"
+  ];
+
+  const possuiDadosPessoais = camposProibidos.some(
+    campo => Object.prototype.hasOwnProperty.call(corpo, campo)
+  );
+
+  if (possuiDadosPessoais) {
+    return res.status(400).json({
+      erro: "Não é permitido informar dados pessoais."
+    });
+  }
 
   if (
     typeof codigoCaso !== "string" ||
@@ -97,43 +132,23 @@ app.post("/api/encaminhamentos", (req, res) => {
     });
   }
 
-  // Impede campos que claramente representam dados
-  // pessoais de serem aceitos neste contrato de API.
-  const camposProibidos = [
-    "nome",
-    "nomeCompleto",
-    "cpf",
-    "telefone"
-  ];
-
-  if (
-    camposProibidos.some((campo) =>
-      Object.prototype.hasOwnProperty.call(req.body, campo)
-    )
-  ) {
-    return res.status(400).json({
-      erro:
-        "O encaminhamento não deve conter dados pessoais da pessoa atendida."
-    });
-  }
-
   if (
     typeof tipoAtendimento !== "string" ||
-    !tipoAtendimento.trim() ||
-    tipoAtendimento.length > 100
+    tipoAtendimento.trim() === "" ||
+    tipoAtendimento.trim().length > 100
   ) {
     return res.status(400).json({
       erro: "Informe um tipo de atendimento válido."
     });
   }
 
-  if (
-    typeof unidadeDestinoId !== "string" ||
-    !unidades.some(
-      (unidade) =>
-        unidade.id === unidadeDestinoId && unidade.ativa
-    )
-  ) {
+  const unidadeExiste = unidades.some(
+    unidade =>
+      unidade.id === unidadeDestinoId &&
+      unidade.ativa === true
+  );
+
+  if (!unidadeExiste) {
     return res.status(400).json({
       erro: "A unidade de destino não existe ou está inativa."
     });
@@ -148,14 +163,11 @@ app.post("/api/encaminhamentos", (req, res) => {
     });
   }
 
-  // Identificador de demonstração: não substitui autenticação.
-  if (
-    typeof profissionalId !== "string" ||
-    !profissionalId.trim() ||
-    profissionalId.length > 50
-  ) {
+  const profissional = buscarProfissional(profissionalId);
+
+  if (!profissional) {
     return res.status(400).json({
-      erro: "Informe o identificador demonstrativo do profissional."
+      erro: "Profissional não encontrado."
     });
   }
 
@@ -168,7 +180,7 @@ app.post("/api/encaminhamentos", (req, res) => {
     unidadeDestinoId,
     observacoes: observacoes.trim(),
     status: "pendente",
-    profissionalId: profissionalId.trim(),
+    profissionalId: profissional.id,
     criadoEm: new Date().toISOString()
   };
 
@@ -180,56 +192,88 @@ app.post("/api/encaminhamentos", (req, res) => {
   });
 });
 
-// RF010 (apoio)
-// Retorna somente indicadores do profissional demonstrativo.
-// A versão real precisa identificar o profissional pela sessão
-// autenticada, e não confiar em um ID enviado pelo cliente.
+// T14 - Listar somente os encaminhamentos do profissional solicitado.
+app.get("/api/encaminhamentos", (req, res) => {
+  const { profissionalId } = req.query;
+
+  if (
+    typeof profissionalId !== "string" ||
+    profissionalId.trim() === ""
+  ) {
+    return res.status(400).json({
+      erro: "Informe o profissional."
+    });
+  }
+
+  const profissional = buscarProfissional(profissionalId);
+
+  if (!profissional) {
+    return res.status(404).json({
+      erro: "Profissional não encontrado."
+    });
+  }
+
+  const lista = encaminhamentos.filter(
+    item => item.profissionalId === profissional.id
+  );
+
+  return res.status(200).json(lista);
+});
+
+// RF010 - Indicadores do dashboard profissional.
 app.get("/api/dashboard-profissional", (req, res) => {
   const { profissionalId } = req.query;
 
   if (
     typeof profissionalId !== "string" ||
-    !profissionalId.trim()
+    profissionalId.trim() === ""
   ) {
     return res.status(400).json({
       erro: "Informe o profissional demonstrativo."
     });
   }
 
+  const profissional = buscarProfissional(profissionalId);
+
+  if (!profissional) {
+    return res.status(404).json({
+      erro: "Profissional não encontrado."
+    });
+  }
+
   const registros = encaminhamentos.filter(
-    (item) => item.profissionalId === profissionalId
+    item => item.profissionalId === profissional.id
   );
 
   const hoje = new Date().toISOString().slice(0, 10);
 
   const atendimentosHoje = registros.filter(
-    (item) => item.criadoEm.slice(0, 10) === hoje
+    item => item.criadoEm.slice(0, 10) === hoje
   ).length;
 
   const encaminhamentosPendentes = registros.filter(
-    (item) => item.status === "pendente"
+    item => item.status === "pendente"
   ).length;
 
   return res.status(200).json({
-    profissionalId,
+    profissionalId: profissional.id,
     atendimentosHoje,
     encaminhamentosPendentes,
     totalEncaminhamentos: registros.length
   });
 });
 
-// Tratamento simples para rotas inexistentes.
+// Responder quando uma rota não existir.
 app.use((req, res) => {
   res.status(404).json({
     erro: "Rota não encontrada."
   });
 });
 
-// Exportar o app permite testá-lo sem abrir uma porta
-// de rede durante os testes automatizados.
+// Permitir testes automatizados sem iniciar uma porta.
 module.exports = app;
 
-// Iniciar o servidor apenas quando executado diretamente.
+// Iniciar o servidor quando executado diretamente.
 if (require.main === module) {
   app.listen(PORT, () => {
     console.log(`API AcolheMulher em http://localhost:${PORT}`);
