@@ -27,6 +27,8 @@ import MeuPerfil from "./pages/MeuPerfil";
 import { AuthProvider } from "./auth/AuthContext";
 import ProtectedRoute from "./auth/ProtectedRoute";
 
+import EditarUnidade from "./pages/EditarUnidade";
+
 export default function App() {
   return (
     <AuthProvider>
@@ -132,6 +134,15 @@ export default function App() {
 />
 
 <Route path="/meu-perfil" element={<MeuPerfil />} />
+
+<Route
+  path="/admin/unidades/:id/editar"
+  element={
+    <ProtectedRoute perfil="ADMINISTRADOR">
+      <EditarUnidade />
+    </ProtectedRoute>
+  }
+/>
     </Routes>
     </AuthProvider>
   );
