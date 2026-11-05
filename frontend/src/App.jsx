@@ -9,6 +9,7 @@ import DashboardProfissional from "./pages/DashboardProfissional";
 
 import DashboardAdmin from "./pages/DashboardAdmin";
 import CadastroUnidade from "./pages/CadastroUnidade";
+import GerenciarUnidades from "./pages/GerenciarUnidades";
 import TiposDeAcolhimento from "./pages/TiposdeAcolhimento";
 import Ajuda from "./pages/Ajuda";
 import Sobre from "./pages/Sobre";
@@ -25,6 +26,8 @@ import MeuPerfil from "./pages/MeuPerfil";
 
 import { AuthProvider } from "./auth/AuthContext";
 import ProtectedRoute from "./auth/ProtectedRoute";
+
+import EditarUnidade from "./pages/EditarUnidade";
 
 export default function App() {
   return (
@@ -71,6 +74,15 @@ export default function App() {
         element={
           <ProtectedRoute perfil="ADMINISTRADOR">
             <CadastroUnidade />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/admin/unidades"
+        element={
+          <ProtectedRoute perfil="ADMINISTRADOR">
+            <GerenciarUnidades />
           </ProtectedRoute>
         }
       />
@@ -122,6 +134,15 @@ export default function App() {
 />
 
 <Route path="/meu-perfil" element={<MeuPerfil />} />
+
+<Route
+  path="/admin/unidades/:id/editar"
+  element={
+    <ProtectedRoute perfil="ADMINISTRADOR">
+      <EditarUnidade />
+    </ProtectedRoute>
+  }
+/>
     </Routes>
     </AuthProvider>
   );
