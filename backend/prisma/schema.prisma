@@ -1,0 +1,121 @@
+// schema.prisma — AcolheMulher
+// Referência oficial para as migrations do banco acolhemulher.
+// Modelo de dados alinhado com REQUISITOS.md, AGENTS.md e os mocks do frontend.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+/// Tabela 1 — usuario
+/// Armazena profissionais e administradores (RF007, RN004, RN005).
+model Usuario {
+  id            String   @id @default(uuid()) @db.VarChar(36)
+  nome          String   @db.VarChar(100)
+  email         String   @unique @db.VarChar(150)
+  senhaHash     String   @db.VarChar(255)
+  perfil        Perfil
+  cargo         String?  @db.VarChar(100)
+  unidadeId     String?  @db.VarChar(36)
+  ativo         Boolean  @default(true)
+  tentativasLogin Int    @default(0)
+  bloqueadoAte  DateTime? @db.DateTime
+  criadoEm      DateTime @db.Timestamp
+  atualizadoEm  DateTime @updatedAt @db.Timestamp
+
+  encaminhamentos Encaminhamento[]
+
+  unidade Unidade? @relation(fields: [unidadeId], references: [id], onDelete: SetNull)
+
+  @@index([email])
+  @@index([perfil])
+  @@index([unidadeId])
+}
+
+/// Tabela 2 — unidade
+/// Armazena as unidades da rede de atendimento (RF003, RF012, RF014, RF015, RN003, RN004).
+model Unidade {
+  id                  String   @id @default(uuid()) @db.VarChar(36)
+  nome                String   @db.VarChar(150)
+  tipo                TipoUnidade
+  endereco            String   @db.VarChar(200)
+  bairro              String   @db.VarChar(100)
+  cep                 String   @db.VarChar(9)
+  telefone            String?  @db.VarChar(20)
+  horario             String?  @db.VarChar(100)
+  ativa               Boolean  @default(true)
+  vagasTotal          Int?
+  vagasDisponiveis    Int?
+  nomeNormalizado     String   @db.VarChar(150)
+  enderecoNormalizado String   @db.VarChar(200)
+  criadoEm            DateTime @db.Timestamp
+  atualizadoEm        DateTime @updatedAt @db.Timestamp
+
+  encaminhamentosDestino Encaminhamento[]
+  profissionais      Usuario[]
+
+  @@unique([nomeNormalizado, enderecoNormalizado], name: "unidade_duplicidade_unique")
+  @@index([tipo])
+  @@index([ativa])
+  @@index([nomeNormalizado, enderecoNormalizado])
+}
+
+/// Tabela 3 — encaminhamento
+/// Armazena encaminhamentos realizados pelos profissionais (RF011, RN002, RN003).
+model Encaminhamento {
+  id               String      @id @default(uuid()) @db.VarChar(36)
+  codigoCaso       String      @unique @db.VarChar(50)
+  tipoAtendimento  String      @db.VarChar(100)
+  unidadeDestinoId String      @db.VarChar(36)
+  observacoes      String?     @db.Text
+  status           StatusEncaminhamento @default(PENDENTE)
+  profissionalId   String      @db.VarChar(36)
+  criadoEm         DateTime    @db.Timestamp
+  atualizadoEm     DateTime    @updatedAt @db.Timestamp
+
+  profissional Usuario @relation(fields: [profissionalId], references: [id], onDelete: Restrict)
+  unidadeDestino Unidade @relation(fields: [unidadeDestinoId], references: [id], onDelete: Restrict)
+
+  @@index([profissionalId])
+  @@index([unidadeDestinoId])
+  @@index([status])
+  @@index([codigoCaso], name: "encaminhamento_codigo_caso_idx")
+}
+
+/// Tabela 4 — orientacaoAnonima
+/// Armazena mensagens do canal anônimo (RF006, RN001, RNF001).
+/// Sem vínculo com usuário, sem IP, sem dados de identificação.
+model OrientacaoAnonima {
+  id        String   @id @default(uuid()) @db.VarChar(36)
+  mensagem  String   @db.Text
+  categoria String   @db.VarChar(100)
+  criadoEm  DateTime @db.Timestamp
+
+  @@index([criadoEm])
+}
+
+/// ENUM — Perfil do usuário
+enum Perfil {
+  PROFISSIONAL
+  ADMINISTRADOR
+}
+
+/// ENUM — Tipo de unidade de atendimento
+enum TipoUnidade {
+  DELEGACIA_MULHER
+  CRAS_CREAS
+  CASA_ACOLHIMENTO
+  DEFENSORIA_PUBLICA
+  HOSPITAL_REFERENCIA
+}
+
+/// ENUM — Status do encaminhamento
+/// Valores alinhados frontend/backend/banco. Novos status devem ser combinados com Guilherme.
+enum StatusEncaminhamento {
+  PENDENTE
+  CONCLUIDO
+}
