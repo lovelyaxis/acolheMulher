@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../auth/AuthContext";
 import {
@@ -27,6 +27,8 @@ import {
   Send,
   ShieldCheck,
 } from "lucide-react";
+const API_URL = "http://localhost:3000";
+const PROFISSIONAL_ID = "prof-demo-001";
 
 const encaminhamentosIniciais = [
   {
@@ -129,19 +131,11 @@ function CartaoMetrica({ titulo, valor, icone, cor }) {
 }
 
 export default function DashboardProfissional() {
-  const [encaminhamentos, setEncaminhamentos] = useState(() => {
-  const salvos = sessionStorage.getItem("acolheMulherEncaminhamentos");
+  const [encaminhamentos, setEncaminhamentos] = useState([]);
+  const [unidades, setUnidades] = useState([]);
+  const [carregando, setCarregando] = useState(true);
+  const [erroApi, setErroApi] = useState("");
 
-  return salvos
-    ? [...JSON.parse(salvos), ...encaminhamentosIniciais]
-        .filter(
-          (item, indice, lista) =>
-            lista.findIndex(
-              (outro) => outro.codigo === item.codigo
-            ) === indice
-        )
-    : encaminhamentosIniciais;
-});
   const [menuAberto, setMenuAberto] = useState(false);
   const [busca, setBusca] = useState("");
   const [filtro, setFiltro] = useState("Todos");
@@ -158,6 +152,78 @@ export default function DashboardProfissional() {
   const [erros, setErros] = useState({});
   const navigate = useNavigate();
   const { logout } = useAuth();
+  async function carregarEncaminhamentos() {
+  try {
+    setErroApi("");
+
+    const respostaUnidades = await fetch(`${API_URL}/api/unidades`);
+
+    if (!respostaUnidades.ok) {
+      throw new Error("Não foi possível carregar as unidades.");
+    }
+
+    const dadosUnidades = await respostaUnidades.json();
+
+    const listaUnidades = Array.isArray(dadosUnidades)
+      ? dadosUnidades
+      : dadosUnidades.unidades || [];
+
+    setUnidades(listaUnidades.filter((unidade) => unidade.ativa === true));
+
+    const respostaEncaminhamentos = await fetch(
+      `${API_URL}/api/encaminhamentos?profissionalId=${PROFISSIONAL_ID}`
+    );
+
+    if (!respostaEncaminhamentos.ok) {
+      throw new Error("Não foi possível carregar os encaminhamentos.");
+    }
+
+    const dados = await respostaEncaminhamentos.json();
+
+    const lista = Array.isArray(dados)
+      ? dados
+      : dados.encaminhamentos || [];
+
+    const encaminhamentosFormatados = lista.map((item) => {
+      const unidade = listaUnidades.find(
+        (u) => u.id === item.unidadeDestinoId
+      );
+
+      const statusOriginal = String(item.status || "").toLowerCase();
+
+      let status = "Pendente";
+
+      if (statusOriginal === "concluido" || statusOriginal === "concluído") {
+        status = "Concluído";
+      } else if (statusOriginal === "cancelado") {
+        status = "Cancelado";
+      }
+
+      const dataRegistro = item.criadoEm
+        ? new Date(item.criadoEm).toLocaleDateString("pt-BR")
+        : "";
+
+      return {
+        codigo: item.codigoCaso || item.codigo || item.id,
+        servico: item.tipoAtendimento || item.servico || "",
+        destino: unidade?.nome || item.unidadeDestinoId || "Unidade não identificada",
+        data: dataRegistro,
+        status,
+        observacoes: item.observacoes || "",
+      };
+    });
+
+    setEncaminhamentos(encaminhamentosFormatados);
+  } catch (erro) {
+    setErroApi(erro.message || "Erro ao conectar com o backend.");
+  } finally {
+    setCarregando(false);
+  }
+}
+
+useEffect(() => {
+  carregarEncaminhamentos();
+}, []);
 
   function handleSair() {
     logout();
@@ -226,51 +292,70 @@ export default function DashboardProfissional() {
     }));
   }
 
-  function registrarEncaminhamento(evento) {
-    evento.preventDefault();
 
-    const novosErros = {};
+async function registrarEncaminhamento(evento) {
+  evento.preventDefault();
 
-    if (!formulario.servico) {
-      novosErros.servico = "Selecione o tipo de atendimento.";
+  const novosErros = {};
+
+  if (!formulario.servico) {
+    novosErros.servico = "Selecione o tipo de atendimento.";
+  }
+
+  if (!formulario.destino) {
+    novosErros.destino = "Selecione a unidade de destino.";
+  }
+
+  setErros(novosErros);
+
+  if (Object.keys(novosErros).length > 0) {
+    return;
+  }
+
+  try {
+    const codigoCaso = `AM-${Date.now()}`;
+
+    const resposta = await fetch(`${API_URL}/api/encaminhamentos`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        codigoCaso,
+        tipoAtendimento: formulario.servico,
+        unidadeDestinoId: formulario.destino,
+        observacoes: formulario.observacoes.trim(),
+        profissionalId: PROFISSIONAL_ID,
+      }),
+    });
+
+    const resultado = await resposta.json();
+
+    if (!resposta.ok) {
+      throw new Error(
+        resultado.erro ||
+        resultado.mensagem ||
+        "Não foi possível registrar o encaminhamento."
+      );
     }
 
-    if (!formulario.destino) {
-      novosErros.destino = "Selecione a unidade de destino.";
-    }
-
-    setErros(novosErros);
-
-    if (Object.keys(novosErros).length > 0) {
-      return;
-    }
-
-    const maiorCodigo = encaminhamentos.reduce((maior, item) => {
-      const numero = Number(item.codigo.replace("AM-", ""));
-      return Math.max(maior, numero);
-    }, 0);
-
-    const novoEncaminhamento = {
-      codigo: `AM-${String(maiorCodigo + 1).padStart(3, "0")}`,
-      servico: formulario.servico,
-      destino: formulario.destino,
-      data: new Date().toLocaleDateString("pt-BR"),
-      status: "Pendente",
-      observacoes: formulario.observacoes.trim(),
-    };
-
-    setEncaminhamentos((anteriores) => [
-      novoEncaminhamento,
-      ...anteriores,
-    ]);
+    await carregarEncaminhamentos();
 
     setBusca("");
     setFiltro("Todos");
     fecharModal();
+
     mostrarMensagem(
-      `Encaminhamento ${novoEncaminhamento.codigo} registrado nesta demonstração.`
+      `Encaminhamento ${codigoCaso} registrado com sucesso.`
+    );
+  } catch (erro) {
+    mostrarMensagem(
+      erro.message || "Não foi possível conectar ao backend.",
+      "erro"
     );
   }
+}
+
 
   function limparFiltros() {
     setBusca("");
@@ -753,9 +838,9 @@ export default function DashboardProfissional() {
                   size={15}
                   className="mt-0.5 shrink-0 text-[#7B3FA6]"
                 />
-                Demonstração acadêmica: todos os registros são fictícios.
-                Os novos encaminhamentos existem apenas enquanto esta página
-                permanecer aberta e não são enviados a um banco de dados.
+               Demonstração acadêmica: os registros são fictícios.
+Os encaminhamentos são enviados à API e ficam armazenados
+em memória enquanto o servidor estiver em execução.
               </p>
             </div>
           </section>
@@ -876,11 +961,11 @@ export default function DashboardProfissional() {
                   }`}
                 >
                   <option value="">Selecione uma unidade</option>
-                  {unidadesDisponiveis.map((unidade) => (
-                    <option key={unidade} value={unidade}>
-                      {unidade}
-                    </option>
-                  ))}
+                  {unidades.map((unidade) => (
+  <option key={unidade.id} value={unidade.id}>
+    {unidade.nome}
+  </option>
+))}
                 </select>
                 {erros.destino && (
                   <p

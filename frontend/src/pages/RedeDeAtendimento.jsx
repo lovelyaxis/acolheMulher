@@ -15,6 +15,12 @@ import {
 } from "lucide-react"
 import Footer from "../components/Footer";
 import Header from "../components/Header"
+import BuscaUnidades from "../components/BuscaUnidades";
+import { buscarUnidades } from "../services/unidadesService";
+
+// Consulta pública da rede de atendimento (RF003).
+// A tela nunca importa o mock: os dados vêm apenas de buscarUnidades e as
+// vagas não são exibidas aqui (consulta interna é a RF012).
 
 export default function RedeDeAtendimento() {
   const servicos = [
@@ -130,11 +136,11 @@ export default function RedeDeAtendimento() {
 
             <div className="mt-7 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
               <a
-                href="#servicos"
+                href="#busca"
                 className="inline-flex items-center justify-center gap-2 rounded-xl bg-brand px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-primary-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
               >
                 <Search className="h-4 w-4" />
-                Conhecer os serviços
+                Buscar atendimento
               </a>
 
               <a
@@ -166,6 +172,34 @@ export default function RedeDeAtendimento() {
               </p>
             </div>
           </div>
+        </div>
+      </section>
+
+      {/* Busca na rede de atendimento (RF003) */}
+      <section
+        id="busca"
+        aria-labelledby="busca-titulo"
+        className="scroll-mt-24 border-b border-brand/10 bg-page px-5 py-12 sm:px-8 md:py-16"
+      >
+        <div className="mx-auto max-w-6xl">
+          <span className="text-xs font-bold uppercase tracking-wider text-brand">
+            Consulta pública
+          </span>
+
+          <h2
+            id="busca-titulo"
+            className="mt-2 text-2xl font-bold text-navy sm:text-3xl"
+          >
+            Encontre ajuda perto de você
+          </h2>
+
+          <p className="mt-3 max-w-2xl text-sm leading-6 text-gray-700 sm:text-base">
+            Informe seu CEP ou o nome do bairro para ver as unidades da rede
+            de proteção. Você pode consultar sem se identificar e sem
+            informar nenhum dado pessoal.
+          </p>
+
+          <BuscaUnidades buscar={buscarUnidades} idPrefixo="busca" />
         </div>
       </section>
 

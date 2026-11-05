@@ -1,23 +1,71 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
+import {
+  MENSAGEM_UNIDADE_DUPLICADA,
+  TIPOS_UNIDADE,
+  cadastrarUnidade,
+  existeUnidadeDuplicada,
+} from '../services/unidadesService';
+
+const FORMULARIO_INICIAL = {
+  nome: '',
+  tipo: '',
+  telefone: '',
+  endereco: '',
+  horario: '',
+  capacidade: '',
+  vagasDisponiveis: '',
+};
 
 export default function CadastroUnidade() {
-  const [formData, setFormData] = useState({
-    nome: '',
-    tipo: '',
-    telefone: '',
-    endereco: '',
-    horario: '',
-    capacidade: ''
-  });
+  const [formData, setFormData] = useState(FORMULARIO_INICIAL);
+  const [enviando, setEnviando] = useState(false);
+  const [feedback, setFeedback] = useState(null);
+
+  const ehCasa = formData.tipo === 'Casa de Acolhimento';
 
   const handleChange = (e) => {
+    setFeedback(null);
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log('Unidade salva:', formData);
+    setFeedback(null);
+
+    const dados = {
+      nome: formData.nome,
+      tipo: formData.tipo,
+      endereco: formData.endereco,
+      telefone: formData.telefone,
+      horario: formData.horario,
+      vagasTotal: formData.capacidade,
+      vagasDisponiveis: formData.vagasDisponiveis,
+    };
+
+    if (existeUnidadeDuplicada(dados)) {
+      setFeedback({ tipo: 'erro', mensagem: MENSAGEM_UNIDADE_DUPLICADA });
+      return;
+    }
+
+    setEnviando(true);
+
+    try {
+      const unidade = await cadastrarUnidade(dados);
+
+      setFeedback({
+        tipo: 'sucesso',
+        mensagem: `Unidade "${unidade.nome}" cadastrada com sucesso.`,
+      });
+      setFormData(FORMULARIO_INICIAL);
+    } catch (erro) {
+      setFeedback({
+        tipo: 'erro',
+        mensagem: erro?.message || 'Não foi possível cadastrar a unidade agora.',
+      });
+    } finally {
+      setEnviando(false);
+    }
   };
 
   return (
@@ -70,6 +118,19 @@ export default function CadastroUnidade() {
         <section className="bg-white max-w-3xl rounded-2xl border border-purple-100 shadow-sm p-6 md:p-8">
           <h2 className="text-sm font-bold text-slate-900 mb-6">Dados da unidade</h2>
 
+          {feedback && (
+            <div
+              role={feedback.tipo === 'erro' ? 'alert' : 'status'}
+              className={`mb-5 rounded-xl border px-4 py-3 text-xs font-medium ${
+                feedback.tipo === 'erro'
+                  ? 'border-red-200 bg-red-50 text-red-700'
+                  : 'border-emerald-200 bg-emerald-50 text-emerald-700'
+              }`}
+            >
+              {feedback.mensagem}
+            </div>
+          )}
+
           <form onSubmit={handleSubmit} className="space-y-5">
             <div>
               <label className="block text-xs font-semibold text-slate-700 mb-1">Nome da unidade*</label>
@@ -95,10 +156,11 @@ export default function CadastroUnidade() {
                   className="w-full px-4 py-2.5 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:bg-white transition text-slate-600"
                 >
                   <option value="">Selecione o tipo</option>
-                  <option value="casa_acolhimento">Casa de Acolhimento</option>
-                  <option value="deam">Delegacia da Mulher (DEAM)</option>
-                  <option value="cras">CRAS / CREAS</option>
-                  <option value="saude">Unidade de Saúde</option>
+                  {TIPOS_UNIDADE.map((item) => (
+                    <option key={item} value={item}>
+                      {item}
+                    </option>
+                  ))}
                 </select>
               </div>
 
@@ -141,21 +203,47 @@ export default function CadastroUnidade() {
                 />
               </div>
 
-              <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1">Capacidade / vagas</label>
-                <input
-                  type="text"
-                  name="capacidade"
-                  value={formData.capacidade}
-                  onChange={handleChange}
-                  placeholder="Ex.: 20 (se aplicável)"
-                  className="w-full px-4 py-2.5 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:bg-white transition"
-                />
-              </div>
+              {ehCasa && (
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">Capacidade / vagas</label>
+                  <input
+                    type="text"
+                    inputMode="numeric"
+                    name="capacidade"
+                    value={formData.capacidade}
+                    onChange={handleChange}
+                    placeholder="Ex.: 20 (se aplicável)"
+                    required
+                    className="w-full px-4 py-2.5 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:bg-white transition"
+                  />
+                </div>
+              )}
             </div>
 
+            {ehCasa && (
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 mb-1">Vagas disponíveis</label>
+                <input
+                  type="text"
+                  inputMode="numeric"
+                  name="vagasDisponiveis"
+                  value={formData.vagasDisponiveis}
+                  onChange={handleChange}
+                  placeholder="Ex.: 5 (opcional)"
+                  className="w-full px-4 py-2.5 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:bg-white transition"
+                />
+                <p className="mt-1 text-xs text-slate-400">
+                  Se ficar em branco, usaremos o total informado.
+                </p>
+              </div>
+            )}
+
             <div className="flex items-center gap-3 pt-4">
-              <button type="submit" className="bg-purple-600 hover:bg-purple-700 text-white font-medium text-xs px-6 py-2.5 rounded-xl shadow-sm transition">
+              <button
+                type="submit"
+                disabled={enviando}
+                className="bg-purple-600 hover:bg-purple-700 text-white font-medium text-xs px-6 py-2.5 rounded-xl shadow-sm transition disabled:cursor-not-allowed disabled:opacity-60"
+              >
                 Salvar
               </button>
               <button type="button" className="bg-white hover:bg-slate-100 text-slate-600 font-medium text-xs px-6 py-2.5 rounded-xl border border-slate-200 transition">

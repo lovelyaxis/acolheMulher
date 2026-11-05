@@ -4,10 +4,12 @@ import { Routes, Route, Navigate } from "react-router-dom";
 import Home from "./pages/Home";
 import Login from "./pages/Login";
 import RedeDeAtendimento from "./pages/RedeDeAtendimento";
+import RedeDeAtendimentoInterno from "./pages/RedeDeAtendimentoInterno";
 import DashboardProfissional from "./pages/DashboardProfissional";
 
 import DashboardAdmin from "./pages/DashboardAdmin";
 import CadastroUnidade from "./pages/CadastroUnidade";
+import GerenciarUnidades from "./pages/GerenciarUnidades";
 import TiposDeAcolhimento from "./pages/TiposdeAcolhimento";
 import Ajuda from "./pages/Ajuda";
 import Sobre from "./pages/Sobre";
@@ -24,6 +26,8 @@ import MeuPerfil from "./pages/MeuPerfil";
 
 import { AuthProvider } from "./auth/AuthContext";
 import ProtectedRoute from "./auth/ProtectedRoute";
+
+import EditarUnidade from "./pages/EditarUnidade";
 
 export default function App() {
   return (
@@ -43,6 +47,14 @@ export default function App() {
           </ProtectedRoute>
         }
       />
+      <Route
+        path="/profissional/rede"
+        element={
+          <ProtectedRoute perfil={["PROFISSIONAL", "ADMINISTRADOR"]}>
+            <RedeDeAtendimentoInterno />
+          </ProtectedRoute>
+        }
+      />
       <Route path="*" element={<Navigate to="/login" replace />} />
       <Route path="/cadastro-luna" element={<CadastroLuna />} />
 
@@ -57,7 +69,23 @@ export default function App() {
         }
       />
 
-      <Route path="/cadastrar-unidade" element={<CadastroUnidade />} />
+      <Route
+        path="/cadastrar-unidade"
+        element={
+          <ProtectedRoute perfil="ADMINISTRADOR">
+            <CadastroUnidade />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/admin/unidades"
+        element={
+          <ProtectedRoute perfil="ADMINISTRADOR">
+            <GerenciarUnidades />
+          </ProtectedRoute>
+        }
+      />
 
       <Route path="/tipos-de-acolhimento" element={<TiposDeAcolhimento />} />
 
@@ -106,6 +134,15 @@ export default function App() {
 />
 
 <Route path="/meu-perfil" element={<MeuPerfil />} />
+
+<Route
+  path="/admin/unidades/:id/editar"
+  element={
+    <ProtectedRoute perfil="ADMINISTRADOR">
+      <EditarUnidade />
+    </ProtectedRoute>
+  }
+/>
     </Routes>
     </AuthProvider>
   );
