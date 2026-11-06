@@ -2,6 +2,7 @@ require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
 const authRoutes = require("./src/routes/auth");
+const unidadesRoutes = require("./src/routes/unidades");
 
 const {
   unidades,
@@ -16,6 +17,7 @@ const PORT = process.env.PORT || 3000;
 app.use(cors());
 app.use(express.json({ limit: "10kb" }));
 app.use("/api/auth", authRoutes);
+app.use("/api/unidades", unidadesRoutes);
 
 // Não adicionar logs que armazenem IP ou conteúdo
 // de mensagens do canal anônimo.
@@ -41,10 +43,7 @@ app.get("/api/usuarios", (req, res) => {
   res.status(200).json(usuarios);
 });
 
-// Listar unidades de atendimento.
-app.get("/api/unidades", (req, res) => {
-  res.status(200).json(unidades);
-});
+
 
 // T15 / RF006 / RN001 - Canal de orientação anônima.
 app.post("/api/orientacoes-anonimas", (req, res) => {
