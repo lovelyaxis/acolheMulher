@@ -6,13 +6,8 @@ const unidadesRoutes = require("./src/routes/unidades");
 const usuariosRoutes = require("./src/routes/usuarios");
 const encaminhamentosRoutes = require("./src/routes/encaminhamentos");
 const orientacoesRoutes = require("./src/routes/orientacoes");
+const dashboardRoutes = require("./src/routes/dashboard");
 
-const {
-  unidades,
-  usuarios,
-  encaminhamentos,
-  orientacoesAnonimas
-} = require("./data/mockData");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -24,73 +19,17 @@ app.use("/api/unidades", unidadesRoutes);
 app.use("/api/usuarios", usuariosRoutes);
 app.use("/api/encaminhamentos", encaminhamentosRoutes);
 app.use("/api/orientacoes-anonimas", orientacoesRoutes);
+app.use("/api/dashboard", dashboardRoutes);
 
 // Não adicionar logs que armazenem IP ou conteúdo
 // de mensagens do canal anônimo.
 
-function buscarProfissional(id) {
-  return usuarios.find(
-    usuario =>
-      usuario.id === id &&
-      usuario.perfil === "profissional"
-  );
-}
 
 // Verificar se a API está funcionando.
 app.get("/api", (req, res) => {
   res.status(200).json({
     mensagem: "API AcolheMulher funcionando.",
     ambiente: "prototipo-academico"
-  });
-});
-
-
-
-
-
-
-
-
-// RF010 - Indicadores do dashboard profissional.
-app.get("/api/dashboard-profissional", (req, res) => {
-  const { profissionalId } = req.query;
-
-  if (
-    typeof profissionalId !== "string" ||
-    profissionalId.trim() === ""
-  ) {
-    return res.status(400).json({
-      erro: "Informe o profissional demonstrativo."
-    });
-  }
-
-  const profissional = buscarProfissional(profissionalId);
-
-  if (!profissional) {
-    return res.status(404).json({
-      erro: "Profissional não encontrado."
-    });
-  }
-
-  const registros = encaminhamentos.filter(
-    item => item.profissionalId === profissional.id
-  );
-
-  const hoje = new Date().toISOString().slice(0, 10);
-
-  const atendimentosHoje = registros.filter(
-    item => item.criadoEm.slice(0, 10) === hoje
-  ).length;
-
-  const encaminhamentosPendentes = registros.filter(
-    item => item.status === "pendente"
-  ).length;
-
-  return res.status(200).json({
-    profissionalId: profissional.id,
-    atendimentosHoje,
-    encaminhamentosPendentes,
-    totalEncaminhamentos: registros.length
   });
 });
 
