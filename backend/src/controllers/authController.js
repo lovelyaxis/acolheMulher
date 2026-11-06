@@ -53,7 +53,8 @@ async function login(req, res) {
     if (usuario.bloqueadoAte && usuario.bloqueadoAte > agora) {
       const minutos = Math.ceil((usuario.bloqueadoAte - agora) / 60000);
       return res.status(429).json({
-        erro: `Conta temporariamente bloqueada. Tente novamente em ${minutos} minuto(s).`
+        erro: `Conta temporariamente bloqueada. Tente novamente em ${minutos} minuto(s).`,
+        bloqueadoAte: usuario.bloqueadoAte.getTime()
       });
     }
 
@@ -66,19 +67,22 @@ async function login(req, res) {
       const novasTentativas = tentativasAtuais + 1;
       const bloquear = novasTentativas >= MAX_TENTATIVAS;
 
+            const bloqueioAte = bloquear
+        ? new Date(agora.getTime() + MINUTOS_BLOQUEIO * 60 * 1000)
+        : null;
+
       await prisma.usuario.update({
         where: { id: usuario.id },
         data: {
           tentativasLogin: novasTentativas,
-          bloqueadoAte: bloquear
-            ? new Date(agora.getTime() + MINUTOS_BLOQUEIO * 60 * 1000)
-            : null
+          bloqueadoAte: bloqueioAte
         }
       });
 
       if (bloquear) {
         return res.status(429).json({
-          erro: `Conta bloqueada por ${MINUTOS_BLOQUEIO} minutos após ${MAX_TENTATIVAS} tentativas incorretas.`
+          erro: `Conta bloqueada por ${MINUTOS_BLOQUEIO} minutos após ${MAX_TENTATIVAS} tentativas incorretas.`,
+          bloqueadoAte: bloqueioAte.getTime()
         });
       }
 

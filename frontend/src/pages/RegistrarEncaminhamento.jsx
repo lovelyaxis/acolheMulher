@@ -1,4 +1,5 @@
-
+import { api } from "../services/api";
+import { listarUnidadesInternas } from "../services/unidadesService";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import {
@@ -11,11 +12,11 @@ import {
   CheckCircle2,
 } from "lucide-react";
 
-const API_URL = "http://localhost:3000";
+
 
 // Identificador fictício do profissional para o protótipo.
 // Na versão real, deve vir da autenticação.
-const PROFISSIONAL_ID = "prof-demo-001";
+
 
 const servicosDisponiveis = [
   "Assistência social",
@@ -42,34 +43,31 @@ export default function RegistrarEncaminhamento() {
   const [erroApi, setErroApi] = useState("");
 
   // Buscar as unidades no backend quando abrir o formulário.
-  useEffect(() => {
-    async function carregarUnidades() {
-      try {
-        setCarregandoUnidades(true);
-        setErroApi("");
+  // Buscar as unidades ativas no backend.
+useEffect(() => {
+  async function carregarUnidades() {
+    try {
+      setCarregandoUnidades(true);
+      setErroApi("");
 
-        const resposta = await fetch(`${API_URL}/api/unidades`);
+      const dados = await listarUnidadesInternas();
 
-        if (!resposta.ok) {
-          throw new Error("Não foi possível carregar as unidades.");
-        }
-
-        const dados = await resposta.json();
-
-        setUnidadesDisponiveis(
-          dados.filter((unidade) => unidade.ativa === true)
-        );
-      } catch (erro) {
-        setErroApi(
-          "Não foi possível carregar as unidades. Confira se o backend está funcionando."
-        );
-      } finally {
-        setCarregandoUnidades(false);
-      }
+      // O backend já filtra as unidades disponíveis
+      // para o profissional autenticado.
+      setUnidadesDisponiveis(dados);
+    } catch (erro) {
+      setUnidadesDisponiveis([]);
+      setErroApi(
+        erro.message ||
+          "Não foi possível carregar as unidades. Verifique se o backend está funcionando."
+      );
+    } finally {
+      setCarregandoUnidades(false);
     }
+  }
 
-    carregarUnidades();
-  }, []);
+  carregarUnidades();
+}, []);
 
   function alterarCampo(campo, valor) {
     setFormulario((anterior) => ({
@@ -85,109 +83,94 @@ export default function RegistrarEncaminhamento() {
     setErroApi("");
   }
 
-  async function registrarEncaminhamento(evento) {
-    evento.preventDefault();
+  
+async function registrarEncaminhamento(evento) {
+  evento.preventDefault();
 
-    const novosErros = {};
+  const novosErros = {};
 
-    if (!formulario.servico) {
-      novosErros.servico = "Selecione o tipo de atendimento.";
-    }
+  if (!formulario.servico) {
+    novosErros.servico = "Selecione o tipo de atendimento.";
+  }
 
-    if (!formulario.destino) {
-      novosErros.destino = "Selecione a unidade de destino.";
-    }
+  if (!formulario.destino) {
+    novosErros.destino = "Selecione a unidade de destino.";
+  }
 
-    if (formulario.observacoes.length > 1000) {
-      novosErros.observacoes =
-        "As observações devem ter no máximo 1000 caracteres.";
-    }
+  if (formulario.observacoes.length > 1000) {
+    novosErros.observacoes =
+      "As observações devem ter no máximo 1000 caracteres.";
+  }
 
-    setErros(novosErros);
-    setErroApi("");
+  setErros(novosErros);
+  setErroApi("");
 
-    if (Object.keys(novosErros).length > 0) {
-      return;
-    }
+  if (Object.keys(novosErros).length > 0) {
+    return;
+  }
 
-    // Gerar um código fictício para identificar o caso.
-    const codigoCaso = `AM-${Date.now()}`;
+  const codigoCaso = `AM-${Date.now()}`;
 
-    // Enviar o ID da unidade, não apenas seu nome.
-    const dadosEnvio = {
+  try {
+    setEnviando(true);
+
+    const resultado = await api.post("/encaminhamentos", {
       codigoCaso,
       tipoAtendimento: formulario.servico,
       unidadeDestinoId: formulario.destino,
       observacoes: formulario.observacoes.trim(),
-      profissionalId: PROFISSIONAL_ID,
+    });
+
+    const encaminhamentoApi =
+      resultado.encaminhamento || resultado.dados || resultado;
+
+    const unidadeSelecionada = unidadesDisponiveis.find(
+      (unidade) => unidade.id === formulario.destino
+    );
+
+    const chave = "acolheMulherEncaminhamentos";
+
+    const encaminhamentosSalvos = JSON.parse(
+      sessionStorage.getItem(chave) || "[]"
+    );
+
+    const novoEncaminhamento = {
+      codigo: encaminhamentoApi.codigoCaso || codigoCaso,
+      codigoCaso: encaminhamentoApi.codigoCaso || codigoCaso,
+      servico:
+        encaminhamentoApi.tipoAtendimento || formulario.servico,
+      destino: unidadeSelecionada?.nome || formulario.destino,
+      unidadeDestinoId:
+        encaminhamentoApi.unidadeDestinoId || formulario.destino,
+      data: new Date().toLocaleDateString("pt-BR"),
+      status: "Pendente",
+      observacoes:
+        encaminhamentoApi.observacoes ?? formulario.observacoes.trim(),
+      profissionalId: encaminhamentoApi.profissionalId || null,
+      id: encaminhamentoApi.id || codigoCaso,
     };
 
-    try {
-      setEnviando(true);
+    sessionStorage.setItem(
+      chave,
+      JSON.stringify([
+        novoEncaminhamento,
+        ...encaminhamentosSalvos,
+      ])
+    );
 
-      const resposta = await fetch(`${API_URL}/api/encaminhamentos`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(dadosEnvio),
-      });
-
-      const resultado = await resposta.json();
-
-      if (!resposta.ok) {
-        throw new Error(
-          resultado.erro || "Não foi possível registrar o encaminhamento."
-        );
-      }
-
-      const encaminhamentoApi = resultado.encaminhamento;
-      const unidadeSelecionada = unidadesDisponiveis.find(
-        (unidade) => unidade.id === formulario.destino
-      );
-
-      // Guardar também na sessão do navegador para manter
-      // compatibilidade com partes existentes do frontend.
-      // O registro oficial desta operação foi enviado à API.
-      const chave = "acolheMulherEncaminhamentos";
-
-      const encaminhamentosSalvos = JSON.parse(
-        sessionStorage.getItem(chave) || "[]"
-      );
-
-      const novoEncaminhamento = {
-        codigo: codigoCaso,
-        codigoCaso: encaminhamentoApi.codigoCaso,
-        servico: encaminhamentoApi.tipoAtendimento,
-        destino: unidadeSelecionada?.nome || formulario.destino,
-        unidadeDestinoId: encaminhamentoApi.unidadeDestinoId,
-        data: new Date().toLocaleDateString("pt-BR"),
-        status: "Pendente",
-        observacoes: encaminhamentoApi.observacoes,
-        profissionalId: encaminhamentoApi.profissionalId,
-        id: encaminhamentoApi.id,
-      };
-
-      sessionStorage.setItem(
-        chave,
-        JSON.stringify([
-          novoEncaminhamento,
-          ...encaminhamentosSalvos,
-        ])
-      );
-
-      setMensagem(
-        `Encaminhamento ${codigoCaso} registrado com sucesso no backend.`
-      );
-    } catch (erro) {
-      setErroApi(
-        erro.message ||
-          "Não foi possível conectar ao backend. Tente novamente."
-      );
-    } finally {
-      setEnviando(false);
-    }
+    setMensagem(
+      `Encaminhamento ${codigoCaso} registrado com sucesso no backend.`
+    );
+  } catch (erro) {
+    setErroApi(
+      erro.message ||
+        "Não foi possível conectar ao backend. Tente novamente."
+    );
+  } finally {
+    setEnviando(false);
   }
+}
+
 
   function voltarAoDashboard() {
     navigate("/dashboard-profissional");

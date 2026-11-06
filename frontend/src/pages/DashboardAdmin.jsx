@@ -45,6 +45,18 @@ export default function DashboardAdmin() {
             <Link to="/admin/encaminhamentos" className="flex items-center gap-3 text-slate-400 hover:text-white px-4 py-3 rounded-xl transition">Gestão de Encaminhamentos</Link>
             <Link to="/admin/vagas-abrigos" className="flex items-center gap-3 text-slate-400 hover:text-white px-4 py-3 rounded-xl transition">Vagas em Abrigos</Link>
             <Link to="/admin/registro-ocorrencias" className="flex items-center gap-3 text-slate-400 hover:text-white px-4 py-3 rounded-xl transition">Registro de Ocorrências</Link>
+            <Link
+  to="/cadastrar-unidade"
+  className="flex items-center gap-3 text-slate-400 hover:text-white px-4 py-3 rounded-xl transition"
+>
+  Cadastrar Unidade
+</Link>
+<Link
+  to="/admin/unidades"
+  className="flex items-center gap-3 text-slate-400 hover:text-white px-4 py-3 rounded-xl transition"
+>
+  Gerenciar Unidades
+</Link>
           </nav>
         </div>
 

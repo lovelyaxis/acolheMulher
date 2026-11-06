@@ -281,7 +281,7 @@ export default function GerenciarUnidades() {
                           {unidade.endereco}
                         </td>
                         <td className="py-4 text-slate-600">
-                          {unidade.totalEncaminhamentos}
+                          {unidade.totalEncaminhamentos ?? 'Não informado'}
                         </td>
                         <td className="py-4">
                           <span

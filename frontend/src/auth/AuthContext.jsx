@@ -5,8 +5,7 @@ import {
   estaAutenticado,
   usuarioLogado,
   tokenSessao,
-  lerTentativas,
-  lerBloqueioAte,
+  verificarSessao,
 } from "./authService";
 
 const AuthContext = createContext(null);
@@ -16,8 +15,8 @@ const AuthContext = createContext(null);
  * Fornece o estado da sessão (usuário, token, perfil) e as funções
  * login() e logout() para todo o componente via useAuth().
  *
- * A sessão é lida do localStorage ao montar, de modo que o token de
- * sessão persista entre recargas da página enquanto não expirar.
+ * O token é emitido pelo back-end. Ao abrir a página, a sessão guardada
+ * é conferida no servidor (GET /api/auth/me).
  */
 export function AuthProvider({ children }) {
   const [usuario, setUsuario] = useState(null);
@@ -28,35 +27,69 @@ export function AuthProvider({ children }) {
   const [bloqueadoAte, setBloqueadoAte] = useState(null);
 
   useEffect(() => {
-    if (estaAutenticado()) {
-      setUsuario(usuarioLogado());
-      setToken(tokenSessao());
+    let ativo = true;
+
+    async function iniciar() {
+      if (estaAutenticado()) {
+        setUsuario(usuarioLogado());
+        setToken(tokenSessao());
+
+        const resultado = await verificarSessao();
+        if (!ativo) return;
+
+        if (resultado.valida) {
+          setUsuario(resultado.usuario);
+        } else {
+          setUsuario(null);
+          setToken(null);
+        }
+      }
+      if (ativo) setCarregando(false);
     }
-    setTentativas(lerTentativas());
-    setBloqueadoAte(lerBloqueioAte());
-    setCarregando(false);
+
+    iniciar();
+
+    // Se o servidor recusar o token em qualquer chamada, encerra a sessão.
+    function aoExpirar() {
+      setUsuario(null);
+      setToken(null);
+    }
+    window.addEventListener("am:sessao-expirada", aoExpirar);
+
+    return () => {
+      ativo = false;
+      window.removeEventListener("am:sessao-expirada", aoExpirar);
+    };
   }, []);
 
   async function handleLogin(email, senha) {
     setCarregando(true);
     setErro(null);
-    const resultado = await serviceLogin(email, senha);
 
-    if (resultado.ok) {
-      setUsuario(resultado.usuario);
-      setToken(resultado.token);
-      setTentativas(0);
-      setBloqueadoAte(null);
-      return { ok: true, usuario: resultado.usuario };
-    }
+    try {
+      const resultado = await serviceLogin(email, senha);
 
-    setTentativas(resultado.tentativas ?? lerTentativas());
-    if (resultado.bloqueadoAte) {
-      setBloqueadoAte(resultado.bloqueadoAte);
+      if (resultado.ok) {
+        setUsuario(resultado.usuario);
+        setToken(resultado.token);
+        setTentativas(0);
+        setBloqueadoAte(null);
+        return { ok: true, usuario: resultado.usuario };
+      }
+
+      setTentativas(resultado.tentativas ?? 0);
+      if (resultado.bloqueadoAte) {
+        setBloqueadoAte(resultado.bloqueadoAte);
+      }
+      setErro(resultado.mensagem || "Não foi possível fazer o login.");
+      return {
+        ok: false,
+        codigo: resultado.codigo,
+        mensagem: resultado.mensagem,
+      };
+    } finally {
+      setCarregando(false);
     }
-    setErro(resultado.mensagem || "Não foi possível fazer o login.");
-    setCarregando(false);
-    return { ok: false, codigo: resultado.codigo, mensagem: resultado.mensagem };
   }
 
   function handleLogout() {
