@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 import { useAuth } from "../auth/AuthContext";
@@ -340,13 +340,6 @@ export default function Login() {
                   />
                   Lembrar de mim
                 </label>
-
-                <Link
-                  to="/recuperar-senha"
-                  className="font-semibold text-primary hover:text-primary-hover"
-                >
-                  Esqueceu sua senha?
-                </Link>
               </div>
 
               <button

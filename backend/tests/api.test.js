@@ -138,7 +138,7 @@ test("API AcolheMulher", async (t) => {
     "dashboard retorna indicadores",
     async () => {
       const resposta = await fetch(
-        `${baseUrl}/api/dashboard-profissional?profissionalId=prof-demo-001`
+        `${baseUrl}/api/dashboard/profissional?profissionalId=prof-demo-001`
       );
 
       const dados = await resposta.json();

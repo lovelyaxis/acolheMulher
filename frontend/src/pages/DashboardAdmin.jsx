@@ -1,15 +1,34 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../auth/AuthContext';
+import { obterDashboardAdmin } from '../services/dashboardService';
 
 export default function DashboardAdmin() {
   const navigate = useNavigate();
   const { logout } = useAuth();
 
+  const [indicadores, setIndicadores] = useState(null);
+  const [carregando, setCarregando] = useState(true);
+  const [erro, setErro] = useState("");
+
   function handleSair() {
     logout();
     navigate('/login');
   }
+
+  useEffect(() => {
+    async function carregarIndicadores() {
+      try {
+        const dados = await obterDashboardAdmin();
+        setIndicadores(dados);
+      } catch (e) {
+        setErro(e.message || "Não foi possível carregar os indicadores.");
+      } finally {
+        setCarregando(false);
+      }
+    }
+    carregarIndicadores();
+  }, []);
 
   const dadosGrafico = [
     { mes: 'Abr', altura: 'h-16' },
@@ -89,20 +108,43 @@ export default function DashboardAdmin() {
           </div>
         </header>
 
-        {/* Cards de Métricas */}
+        {/* Cards de Métricas (indicadores da API — RF013) */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-8">
-          <div className="bg-white p-6 rounded-2xl border border-purple-100 shadow-sm">
-            <span className="text-3xl font-extrabold text-slate-900">24</span>
-            <p className="text-xs text-slate-500 mt-1">Unidades cadastradas</p>
-          </div>
-          <div className="bg-white p-6 rounded-2xl border border-purple-100 shadow-sm">
-            <span className="text-3xl font-extrabold text-slate-900">37</span>
-            <p className="text-xs text-slate-500 mt-1">Profissionais ativos</p>
-          </div>
-          <div className="bg-white p-6 rounded-2xl border border-purple-100 shadow-sm">
-            <span className="text-3xl font-extrabold text-slate-900">312</span>
-            <p className="text-xs text-slate-500 mt-1">Atendimentos no mês</p>
-          </div>
+          {carregando ? (
+            <>
+              <div className="bg-white p-6 rounded-2xl border border-purple-100 shadow-sm animate-pulse">
+                <span className="text-3xl font-extrabold text-slate-900">--</span>
+                <p className="text-xs text-slate-500 mt-1">Unidades cadastradas</p>
+              </div>
+              <div className="bg-white p-6 rounded-2xl border border-purple-100 shadow-sm animate-pulse">
+                <span className="text-3xl font-extrabold text-slate-900">--</span>
+                <p className="text-xs text-slate-500 mt-1">Profissionais ativos</p>
+              </div>
+              <div className="bg-white p-6 rounded-2xl border border-purple-100 shadow-sm animate-pulse">
+                <span className="text-3xl font-extrabold text-slate-900">--</span>
+                <p className="text-xs text-slate-500 mt-1">Atendimentos no mês</p>
+              </div>
+            </>
+          ) : erro ? (
+            <div className="bg-red-50 border border-red-200 rounded-2xl p-6 text-red-700 text-sm">
+              {erro}
+            </div>
+          ) : (
+            <>
+              <div className="bg-white p-6 rounded-2xl border border-purple-100 shadow-sm">
+                <span className="text-3xl font-extrabold text-slate-900">{indicadores?.totalUnidades ?? 0}</span>
+                <p className="text-xs text-slate-500 mt-1">Unidades cadastradas</p>
+              </div>
+              <div className="bg-white p-6 rounded-2xl border border-purple-100 shadow-sm">
+                <span className="text-3xl font-extrabold text-slate-900">{indicadores?.profissionaisAtivos ?? 0}</span>
+                <p className="text-xs text-slate-500 mt-1">Profissionais ativos</p>
+              </div>
+              <div className="bg-white p-6 rounded-2xl border border-purple-100 shadow-sm">
+                <span className="text-3xl font-extrabold text-slate-900">{indicadores?.atendimentosMes ?? 0}</span>
+                <p className="text-xs text-slate-500 mt-1">Atendimentos no mês</p>
+              </div>
+            </>
+          )}
         </div>
 
         {/* Gráfico de Barras */}
