@@ -18,6 +18,39 @@ test("API AcolheMulher", async (t) => {
     server.close();
   });
 
+  // Variáveis compartilhadas entre os testes
+  let token = null;
+  let unidadeId = null;
+
+  // Faz login como profissional para obter token (só profissionais cadastram encaminhamentos)
+  await t.test("login profissional obtém token JWT", async () => {
+    const resposta = await fetch(`${baseUrl}/api/auth/login`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        email: "ana@acolhemulher.com.br",
+        senha: "Acolhe2026!",
+      }),
+    });
+
+    assert.equal(resposta.status, 200);
+    const dados = await resposta.json();
+    assert.ok(dados.token, "Token deve ser retornado");
+    token = dados.token;
+  });
+
+  // Obtém uma unidade válida do banco
+  await t.test("obter unidade válida para testes", async () => {
+    const resposta = await fetch(`${baseUrl}/api/unidades`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+
+    assert.equal(resposta.status, 200);
+    const unidades = await resposta.json();
+    assert.ok(unidades.length > 0, "Deve existir pelo menos uma unidade");
+    unidadeId = unidades[0].id;
+  });
+
   await t.test("GET /api retorna 200", async () => {
     const resposta = await fetch(`${baseUrl}/api`);
     const dados = await resposta.json();
@@ -74,33 +107,34 @@ test("API AcolheMulher", async (t) => {
   await t.test(
     "encaminhamento válido é registrado",
     async () => {
+      const codigoCaso = `TESTE-${Date.now()}`;
       const resposta = await fetch(
         `${baseUrl}/api/encaminhamentos`,
         {
           method: "POST",
           headers: {
-            "Content-Type": "application/json"
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`
           },
           body: JSON.stringify({
-            codigoCaso: "TESTE-001",
+            codigoCaso,
             tipoAtendimento: "Acolhimento social",
-            unidadeDestinoId: "unidade-001",
-            observacoes: "Registro fictício de teste.",
-            profissionalId: "prof-demo-001"
+            unidadeDestinoId: unidadeId,
+            observacoes: "Registro fictício de teste."
           })
         }
       );
 
-      const dados = await resposta.json();
-
       assert.equal(resposta.status, 201);
+
+      const dados = await resposta.json();
       assert.equal(
         dados.encaminhamento.codigoCaso,
-        "TESTE-001"
+        codigoCaso
       );
       assert.equal(
         dados.encaminhamento.status,
-        "pendente"
+        "PENDENTE"
       );
       assert.equal(
         Object.hasOwn(dados.encaminhamento, "nome"),
@@ -117,15 +151,15 @@ test("API AcolheMulher", async (t) => {
         {
           method: "POST",
           headers: {
-            "Content-Type": "application/json"
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`
           },
           body: JSON.stringify({
-            codigoCaso: "TESTE-002",
+            codigoCaso: `TESTE-${Date.now()}`,
             nome: "Pessoa Fictícia",
             tipoAtendimento: "Acolhimento social",
-            unidadeDestinoId: "unidade-001",
-            observacoes: "Teste de validação.",
-            profissionalId: "prof-demo-001"
+            unidadeDestinoId: unidadeId,
+            observacoes: "Teste de validação."
           })
         }
       );
@@ -138,17 +172,19 @@ test("API AcolheMulher", async (t) => {
     "dashboard retorna indicadores",
     async () => {
       const resposta = await fetch(
-        `${baseUrl}/api/dashboard/profissional?profissionalId=prof-demo-001`
+        `${baseUrl}/api/dashboard/profissional`,
+        {
+          headers: { Authorization: `Bearer ${token}` }
+        }
       );
 
       const dados = await resposta.json();
 
       assert.equal(resposta.status, 200);
+      assert.equal(typeof dados.totalEncaminhamentos, "number");
+      assert.equal(typeof dados.encaminhamentosPendentes, "number");
+      assert.equal(typeof dados.encaminhamentosConcluidos, "number");
       assert.equal(typeof dados.atendimentosHoje, "number");
-      assert.equal(
-        typeof dados.encaminhamentosPendentes,
-        "number"
-      );
     }
   );
 });
