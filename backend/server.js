@@ -4,6 +4,7 @@ const cors = require("cors");
 const authRoutes = require("./src/routes/auth");
 const unidadesRoutes = require("./src/routes/unidades");
 const usuariosRoutes = require("./src/routes/usuarios");
+const encaminhamentosRoutes = require("./src/routes/encaminhamentos");
 
 const {
   unidades,
@@ -20,6 +21,7 @@ app.use(express.json({ limit: "10kb" }));
 app.use("/api/auth", authRoutes);
 app.use("/api/unidades", unidadesRoutes);
 app.use("/api/usuarios", usuariosRoutes);
+app.use("/api/encaminhamentos", encaminhamentosRoutes);
 
 // Não adicionar logs que armazenem IP ou conteúdo
 // de mensagens do canal anônimo.
@@ -91,133 +93,7 @@ app.post("/api/orientacoes-anonimas", (req, res) => {
   });
 });
 
-// T13 / RF011 / RN002 - Registrar encaminhamento.
-app.post("/api/encaminhamentos", (req, res) => {
-  const corpo = req.body || {};
 
-  const {
-    codigoCaso,
-    tipoAtendimento,
-    unidadeDestinoId,
-    observacoes,
-    profissionalId
-  } = corpo;
-
-  // Impedir dados pessoais da pessoa atendida.
-  const camposProibidos = [
-    "nome",
-    "nomeCompleto",
-    "cpf",
-    "telefone"
-  ];
-
-  const possuiDadosPessoais = camposProibidos.some(
-    campo => Object.prototype.hasOwnProperty.call(corpo, campo)
-  );
-
-  if (possuiDadosPessoais) {
-    return res.status(400).json({
-      erro: "Não é permitido informar dados pessoais."
-    });
-  }
-
-  if (
-    typeof codigoCaso !== "string" ||
-    codigoCaso.trim().length < 3 ||
-    codigoCaso.trim().length > 50
-  ) {
-    return res.status(400).json({
-      erro: "Informe um código de caso válido."
-    });
-  }
-
-  if (
-    typeof tipoAtendimento !== "string" ||
-    tipoAtendimento.trim() === "" ||
-    tipoAtendimento.trim().length > 100
-  ) {
-    return res.status(400).json({
-      erro: "Informe um tipo de atendimento válido."
-    });
-  }
-
-  const unidadeExiste = unidades.some(
-    unidade =>
-      unidade.id === unidadeDestinoId &&
-      unidade.ativa === true
-  );
-
-  if (!unidadeExiste) {
-    return res.status(400).json({
-      erro: "A unidade de destino não existe ou está inativa."
-    });
-  }
-
-  if (
-    typeof observacoes !== "string" ||
-    observacoes.length > 1000
-  ) {
-    return res.status(400).json({
-      erro: "As observações devem ter no máximo 1000 caracteres."
-    });
-  }
-
-  const profissional = buscarProfissional(profissionalId);
-
-  if (!profissional) {
-    return res.status(400).json({
-      erro: "Profissional não encontrado."
-    });
-  }
-
-  const novoEncaminhamento = {
-    id: `enc-${Date.now()}-${Math.random()
-      .toString(36)
-      .slice(2, 7)}`,
-    codigoCaso: codigoCaso.trim(),
-    tipoAtendimento: tipoAtendimento.trim(),
-    unidadeDestinoId,
-    observacoes: observacoes.trim(),
-    status: "pendente",
-    profissionalId: profissional.id,
-    criadoEm: new Date().toISOString()
-  };
-
-  encaminhamentos.push(novoEncaminhamento);
-
-  return res.status(201).json({
-    mensagem: "Encaminhamento registrado com sucesso.",
-    encaminhamento: novoEncaminhamento
-  });
-});
-
-// T14 - Listar somente os encaminhamentos do profissional solicitado.
-app.get("/api/encaminhamentos", (req, res) => {
-  const { profissionalId } = req.query;
-
-  if (
-    typeof profissionalId !== "string" ||
-    profissionalId.trim() === ""
-  ) {
-    return res.status(400).json({
-      erro: "Informe o profissional."
-    });
-  }
-
-  const profissional = buscarProfissional(profissionalId);
-
-  if (!profissional) {
-    return res.status(404).json({
-      erro: "Profissional não encontrado."
-    });
-  }
-
-  const lista = encaminhamentos.filter(
-    item => item.profissionalId === profissional.id
-  );
-
-  return res.status(200).json(lista);
-});
 
 // RF010 - Indicadores do dashboard profissional.
 app.get("/api/dashboard-profissional", (req, res) => {
