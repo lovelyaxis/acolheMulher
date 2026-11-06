@@ -1,6 +1,7 @@
 require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
+const authRoutes = require("./src/routes/auth");
 
 const {
   unidades,
@@ -14,6 +15,7 @@ const PORT = process.env.PORT || 3000;
 
 app.use(cors());
 app.use(express.json({ limit: "10kb" }));
+app.use("/api/auth", authRoutes);
 
 // Não adicionar logs que armazenem IP ou conteúdo
 // de mensagens do canal anônimo.
