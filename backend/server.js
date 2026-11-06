@@ -5,6 +5,7 @@ const authRoutes = require("./src/routes/auth");
 const unidadesRoutes = require("./src/routes/unidades");
 const usuariosRoutes = require("./src/routes/usuarios");
 const encaminhamentosRoutes = require("./src/routes/encaminhamentos");
+const orientacoesRoutes = require("./src/routes/orientacoes");
 
 const {
   unidades,
@@ -22,6 +23,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/unidades", unidadesRoutes);
 app.use("/api/usuarios", usuariosRoutes);
 app.use("/api/encaminhamentos", encaminhamentosRoutes);
+app.use("/api/orientacoes-anonimas", orientacoesRoutes);
 
 // Não adicionar logs que armazenem IP ou conteúdo
 // de mensagens do canal anônimo.
@@ -45,53 +47,7 @@ app.get("/api", (req, res) => {
 
 
 
-// T15 / RF006 / RN001 - Canal de orientação anônima.
-app.post("/api/orientacoes-anonimas", (req, res) => {
-  const corpo = req.body || {};
-  const { mensagem, categoria } = corpo;
 
-  const categoriasPermitidas = [
-    "direitos",
-    "violencia",
-    "atendimento",
-    "outros"
-  ];
-
-  if (
-    typeof mensagem !== "string" ||
-    mensagem.trim() === ""
-  ) {
-    return res.status(400).json({
-      erro: "A mensagem é obrigatória."
-    });
-  }
-
-  if (mensagem.trim().length > 2000) {
-    return res.status(400).json({
-      erro: "A mensagem deve ter no máximo 2000 caracteres."
-    });
-  }
-
-  if (
-    typeof categoria !== "string" ||
-    !categoriasPermitidas.includes(categoria)
-  ) {
-    return res.status(400).json({
-      erro: "Informe uma categoria válida."
-    });
-  }
-
-  // Guardar somente a mensagem e a categoria.
-  // Não salvar campos adicionais enviados pelo cliente.
-  orientacoesAnonimas.push({
-    mensagem: mensagem.trim(),
-    categoria
-  });
-
-  return res.status(201).json({
-    mensagem: "Orientação recebida com sucesso."
-  });
-});
 
 
 
@@ -143,6 +99,19 @@ app.use((req, res) => {
   res.status(404).json({
     erro: "Rota não encontrada."
   });
+});
+
+// Tratar erros sem registrar o conteúdo da requisição
+// (importante para o canal de orientação anônima).
+app.use((erro, req, res, next) => {
+  if (erro.type === "entity.parse.failed") {
+    return res.status(400).json({ erro: "JSON inválido." });
+  }
+  if (erro.type === "entity.too.large") {
+    return res.status(413).json({ erro: "Requisição grande demais." });
+  }
+  console.error("Erro inesperado:", erro.type || erro.name);
+  return res.status(500).json({ erro: "Erro interno do servidor." });
 });
 
 // Permitir testes automatizados sem iniciar uma porta.
