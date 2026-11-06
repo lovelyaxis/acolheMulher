@@ -24,7 +24,7 @@ export default function Footer() {
             <li><Link to="/" className="hover:text-white">Início</Link></li>
             <li><Link to="/como-funciona" className="hover:text-white">Como funciona</Link></li>
             <li><Link to="/tipos-de-acolhimento" className="hover:text-white">Tipos de atendimento</Link></li>
-            <li><Link to="/rede-atendimento" className="hover:text-white">Rede de atendimento</Link></li>
+            <li><Link to="/rede-de-atendimento" className="hover:text-white">Rede de atendimento</Link></li>
           </ul>
         </div>
 
