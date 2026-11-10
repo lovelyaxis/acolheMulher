@@ -114,11 +114,19 @@ export default function Home() {
           </div>
 
           <div className="flex justify-center">
-            <img
-              src="/images/hero-acolhemulher.png"
-              alt="Ilustração de uma mulher se acolhendo"
-              className="max-h-72 w-full max-w-md object-contain"
-            />
+            <div className="flex aspect-video min-h-52 items-center justify-center overflow-hidden rounded-2xl border border-brand/15 bg-page p-6">
+              <div className="flex flex-col items-center text-center">
+                <div className="flex h-16 w-16 items-center justify-center rounded-full bg-white shadow-sm">
+                  <Heart size={24} className="text-brand" />
+                </div>
+                <p className="mt-4 text-lg font-semibold text-brand">
+                  AcolheMulher
+                </p>
+                <p className="mt-1 text-sm text-gray-500">
+                  Informação, acolhimento e proteção.
+                </p>
+              </div>
+            </div>
           </div>
         </div>
       </section>

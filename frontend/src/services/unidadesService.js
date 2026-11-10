@@ -1,375 +1,418 @@
-// Serviço de unidades de atendimento.
-// Único ponto do projeto que acessa o mock; as páginas usam apenas estas
-// funções, para que a troca por chamadas reais seja feita aqui depois.
-//
-// Observação (RF003 x RF012): as funções públicas listarUnidades e
-// buscarUnidades nunca devolvem dados de vagas. A visão interna usa
-// listarUnidadesInternas, que devolve vagasTotal e vagasDisponiveis.
-// Numa API real, essa separação também precisa ser garantida no servidor.
-//
-// Cadastro (RF014) e duplicidade (RN004): cadastrarUnidade valida os dados,
-// rejeita duplicidades com ErroUnidade e adiciona a unidade ao mock em memória.
-//
-// Edição, inativação e exclusão segura (RF015, RN003): editarUnidade reusa a
-// validação de duplicidade ignorando a própria unidade; inativarUnidade
-// suspende o atendimento sem apagar o registro; excluirUnidade bloqueia a
-// remoção quando há encaminhamentos vinculados, preservando o histórico.
 
-import { TIPOS_UNIDADE, unidades } from "../mocks/unidades.js";
+import { api, ErroApi } from "./api";
 
-// A lista de tipos é reexportada aqui para que as telas importem apenas
-// deste serviço e nunca acessem o mock diretamente (AGENTS.md).
-export { TIPOS_UNIDADE };
+// Tipos apresentados nas telas.
+export const TIPOS_UNIDADE = Object.freeze([
+  "Delegacia da Mulher",
+  "CRAS/CREAS",
+  "Casa de Acolhimento",
+  "Defensoria Pública",
+  "Hospital de Referência",
+]);
+
+// Conversão entre os nomes exibidos no frontend e os códigos do backend.
+const TIPOS_PARA_API = {
+  "Delegacia da Mulher": "DELEGACIA_MULHER",
+  "CRAS/CREAS": "CRAS_CREAS",
+  "Casa de Acolhimento": "CASA_ACOLHIMENTO",
+  "Defensoria Pública": "DEFENSORIA_PUBLICA",
+  "Hospital de Referência": "HOSPITAL_REFERENCIA",
+};
+
+const TIPOS_DA_API = Object.fromEntries(
+  Object.entries(TIPOS_PARA_API).map(([nome, codigo]) => [
+    codigo,
+    nome,
+  ]),
+);
 
 export const MENSAGEM_UNIDADE_DUPLICADA =
-  "Já existe uma unidade cadastrada com este nome e endereço. Confira os dados ou procure a unidade na gestão da rede.";
+  "Já existe uma unidade cadastrada com esse nome e endereço.";
 
 export const MENSAGEM_UNIDADE_COM_ENCAMINHAMENTOS =
-  "Esta unidade possui encaminhamentos vinculados e não pode ser excluída. Inative a unidade para suspender o atendimento, preservando o histórico para relatórios.";
+  "Esta unidade possui encaminhamentos vinculados e não pode ser excluída. Inative-a para preservar o histórico.";
 
 export const MENSAGEM_UNIDADE_NAO_ENCONTRADA =
-  "Unidade não encontrada. Ela pode ter sido removida ou o endereço está incorreto.";
+  "Unidade não encontrada.";
 
 export class ErroUnidade extends Error {
-  constructor(codigo, mensagem) {
+  constructor(mensagem, codigo = "ERRO_UNIDADE") {
     super(mensagem);
     this.name = "ErroUnidade";
     this.codigo = codigo;
   }
 }
 
-const normalizarTexto = (valor = "") =>
-  String(valor)
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .trim()
-    .toLowerCase()
-    .replace(/\s+/g, " ");
-
-const apenasDigitos = (valor = "") => String(valor).replace(/\D/g, "");
-
-const copiarUnidade = (unidade) => ({ ...unidade });
-
-// Converte um valor de vagas em inteiro não negativo.
-// Vazio/null vira null; valor inválido vira NaN.
-const converterVagas = (valor) => {
-  if (valor === null || valor === undefined) return null;
-
-  const texto = String(valor).trim();
-  if (!texto) return null;
-
-  const numero = Number(texto);
-  return Number.isInteger(numero) && numero >= 0 ? numero : NaN;
-};
-
-const gerarIdUnidade = () => {
-  const maiorNumero = unidades.reduce((maior, unidade) => {
-    const digitos = String(unidade.id ?? "").replace(/\D/g, "");
-    const numero = Number(digitos);
-
-    return Number.isInteger(numero) ? Math.max(maior, numero) : maior;
-  }, 0);
-
-  return `unidade-${String(maiorNumero + 1).padStart(2, "0")}`;
-};
-
-// Duplicidade (RN004): compara nome + endereço sem acentos, maiúsculas
-// ou espaços extras. Considera também unidades inativas.
-export function existeUnidadeDuplicada({ nome, endereco, ignorarId } = {}) {
-  const nomeNormalizado = normalizarTexto(nome);
-  const enderecoNormalizado = normalizarTexto(endereco);
-
-  if (!nomeNormalizado || !enderecoNormalizado) return false;
-
-  return unidades.some((unidade) => {
-    if (ignorarId && unidade.id === ignorarId) return false;
-
-    return (
-      normalizarTexto(unidade.nome) === nomeNormalizado &&
-      normalizarTexto(unidade.endereco) === enderecoNormalizado
-    );
-  });
+// Converte o código do backend para o nome apresentado na tela.
+function tipoParaTela(tipo) {
+  return TIPOS_DA_API[tipo] || tipo || "";
 }
 
-// Validação compartilhada entre cadastro (RF014) e edição (RF015).
-// Normaliza os campos de texto, aplica as mesmas regras do cadastro e devolve
-// os valores prontos para gravar. `ignorarId` evita que a própria unidade seja
-// considerada duplicada ao editar (RN004). Lança ErroUnidade quando inválido.
-const validarDadosUnidade = (dados = {}, { ignorarId } = {}) => {
-  const nome = String(dados.nome ?? "").trim();
-  const endereco = String(dados.endereco ?? "").trim();
-  const tipo = String(dados.tipo ?? "").trim();
-  const telefone = String(dados.telefone ?? "").trim();
-  const horario = String(dados.horario ?? "").trim();
-  const bairro = String(dados.bairro ?? "").trim();
-  const cep = String(dados.cep ?? "").trim();
+// Converte o nome apresentado na tela para o código do backend.
+function tipoParaApi(tipo) {
+  return TIPOS_PARA_API[tipo] || tipo || "";
+}
 
-  if (!nome) {
-    throw new ErroUnidade("DADOS_INVALIDOS", "Informe o nome da unidade.");
-  }
+// Remove caracteres que não sejam números.
+function normalizarCep(cep) {
+  return String(cep ?? "").replace(/\D/g, "");
+}
 
-  if (!TIPOS_UNIDADE.includes(tipo)) {
-    throw new ErroUnidade(
-      "DADOS_INVALIDOS",
-      "Selecione um tipo de unidade válido.",
-    );
-  }
+// Converte os dados recebidos do backend para o formato usado pelas telas.
+function converterUnidade(unidade) {
+  if (!unidade) return null;
 
-  if (!endereco) {
-    throw new ErroUnidade("DADOS_INVALIDOS", "Informe o endereço da unidade.");
-  }
-
-  if (existeUnidadeDuplicada({ nome, endereco, ignorarId })) {
-    throw new ErroUnidade("UNIDADE_DUPLICADA", MENSAGEM_UNIDADE_DUPLICADA);
-  }
-
-  let vagasTotal;
-  let vagasDisponiveis;
-
-  if (tipo === "Casa de Acolhimento") {
-    vagasTotal = converterVagas(dados.vagasTotal);
-
-    if (!Number.isInteger(vagasTotal)) {
-      throw new ErroUnidade(
-        "DADOS_INVALIDOS",
-        "Informe o total de vagas da Casa de Acolhimento.",
-      );
-    }
-
-    vagasDisponiveis = converterVagas(dados.vagasDisponiveis);
-
-    if (vagasDisponiveis === null) {
-      vagasDisponiveis = vagasTotal;
-    }
-
-    if (!Number.isInteger(vagasDisponiveis)) {
-      throw new ErroUnidade(
-        "DADOS_INVALIDOS",
-        "Informe as vagas disponíveis como um número inteiro maior ou igual a zero.",
-      );
-    }
-
-    if (vagasDisponiveis > vagasTotal) {
-      throw new ErroUnidade(
-        "DADOS_INVALIDOS",
-        "As vagas disponíveis não podem ser maiores que o total de vagas.",
-      );
-    }
-  }
-
-  return {
-    nome,
-    tipo,
-    endereco,
-    bairro,
-    cep,
-    telefone,
-    horario,
-    vagasTotal,
-    vagasDisponiveis,
+  const resultado = {
+    ...unidade,
+    tipo: tipoParaTela(unidade.tipo),
   };
-};
 
-// Consulta pública (RF003): remove qualquer campo de vagas da resposta.
-const semDadosDeVagas = (unidade) => {
-  const copia = { ...unidade };
+  // Não apresenta campos de vagas quando não se aplicam.
+  if (
+    resultado.vagasTotal === null ||
+    resultado.vagasTotal === undefined
+  ) {
+    delete resultado.vagasTotal;
+  }
 
-  delete copia.vagas;
-  delete copia.vagasTotal;
-  delete copia.vagasDisponiveis;
+  if (
+    resultado.vagasDisponiveis === null ||
+    resultado.vagasDisponiveis === undefined
+  ) {
+    delete resultado.vagasDisponiveis;
+  }
 
-  return copia;
-};
-
-// Filtro compartilhado entre a consulta pública e a interna.
-const filtrarUnidades = ({
-  termo = "",
-  tipo,
-  incluirInativas = false,
-} = {}) => {
-  const termoTexto = normalizarTexto(termo);
-  const termoDigitos = apenasDigitos(termo);
-  const compararCep = termoDigitos.length > 0;
-  const tipoNormalizado = normalizarTexto(tipo);
-
-  return unidades
-    .filter((unidade) => incluirInativas || unidade.ativa)
-    .filter(
-      (unidade) =>
-        !tipoNormalizado || normalizarTexto(unidade.tipo) === tipoNormalizado,
-    )
-    .filter((unidade) => {
-      if (!termoTexto) return true;
-
-      const bairroConfere = normalizarTexto(unidade.bairro).includes(termoTexto);
-      const cepConfere =
-        compararCep && apenasDigitos(unidade.cep).includes(termoDigitos);
-
-      return bairroConfere || cepConfere;
-    });
-};
-
-export async function listarUnidades({ incluirInativas = false } = {}) {
-  return filtrarUnidades({ incluirInativas }).map(semDadosDeVagas);
+  return resultado;
 }
 
-export async function buscarUnidades({ termo = "", tipo } = {}) {
-  return filtrarUnidades({ termo, tipo, incluirInativas: false }).map(
-    semDadosDeVagas,
+// Algumas APIs retornam diretamente uma lista; outras usam { unidades: [] }.
+function extrairLista(resposta) {
+  if (Array.isArray(resposta)) return resposta;
+  if (Array.isArray(resposta?.unidades)) return resposta.unidades;
+  if (Array.isArray(resposta?.dados)) return resposta.dados;
+  return [];
+}
+
+// Algumas APIs retornam diretamente o registro; outras usam { unidade: {} }.
+function extrairUnidade(resposta) {
+  return resposta?.unidade || resposta?.dados || resposta;
+}
+
+// Transforma erros da API em erros compreensíveis para as telas.
+function tratarErro(erro) {
+  if (erro instanceof ErroUnidade) {
+    return erro;
+  }
+
+  if (erro instanceof ErroApi) {
+    if (erro.status === 409) {
+      const mensagem =
+        erro.message || MENSAGEM_UNIDADE_DUPLICADA;
+
+      const codigo = mensagem.toLowerCase().includes("encaminhamento")
+        ? "UNIDADE_COM_ENCAMINHAMENTOS"
+        : "UNIDADE_DUPLICADA";
+
+      return new ErroUnidade(
+        codigo === "UNIDADE_COM_ENCAMINHAMENTOS"
+          ? MENSAGEM_UNIDADE_COM_ENCAMINHAMENTOS
+          : mensagem,
+        codigo,
+      );
+    }
+
+    if (erro.status === 404) {
+      return new ErroUnidade(
+        MENSAGEM_UNIDADE_NAO_ENCONTRADA,
+        "UNIDADE_NAO_ENCONTRADA",
+      );
+    }
+
+    return new ErroUnidade(
+      erro.message || "Não foi possível realizar a operação.",
+      "ERRO_API",
+    );
+  }
+
+  return new ErroUnidade(
+    erro?.message || "Ocorreu um erro inesperado.",
+    "ERRO_UNIDADE",
   );
 }
 
-// Consulta interna (RF012): devolve as unidades com os dados de vagas.
+// Monta os parâmetros de pesquisa.
+function montarParametros({ termo = "", tipo, incluirInativas } = {}) {
+  const parametros = new URLSearchParams();
+
+  if (termo.trim()) {
+    parametros.set("busca", termo.trim());
+  }
+
+  if (tipo) {
+    parametros.set("tipo", tipoParaApi(tipo));
+  }
+
+  if (incluirInativas !== undefined) {
+    parametros.set("incluirInativas", String(incluirInativas));
+  }
+
+  const consulta = parametros.toString();
+  return consulta ? `?${consulta}` : "";
+}
+
+// Prepara os dados para envio ao backend.
+function prepararDados(dados = {}) {
+  return {
+    nome: String(dados.nome ?? "").trim(),
+    tipo: tipoParaApi(dados.tipo),
+    endereco: String(dados.endereco ?? "").trim(),
+    bairro: String(dados.bairro ?? "").trim(),
+    cep: normalizarCep(dados.cep),
+    telefone: String(dados.telefone ?? "").trim(),
+    horario: String(dados.horario ?? "").trim(),
+    vagasTotal:
+      dados.tipo === "Casa de Acolhimento" ||
+      dados.tipo === "CASA_ACOLHIMENTO"
+        ? Number(dados.vagasTotal ?? dados.capacidade)
+        : null,
+    vagasDisponiveis:
+      dados.tipo === "Casa de Acolhimento" ||
+      dados.tipo === "CASA_ACOLHIMENTO"
+        ? Number(
+            dados.vagasDisponiveis === "" ||
+            dados.vagasDisponiveis === null ||
+            dados.vagasDisponiveis === undefined
+              ? dados.vagasTotal ?? dados.capacidade
+              : dados.vagasDisponiveis,
+          )
+        : null,
+  };
+}
+
+// Valida os dados antes de enviá-los.
+function validarDados(dados) {
+  if (!dados.nome) {
+    throw new ErroUnidade(
+      "Informe o nome da unidade.",
+      "DADOS_INVALIDOS",
+    );
+  }
+
+  if (!TIPOS_UNIDADE.includes(tipoParaTela(dados.tipo))) {
+    throw new ErroUnidade(
+      "Selecione um tipo de unidade válido.",
+      "DADOS_INVALIDOS",
+    );
+  }
+
+  if (!dados.endereco) {
+    throw new ErroUnidade(
+      "Informe o endereço da unidade.",
+      "DADOS_INVALIDOS",
+    );
+  }
+
+  if (!dados.bairro) {
+    throw new ErroUnidade(
+      "Informe o bairro da unidade.",
+      "DADOS_INVALIDOS",
+    );
+  }
+
+  if (dados.cep.length !== 8) {
+    throw new ErroUnidade(
+      "Informe um CEP válido com 8 números.",
+      "DADOS_INVALIDOS",
+    );
+  }
+
+  if (dados.telefone.length > 20) {
+    throw new ErroUnidade(
+      "O telefone deve ter no máximo 20 caracteres.",
+      "DADOS_INVALIDOS",
+    );
+  }
+
+  if (dados.horario.length > 100) {
+    throw new ErroUnidade(
+      "O horário deve ter no máximo 100 caracteres.",
+      "DADOS_INVALIDOS",
+    );
+  }
+
+  if (dados.tipo === "CASA_ACOLHIMENTO") {
+    if (
+      !Number.isInteger(dados.vagasTotal) ||
+      dados.vagasTotal < 0
+    ) {
+      throw new ErroUnidade(
+        "Informe uma capacidade válida para a Casa de Acolhimento.",
+        "DADOS_INVALIDOS",
+      );
+    }
+
+    if (
+      !Number.isInteger(dados.vagasDisponiveis) ||
+      dados.vagasDisponiveis < 0
+    ) {
+      throw new ErroUnidade(
+        "Informe uma quantidade válida de vagas disponíveis.",
+        "DADOS_INVALIDOS",
+      );
+    }
+
+    if (dados.vagasDisponiveis > dados.vagasTotal) {
+      throw new ErroUnidade(
+        "As vagas disponíveis não podem ser maiores que a capacidade total.",
+        "DADOS_INVALIDOS",
+      );
+    }
+  }
+}
+
+// Consulta pública: retorna somente unidades ativas e sem informações de vagas.
+export async function listarUnidades() {
+  try {
+    const resposta = await api.get("/unidades", {
+      autenticado: false,
+    });
+
+    return extrairLista(resposta).map(converterUnidade);
+  } catch (erro) {
+    throw tratarErro(erro);
+  }
+}
+
+// Pesquisa pública por nome, bairro, CEP ou tipo.
+export async function buscarUnidades({ termo = "", tipo } = {}) {
+  try {
+    const parametros = montarParametros({ termo, tipo });
+
+    const resposta = await api.get(`/unidades${parametros}`, {
+      autenticado: false,
+    });
+
+    return extrairLista(resposta).map(converterUnidade);
+  } catch (erro) {
+    throw tratarErro(erro);
+  }
+}
+
+// Consulta interna: exige autenticação.
+// Administradores podem solicitar também unidades inativas.
 export async function listarUnidadesInternas({
   termo = "",
   tipo,
   incluirInativas = false,
 } = {}) {
-  return filtrarUnidades({ termo, tipo, incluirInativas }).map(copiarUnidade);
+  try {
+    const parametros = montarParametros({
+      termo,
+      tipo,
+      incluirInativas,
+    });
+
+    const resposta = await api.get(
+      `/unidades/internas${parametros}`,
+    );
+
+    return extrairLista(resposta).map(converterUnidade);
+  } catch (erro) {
+    throw tratarErro(erro);
+  }
 }
 
-// Cadastro de unidade (RF014). Adiciona ao mock em memória e devolve o
-// registro criado; recarregar a página reinicia o mock.
+// Consulta uma unidade pelo identificador.
+export async function buscarUnidadePorId(id) {
+  try {
+    const resposta = await api.get(
+      `/unidades/${encodeURIComponent(id)}`,
+    );
+
+    return converterUnidade(extrairUnidade(resposta));
+  } catch (erro) {
+    throw tratarErro(erro);
+  }
+}
+
+// Cadastro de unidade (RF014).
 export async function cadastrarUnidade(dados = {}) {
-  const {
-    nome,
-    tipo,
-    endereco,
-    bairro,
-    cep,
-    telefone,
-    horario,
-    vagasTotal,
-    vagasDisponiveis,
-  } = validarDadosUnidade(dados);
+  try {
+    const dadosApi = prepararDados(dados);
+    validarDados(dadosApi);
 
-  const novaUnidade = {
-    id: gerarIdUnidade(),
-    nome,
-    tipo,
-    endereco,
-    bairro,
-    cep,
-    telefone,
-    horario,
-    ativa: true,
-    totalEncaminhamentos: 0,
-  };
+    const resposta = await api.post("/unidades", dadosApi);
 
-  if (tipo === "Casa de Acolhimento") {
-    novaUnidade.vagasTotal = vagasTotal;
-    novaUnidade.vagasDisponiveis = vagasDisponiveis;
+    return converterUnidade(extrairUnidade(resposta));
+  } catch (erro) {
+    throw tratarErro(erro);
   }
-
-  unidades.push(novaUnidade);
-
-  return copiarUnidade(novaUnidade);
 }
 
-// Edição de unidade (RF015). Reusa a validação do cadastro com `ignorarId`
-// para não acusar a própria unidade como duplicada (RN004). Preserva id,
-// ativa e totalEncaminhamentos; ajusta os campos de vagas quando o tipo muda.
-// Lança ErroUnidade ("UNIDADE_NAO_ENCONTRADA") se a unidade não existir.
+// Edição de unidade (RF015).
+// Busca os dados atuais para preservar bairro, CEP e vagas não enviados pelo formulário.
 export async function editarUnidade(id, dados = {}) {
-  const indice = unidades.findIndex((unidade) => unidade.id === id);
+  try {
+    const atual = await buscarUnidadePorId(id);
 
-  if (indice === -1) {
-    throw new ErroUnidade(
-      "UNIDADE_NAO_ENCONTRADA",
-      MENSAGEM_UNIDADE_NAO_ENCONTRADA,
-    );
-  }
+    if (!atual) {
+      throw new ErroUnidade(
+        MENSAGEM_UNIDADE_NAO_ENCONTRADA,
+        "UNIDADE_NAO_ENCONTRADA",
+      );
+    }
 
-  const atual = unidades[indice];
-
-  // Ao editar uma Casa de Acolhimento mantendo o tipo, se as vagas disponíveis
-  // não vierem nos dados, reaproveita as atuais para não zerá-las. Se as vagas
-  // totais vierem menores, a validação existente continua bloqueando.
-  const manterVagasDisponiveis =
-    dados.vagasDisponiveis === undefined &&
-    atual.tipo === "Casa de Acolhimento" &&
-    String(dados.tipo ?? "").trim() === "Casa de Acolhimento";
-
-  // Preserva bairro/cep atuais quando não vierem nos dados (o formulário de
-  // cadastro não coleta esses campos).
-  const normalizado = validarDadosUnidade(
-    {
+    const dadosCompletos = {
+      ...atual,
       ...dados,
-      bairro: dados.bairro !== undefined ? dados.bairro : atual.bairro,
-      cep: dados.cep !== undefined ? dados.cep : atual.cep,
-      vagasDisponiveis: manterVagasDisponiveis
-        ? atual.vagasDisponiveis
-        : dados.vagasDisponiveis,
-    },
-    { ignorarId: id },
-  );
+    };
 
-  const atualizada = {
-    ...atual,
-    nome: normalizado.nome,
-    tipo: normalizado.tipo,
-    endereco: normalizado.endereco,
-    bairro: normalizado.bairro,
-    cep: normalizado.cep,
-    telefone: normalizado.telefone,
-    horario: normalizado.horario,
-  };
+    const dadosApi = prepararDados(dadosCompletos);
 
-  if (normalizado.tipo === "Casa de Acolhimento") {
-    atualizada.vagasTotal = normalizado.vagasTotal;
-    atualizada.vagasDisponiveis = normalizado.vagasDisponiveis;
-  } else {
-    delete atualizada.vagasTotal;
-    delete atualizada.vagasDisponiveis;
+    // Se o formulário não informar vagas disponíveis, preserva o valor atual.
+    if (
+      dadosCompletos.tipo === "Casa de Acolhimento" &&
+      dados.vagasDisponiveis === undefined
+    ) {
+      dadosApi.vagasDisponiveis =
+        atual.vagasDisponiveis ?? atual.vagasTotal;
+    }
+
+    validarDados(dadosApi);
+
+    const resposta = await api.put(
+      `/unidades/${encodeURIComponent(id)}`,
+      dadosApi,
+    );
+
+    return converterUnidade(extrairUnidade(resposta));
+  } catch (erro) {
+    throw tratarErro(erro);
   }
-
-  unidades[indice] = atualizada;
-
-  return copiarUnidade(atualizada);
 }
 
-// Inativação de unidade (RF015). Suspende o atendimento sem apagar o
-// registro, preservando o histórico para relatórios (RN003).
-// Lança ErroUnidade ("UNIDADE_NAO_ENCONTRADA") se a unidade não existir.
+// Inativação: preserva o registro e seu histórico.
 export async function inativarUnidade(id) {
-  const unidade = unidades.find((item) => item.id === id);
-
-  if (!unidade) {
-    throw new ErroUnidade(
-      "UNIDADE_NAO_ENCONTRADA",
-      MENSAGEM_UNIDADE_NAO_ENCONTRADA,
+  try {
+    const resposta = await api.patch(
+      `/unidades/${encodeURIComponent(id)}/inativar`,
+      {},
     );
+
+    return converterUnidade(extrairUnidade(resposta));
+  } catch (erro) {
+    throw tratarErro(erro);
   }
-
-  unidade.ativa = false;
-
-  return copiarUnidade(unidade);
 }
 
-// Exclusão de unidade (RF015, RN003). Bloqueia a remoção quando há
-// encaminhamentos vinculados (totalEncaminhamentos > 0), orientando a
-// inativar. Só remove quando não há histórico a preservar.
-// Lança ErroUnidade ("UNIDADE_NAO_ENCONTRADA") se a unidade não existir.
+// Exclusão: o backend aplica a regra RN003 e bloqueia unidades
+// que possuem encaminhamentos vinculados.
 export async function excluirUnidade(id) {
-  const indice = unidades.findIndex((unidade) => unidade.id === id);
-
-  if (indice === -1) {
-    throw new ErroUnidade(
-      "UNIDADE_NAO_ENCONTRADA",
-      MENSAGEM_UNIDADE_NAO_ENCONTRADA,
+  try {
+    return await api.delete(
+      `/unidades/${encodeURIComponent(id)}`,
     );
+  } catch (erro) {
+    throw tratarErro(erro);
   }
-
-  const unidade = unidades[indice];
-
-  if (Number(unidade.totalEncaminhamentos) > 0) {
-    throw new ErroUnidade(
-      "UNIDADE_COM_ENCAMINHAMENTOS",
-      MENSAGEM_UNIDADE_COM_ENCAMINHAMENTOS,
-    );
-  }
-
-  unidades.splice(indice, 1);
-
-  return { id };
 }

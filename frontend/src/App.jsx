@@ -22,6 +22,7 @@ import VagasAbrigos from './pages/VagasAbrigos';
 import RegistroOcorrencias from './pages/RegistroOcorrencias';
 import CadastroLuna from './pages/CadastroLuna'
 import RegistrarEncaminhamento from "./pages/RegistrarEncaminhamento";
+import CanalOrientacaoAnonima from "./pages/CanalOrientacaoAnonima";
 import MeuPerfil from "./pages/MeuPerfil";
 
 import { AuthProvider } from "./auth/AuthContext";
@@ -35,6 +36,7 @@ export default function App() {
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
+        <Route path="/canal-orientacao" element={<CanalOrientacaoAnonima />} />
       <Route
         path="/rede-de-atendimento"
         element={<RedeDeAtendimento />}
