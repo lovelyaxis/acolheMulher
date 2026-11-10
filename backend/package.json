@@ -4,7 +4,7 @@
   "description": "",
   "main": "server.js",
   "scripts": {
-    "test": "node --test",
+    "test": "node --test tests/api.test.js",
     "postinstall": "prisma generate",
     "prisma:generate": "prisma generate",
     "prisma:migrate:dev": "prisma migrate dev --name inicial",
@@ -12,13 +12,15 @@
     "prisma:studio": "prisma studio",
     "prisma:seed": "node prisma/seed.js",
     "db:setup": "npm run prisma:generate && npm run prisma:migrate:dev && npm run prisma:seed",
-    "start": "node server.js"
+    "start": "node server.js",
+    "test:preparar": "node scripts/preparar-banco-teste.js"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "type": "commonjs",
   "dependencies": {
+    "@prisma/client": "^6.19.3",
     "bcrypt": "^6.0.0",
     "cors": "^2.8.6",
     "dotenv": "^18.0.9",
@@ -26,7 +28,6 @@
     "jsonwebtoken": "^9.0.3"
   },
   "devDependencies": {
-    "@prisma/client": "^6.5.0",
     "prisma": "^6.5.0"
   }
 }

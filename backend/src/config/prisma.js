@@ -1,6 +1,2 @@
-require("dotenv").config();
-const { PrismaClient } = require("@prisma/client");
-
-const prisma = new PrismaClient();
-
-module.exports = prisma;
+// Mantido por compatibilidade: o cliente oficial fica em prisma/client.js.
+module.exports = require("../../prisma/client");
