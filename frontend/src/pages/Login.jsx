@@ -1,12 +1,43 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { Navigate, useLocation, useNavigate } from "react-router-dom";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 import { useAuth } from "../auth/AuthContext";
 
+function destinoDoPerfil(perfil) {
+  return perfil === "ADMINISTRADOR"
+    ? "/dashboard-admin"
+    : "/dashboard-profissional";
+}
+
+// Aceita o `location` guardado pelo ProtectedRoute e devolve um caminho seguro.
+function caminhoDoEstado(destino) {
+  if (!destino) return null;
+
+  if (typeof destino === "string") {
+    return destino.startsWith("/") && !destino.startsWith("//")
+      ? destino
+      : null;
+  }
+
+  const caminho = `${destino.pathname || ""}${destino.search || ""}${
+    destino.hash || ""
+  }`;
+  return caminho.startsWith("/") && !caminho.startsWith("//")
+    ? caminho
+    : null;
+}
+
 export default function Login() {
   const navigate = useNavigate();
-  const { login: fazerLogin, bloqueadoAte, tentativasRestantes } = useAuth();
+  const location = useLocation();
+  const {
+    login: fazerLogin,
+    bloqueadoAte,
+    tentativasRestantes,
+    estaAutenticado,
+    perfil,
+  } = useAuth();
   const [login, setLogin] = useState("");
   const [senha, setSenha] = useState("");
   const [mostrarSenha, setMostrarSenha] = useState(false);
@@ -36,15 +67,34 @@ export default function Login() {
 
     setEnviando(false);
     if (resultado.ok) {
+      const solicitado = caminhoDoEstado(location.state?.from);
       const destino =
-        resultado.usuario.perfil === "ADMINISTRADOR"
-          ? "/dashboard-admin"
-          : "/dashboard-profissional";
+        solicitado && !solicitado.startsWith("/login")
+          ? solicitado
+          : destinoDoPerfil(resultado.usuario.perfil);
       navigate(destino, { replace: true });
       return;
     }
 
+    if (resultado.codigo === "bloqueado") {
+      // A mensagem de bloqueio é exibida pelo estado do contexto.
+      setMensagem("");
+      return;
+    }
+
     setMensagem(resultado.mensagem || "E-mail ou senha inválidos.");
+  }
+
+  const solicitado = caminhoDoEstado(location.state?.from);
+  const destinoSolicitado =
+    solicitado && !solicitado.startsWith("/login") ? solicitado : null;
+  const destinoAutenticado = destinoSolicitado || destinoDoPerfil(perfil);
+  const perfilConhecido =
+    perfil === "ADMINISTRADOR" || perfil === "PROFISSIONAL";
+
+  // Quem já está autenticado não precisa ver o formulário novamente.
+  if (estaAutenticado && perfilConhecido) {
+    return <Navigate to={destinoAutenticado} replace />;
   }
 
   return (
@@ -216,11 +266,11 @@ export default function Login() {
             {bloqueadoAte && (
               <p className="text-center text-sm text-[#DC3B57]" role="alert">
                 Sua conta está temporariamente bloqueada por várias tentativas
-                incorretas. Tente novamente em 
-                 <strong>  {minutosBloqueio} minuto(s)</strong>.
+                incorretas. Tente novamente em{" "}
+                <strong>{minutosBloqueio} minuto(s)</strong>.
               </p>
             )}
-            {!bloqueadoAte && tentativasRestantes < 5 && (
+            {!bloqueadoAte && tentativasRestantes < 5 && tentativasRestantes > 0 && (
               <p className="text-center text-sm text-[#827A99]">
                 Tentativa{tentativasRestantes === 1 ? "" : "s"} restante(s):
                 <strong>{tentativasRestantes}</strong> de 5
@@ -230,7 +280,6 @@ export default function Login() {
             <form
               onSubmit={handleSubmit}
               className="mt-6 space-y-4"
-              disabled={bloqueadoAte || enviando}
             >
               <div>
                 <label
