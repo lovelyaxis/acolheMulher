@@ -47,15 +47,19 @@ export default function Login() {
   const [minutosBloqueio, setMinutosBloqueio] = useState(0);
 
   useEffect(() => {
-    if (!bloqueadoAte) {
-      setMinutosBloqueio(0);
-      return;
-    }
+    if (!bloqueadoAte) return;
+
     const atualizar = () =>
-      setMinutosBloqueio(Math.max(0, Math.ceil((bloqueadoAte - Date.now()) / 60000)));
-    atualizar();
+      setMinutosBloqueio(
+        Math.max(0, Math.ceil((bloqueadoAte - Date.now()) / 60000)),
+      );
+
+    const inicial = setTimeout(atualizar, 0);
     const timer = setInterval(atualizar, 1000);
-    return () => clearInterval(timer);
+    return () => {
+      clearTimeout(inicial);
+      clearInterval(timer);
+    };
   }, [bloqueadoAte]);
 
   async function handleSubmit(event) {

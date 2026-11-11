@@ -88,20 +88,7 @@ export function AuthProvider({ children }) {
     if (!token) return;
 
     const sessao = lerSession();
-    if (!sessao) {
-      serviceLogout();
-      setUsuario(null);
-      setToken(null);
-      return;
-    }
-
-    const restante = sessao.expiraEm - Date.now();
-    if (restante <= 0) {
-      serviceLogout();
-      setUsuario(null);
-      setToken(null);
-      return;
-    }
+    const restante = sessao ? sessao.expiraEm - Date.now() : 0;
 
     const timer = setTimeout(() => {
       serviceLogout();
@@ -116,12 +103,7 @@ export function AuthProvider({ children }) {
   useEffect(() => {
     if (!bloqueadoAte) return;
 
-    const restante = bloqueadoAte - Date.now();
-    if (restante <= 0) {
-      setBloqueadoAte(null);
-      setTentativasRestantes(MAX_TENTATIVAS);
-      return;
-    }
+    const restante = Math.max(0, bloqueadoAte - Date.now());
 
     const timer = setTimeout(() => {
       setBloqueadoAte(null);
@@ -190,6 +172,7 @@ export function AuthProvider({ children }) {
   return <AuthContext.Provider value={valor}>{children}</AuthContext.Provider>;
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export function useAuth() {
   const contexto = useContext(AuthContext);
   if (!contexto) {

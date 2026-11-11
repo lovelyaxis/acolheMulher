@@ -24,7 +24,7 @@ export function lerSession() {
       return null;
     }
     return session;
-  } catch (erro) {
+  } catch {
     limparSession();
     return null;
   }
