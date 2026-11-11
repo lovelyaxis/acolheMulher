@@ -12,7 +12,21 @@ const dashboardRoutes = require("./src/routes/dashboard");
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-app.use(cors());
+// Origem do front-end autorizada a chamar a API.
+const CORS_ORIGIN = process.env.CORS_ORIGIN || "http://localhost:5173";
+
+app.disable("x-powered-by");
+
+// Cabeçalhos básicos de segurança. Não inclui CSP para não afetar a API.
+app.use((req, res, next) => {
+  res.setHeader("X-Content-Type-Options", "nosniff");
+  res.setHeader("X-Frame-Options", "DENY");
+  res.setHeader("Referrer-Policy", "no-referrer");
+  res.setHeader("Cross-Origin-Resource-Policy", "same-site");
+  next();
+});
+
+app.use(cors({ origin: CORS_ORIGIN }));
 app.use(express.json({ limit: "10kb" }));
 app.use("/api/auth", authRoutes);
 app.use("/api/unidades", unidadesRoutes);

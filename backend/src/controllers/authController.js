@@ -5,6 +5,11 @@ const prisma = require("../config/prisma");
 const MAX_TENTATIVAS = 5;
 const MINUTOS_BLOQUEIO = 15;
 
+// Hash bcrypt válido usado apenas para igualar o tempo de resposta
+// quando o e-mail não existe. Nunca corresponde a uma senha real.
+const HASH_FICTICIO =
+  "$2b$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy";
+
 function dadosPublicos(usuario) {
   return {
     id: usuario.id,
@@ -41,6 +46,9 @@ async function login(req, res) {
     });
 
     if (!usuario) {
+      // Compara com um hash fictício para que o tempo de resposta não
+      // revele se o e-mail existe (proteção contra enumeração de contas).
+      await bcrypt.compare(senha, HASH_FICTICIO);
       return res.status(401).json({ erro: "E-mail ou senha inválidos." });
     }
 
