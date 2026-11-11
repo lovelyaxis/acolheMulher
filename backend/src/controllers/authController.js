@@ -113,4 +113,9 @@ function me(req, res) {
   return res.status(200).json({ usuario: req.usuario });
 }
 
-module.exports = { login, me };
+function logout(_req, res) {
+  // JWT é stateless: o servidor apenas confirma. O cliente descarta o token.
+  return res.status(200).json({ mensagem: "Logout realizado com sucesso." });
+}
+
+module.exports = { login, me, logout };
