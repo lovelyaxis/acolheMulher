@@ -6,6 +6,7 @@ const unidadesRoutes = require("./src/routes/unidades");
 const usuariosRoutes = require("./src/routes/usuarios");
 const encaminhamentosRoutes = require("./src/routes/encaminhamentos");
 const orientacoesRoutes = require("./src/routes/orientacoes");
+const redeAtendimentoRoutes = require("./src/routes/redeAtendimento");
 const dashboardRoutes = require("./src/routes/dashboard");
 
 
@@ -33,6 +34,7 @@ app.use("/api/unidades", unidadesRoutes);
 app.use("/api/usuarios", usuariosRoutes);
 app.use("/api/encaminhamentos", encaminhamentosRoutes);
 app.use("/api/orientacoes-anonimas", orientacoesRoutes);
+app.use("/api/rede-atendimento", redeAtendimentoRoutes);
 app.use("/api/dashboard", dashboardRoutes);
 
 // Não adicionar logs que armazenem IP ou conteúdo

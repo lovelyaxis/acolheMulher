@@ -140,6 +140,19 @@ async function buscarDuplicada(nome, endereco) {
   });
 }
 
+// O id da unidade é o UUID gerado pelo banco (VarChar(36)).
+const FORMATO_ID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+// Valida o :id da rota. Retorna o id ou null (resposta já enviada).
+function validarId(req, res) {
+  const id = typeof req.params.id === "string" ? req.params.id.trim() : "";
+  if (!FORMATO_ID.test(id)) {
+    res.status(400).json({ erro: "Identificador da unidade inválido." });
+    return null;
+  }
+  return id;
+}
+
 function erroInterno(res, contexto, erro) {
   console.error(`Erro em unidades (${contexto}):`, erro.message);
   return res.status(500).json({ erro: "Erro interno do servidor." });
@@ -182,9 +195,12 @@ async function listarInternas(req, res) {
 
 // GET /api/unidades/:id
 async function buscar(req, res) {
+  const id = validarId(req, res);
+  if (id === null) return;
+
   try {
     const unidade = await prisma.unidade.findUnique({
-      where: { id: req.params.id },
+      where: { id },
       select: CAMPOS_INTERNOS
     });
 
@@ -237,13 +253,16 @@ async function cadastrar(req, res) {
 
 // PUT /api/unidades/:id
 async function editar(req, res) {
+  const id = validarId(req, res);
+  if (id === null) return;
+
   const corpo = req.body || {};
   const { erro, dados } = validarCorpo(corpo);
   if (erro) return res.status(400).json({ erro });
 
   try {
     const existente = await prisma.unidade.findUnique({
-      where: { id: req.params.id },
+      where: { id },
       select: { id: true }
     });
     if (!existente) {
@@ -285,9 +304,12 @@ async function editar(req, res) {
 
 // PATCH /api/unidades/:id/inativar
 async function inativar(req, res) {
+  const id = validarId(req, res);
+  if (id === null) return;
+
   try {
     const existente = await prisma.unidade.findUnique({
-      where: { id: req.params.id },
+      where: { id },
       select: { id: true }
     });
     if (!existente) {
@@ -308,9 +330,12 @@ async function inativar(req, res) {
 
 // DELETE /api/unidades/:id
 async function excluir(req, res) {
+  const id = validarId(req, res);
+  if (id === null) return;
+
   try {
     const existente = await prisma.unidade.findUnique({
-      where: { id: req.params.id },
+      where: { id },
       select: { id: true }
     });
     if (!existente) {
