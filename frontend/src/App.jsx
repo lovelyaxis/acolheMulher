@@ -4,10 +4,12 @@ import { Routes, Route, Navigate } from "react-router-dom";
 import Home from "./pages/Home";
 import Login from "./pages/Login";
 import RedeDeAtendimento from "./pages/RedeDeAtendimento";
+import RedeDeAtendimentoInterno from "./pages/RedeDeAtendimentoInterno";
 import DashboardProfissional from "./pages/DashboardProfissional";
 
 import DashboardAdmin from "./pages/DashboardAdmin";
 import CadastroUnidade from "./pages/CadastroUnidade";
+import GerenciarUnidades from "./pages/GerenciarUnidades";
 import TiposDeAcolhimento from "./pages/TiposdeAcolhimento";
 import Ajuda from "./pages/Ajuda";
 import Sobre from "./pages/Sobre";
@@ -19,28 +21,73 @@ import GestaoEncaminhamentos from './pages/GestaoEncaminhamentos';
 import VagasAbrigos from './pages/VagasAbrigos';
 import RegistroOcorrencias from './pages/RegistroOcorrencias';
 import CadastroLuna from './pages/CadastroLuna'
+import RegistrarEncaminhamento from "./pages/RegistrarEncaminhamento";
+import CanalOrientacaoAnonima from "./pages/CanalOrientacaoAnonima";
+import MeuPerfil from "./pages/MeuPerfil";
+
+import { AuthProvider } from "./auth/AuthContext";
+import ProtectedRoute from "./auth/ProtectedRoute";
+
+import EditarUnidade from "./pages/EditarUnidade";
 
 export default function App() {
   return (
-    <Routes>
-      <Route path="/" element={<Home />} />
-      <Route path="/login" element={<Login />} />
+    <AuthProvider>
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/canal-orientacao" element={<CanalOrientacaoAnonima />} />
       <Route
         path="/rede-de-atendimento"
         element={<RedeDeAtendimento />}
       />
       <Route
         path="/dashboard-profissional"
-        element={<DashboardProfissional />}
+        element={
+          <ProtectedRoute perfil="PROFISSIONAL">
+            <DashboardProfissional />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/profissional/rede"
+        element={
+          <ProtectedRoute perfil={["PROFISSIONAL", "ADMINISTRADOR"]}>
+            <RedeDeAtendimentoInterno />
+          </ProtectedRoute>
+        }
       />
       <Route path="*" element={<Navigate to="/login" replace />} />
       <Route path="/cadastro-luna" element={<CadastroLuna />} />
 
       {/* ADICIONANDO AS PAGINAS DO MATHEUS */}
 
-      <Route path="/dashboard-admin" element={<DashboardAdmin />} />
+      <Route
+        path="/dashboard-admin"
+        element={
+          <ProtectedRoute perfil="ADMINISTRADOR">
+            <DashboardAdmin />
+          </ProtectedRoute>
+        }
+      />
 
-      <Route path="/cadastrar-unidade" element={<CadastroUnidade />} />
+      <Route
+        path="/cadastrar-unidade"
+        element={
+          <ProtectedRoute perfil="ADMINISTRADOR">
+            <CadastroUnidade />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/admin/unidades"
+        element={
+          <ProtectedRoute perfil="ADMINISTRADOR">
+            <GerenciarUnidades />
+          </ProtectedRoute>
+        }
+      />
 
       <Route path="/tipos-de-acolhimento" element={<TiposDeAcolhimento />} />
 
@@ -56,11 +103,49 @@ export default function App() {
 
       <Route path="/como-funciona" element={<ComoFunciona />} />
 
-      <Route path="/admin/encaminhamentos" element={<GestaoEncaminhamentos />} />
+      <Route
+        path="/admin/encaminhamentos"
+        element={
+          <ProtectedRoute perfil="ADMINISTRADOR">
+            <GestaoEncaminhamentos />
+          </ProtectedRoute>
+        }
+      />
 
-      <Route path="/admin/vagas-abrigos" element={<VagasAbrigos />} />
+      <Route
+        path="/admin/vagas-abrigos"
+        element={
+          <ProtectedRoute perfil="ADMINISTRADOR">
+            <VagasAbrigos />
+          </ProtectedRoute>
+        }
+      />
 
-      <Route path="/admin/registro-ocorrencias" element={<RegistroOcorrencias />} />
+<Route
+  path="/admin/registro-ocorrencias"
+  element={
+    <ProtectedRoute perfil="ADMINISTRADOR">
+      <RegistroOcorrencias />
+    </ProtectedRoute>
+  }
+/>
+
+<Route
+  path="/registrar-encaminhamento"
+  element={<RegistrarEncaminhamento />}
+/>
+
+<Route path="/meu-perfil" element={<MeuPerfil />} />
+
+<Route
+  path="/admin/unidades/:id/editar"
+  element={
+    <ProtectedRoute perfil="ADMINISTRADOR">
+      <EditarUnidade />
+    </ProtectedRoute>
+  }
+/>
     </Routes>
+    </AuthProvider>
   );
 }

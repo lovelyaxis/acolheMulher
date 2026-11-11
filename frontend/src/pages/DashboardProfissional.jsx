@@ -1,5 +1,12 @@
-
-import { useMemo, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { useEffect, useMemo, useState } from "react";
+import { useAuth } from "../auth/AuthContext";
+import {
+  listarEncaminhamentos,
+  registrarEncaminhamento as registrarEncaminhamentoApi,
+  listarUnidadesDestino,
+} from "../services/encaminhamentosService";
+import { obterDashboardProfissional } from "../services/dashboardService";
 import {
   Heart,
   HeartHandshake,
@@ -18,51 +25,12 @@ import {
   Bell,
   ChevronDown,
   ArrowUpRight,
-  Users,
   CalendarDays,
   CircleCheck,
   AlertCircle,
   Send,
   ShieldCheck,
 } from "lucide-react";
-
-const encaminhamentosIniciais = [
-  {
-    codigo: "AM-024",
-    servico: "Assistência social",
-    destino: "Casa da Mulher Brasileira",
-    data: "12/09/2026",
-    status: "Concluído",
-  },
-  {
-    codigo: "AM-023",
-    servico: "Orientação jurídica",
-    destino: "Defensoria Pública",
-    data: "12/09/2026",
-    status: "Pendente",
-  },
-  {
-    codigo: "AM-022",
-    servico: "Apoio psicológico",
-    destino: "CRAS Centro",
-    data: "11/09/2026",
-    status: "Concluído",
-  },
-  {
-    codigo: "AM-021",
-    servico: "Assistência social",
-    destino: "Delegacia da Mulher (DEAM)",
-    data: "11/09/2026",
-    status: "Pendente",
-  },
-  {
-    codigo: "AM-020",
-    servico: "Orientação jurídica",
-    destino: "Defensoria Pública",
-    data: "10/09/2026",
-    status: "Pendente",
-  },
-];
 
 const servicosDisponiveis = [
   "Assistência social",
@@ -72,32 +40,28 @@ const servicosDisponiveis = [
   "Acolhimento especializado",
 ];
 
-const unidadesDisponiveis = [
-  "Casa da Mulher Brasileira",
-  "Centro de referência",
-  "CRAS Centro",
-  "Defensoria Pública",
-  "Delegacia da Mulher (DEAM)",
-  "Hospital de Referência",
-  "Unidade de atendimento",
-];
+function iniciais(nome = "") {
+  const partes = String(nome).trim().split(/\s+/).filter(Boolean);
+  if (partes.length === 0) return "?";
+  const primeira = partes[0][0];
+  const ultima = partes.length > 1 ? partes[partes.length - 1][0] : "";
+  return (primeira + ultima).toUpperCase();
+}
 
 function BadgeStatus({ status }) {
   const estilos = {
-    Concluído: "bg-[#E3F5EA] text-[#237B46]",
-    Pendente: "bg-[#FFF1D9] text-[#98600A]",
-    Cancelado: "bg-[#FCE7EC] text-[#B4233D]",
+    Concluído: "bg-emerald-50 text-emerald-700",
+    Pendente: "bg-amber-50 text-amber-700",
   };
 
   return (
     <span
       className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold ${
-        estilos[status] || "bg-gray-100 text-gray-700"
+        estilos[status] || "bg-slate-100 text-slate-700"
       }`}
     >
       {status === "Concluído" && <CheckCircle2 size={13} />}
       {status === "Pendente" && <Clock3 size={13} />}
-      {status === "Cancelado" && <AlertCircle size={13} />}
       {status}
     </span>
   );
@@ -112,22 +76,88 @@ function CartaoMetrica({ titulo, valor, icone, cor }) {
         {icone}
       </div>
 
-      <div className="min-w-0">
-        <p className="font-poppins text-2xl font-bold leading-tight text-[#241D45]">
-          {valor}
-        </p>
-        <p className="mt-1 text-xs leading-5 text-[#716A88] sm:text-sm">
-          {titulo}
-        </p>
+      <div className="bg-white p-6 rounded-2xl border border-purple-100 shadow-sm">
+        <p className="text-3xl font-extrabold text-slate-900">{valor}</p>
+        <p className="text-xs text-slate-500 mt-1">{titulo}</p>
       </div>
     </article>
   );
 }
 
-export default function DashboardProfissional() {
-  const [encaminhamentos, setEncaminhamentos] = useState(
-    encaminhamentosIniciais
+// Conteúdo mostrado no lugar da tabela: carregando, erro ou lista vazia.
+function EstadoDaLista({
+  carregando,
+  erro,
+  semRegistros,
+  aoTentarNovamente,
+  aoLimpar,
+}) {
+  if (carregando) {
+    return (
+      <p role="status" className="text-sm font-semibold text-[#716A88]">
+        Carregando encaminhamentos...
+      </p>
+    );
+  }
+
+  if (erro) {
+    return (
+      <div role="alert">
+        <AlertCircle size={24} className="mx-auto text-[#DC3B57]" />
+        <p className="mt-3 text-sm font-semibold">
+          Não foi possível carregar os dados
+        </p>
+        <p className="mt-1 text-xs text-[#827A99]">{erro}</p>
+        <button
+          type="button"
+          onClick={aoTentarNovamente}
+          className="mt-3 text-sm font-semibold text-[#7B3FA6] hover:underline"
+        >
+          Tentar novamente
+        </button>
+      </div>
+    );
+  }
+
+  if (semRegistros) {
+    return (
+      <div>
+        <ClipboardList size={24} className="mx-auto text-[#A19AAF]" />
+        <p className="mt-3 text-sm font-semibold">
+          Você ainda não registrou encaminhamentos
+        </p>
+        <p className="mt-1 text-xs text-[#827A99]">
+          Use o botão "Novo encaminhamento" para criar o primeiro.
+        </p>
+      </div>
+    );
+  }
+
+  return (
+    <div>
+      <Search size={24} className="mx-auto text-[#A19AAF]" />
+      <p className="mt-3 text-sm font-semibold">Nenhum registro encontrado</p>
+      <p className="mt-1 text-xs text-[#827A99]">
+        Tente outro termo ou limpe os filtros.
+      </p>
+      <button
+        type="button"
+        onClick={aoLimpar}
+        className="mt-3 text-sm font-semibold text-[#7B3FA6] hover:underline"
+      >
+        Limpar filtros
+      </button>
+    </div>
   );
+}
+
+export default function DashboardProfissional() {
+  const [encaminhamentos, setEncaminhamentos] = useState([]);
+  const [unidades, setUnidades] = useState([]);
+  const [resumo, setResumo] = useState(null);
+  const [carregando, setCarregando] = useState(true);
+  const [erroApi, setErroApi] = useState("");
+
   const [menuAberto, setMenuAberto] = useState(false);
   const [busca, setBusca] = useState("");
   const [filtro, setFiltro] = useState("Todos");
@@ -136,27 +166,64 @@ export default function DashboardProfissional() {
   const [notificacoesAbertas, setNotificacoesAbertas] = useState(false);
   const [mensagem, setMensagem] = useState("");
   const [tipoMensagem, setTipoMensagem] = useState("sucesso");
+  const [enviando, setEnviando] = useState(false);
   const [formulario, setFormulario] = useState({
     servico: "",
     destino: "",
     observacoes: "",
   });
   const [erros, setErros] = useState({});
+  const navigate = useNavigate();
+  const { logout, usuario } = useAuth();
 
-  const pendentes = encaminhamentos.filter(
-    (item) => item.status === "Pendente"
-  ).length;
+  const nomeUsuario = usuario?.nome || "Profissional";
+  const primeiroNome = nomeUsuario.split(" ")[0];
+  const cargoUsuario = usuario?.cargo || "Profissional da rede";
 
-  const concluidos = encaminhamentos.filter(
-    (item) => item.status === "Concluído"
-  ).length;
+  async function carregarDados() {
+    setCarregando(true);
+    setErroApi("");
+
+    try {
+      const [lista, indicadores, listaUnidades] = await Promise.all([
+        listarEncaminhamentos(),
+        obterDashboardProfissional(),
+        listarUnidadesDestino(),
+      ]);
+
+      setEncaminhamentos(lista);
+      setResumo(indicadores);
+      setUnidades(listaUnidades);
+    } catch (erro) {
+      setErroApi(erro.message || "Erro ao conectar com o servidor.");
+    } finally {
+      setCarregando(false);
+    }
+  }
+
+  useEffect(() => {
+    carregarDados();
+  }, []);
+
+  function handleSair() {
+    logout();
+    navigate("/login");
+  }
+
+  const pendentes = resumo ? resumo.encaminhamentosPendentes : 0;
+
+  function formatarValor(valor) {
+    if (carregando || erroApi || valor === undefined || valor === null) {
+      return "--";
+    }
+    return String(valor).padStart(2, "0");
+  }
 
   const encaminhamentosFiltrados = useMemo(() => {
     const termo = busca.trim().toLocaleLowerCase("pt-BR");
 
     return encaminhamentos.filter((item) => {
-      const correspondeFiltro =
-        filtro === "Todos" || item.status === filtro;
+      const correspondeFiltro = filtro === "Todos" || item.status === filtro;
 
       const correspondeBusca = [
         item.codigo,
@@ -164,12 +231,16 @@ export default function DashboardProfissional() {
         item.destino,
         item.data,
       ].some((campo) =>
-        campo.toLocaleLowerCase("pt-BR").includes(termo)
+        String(campo ?? "")
+          .toLocaleLowerCase("pt-BR")
+          .includes(termo)
       );
 
       return correspondeFiltro && correspondeBusca;
     });
   }, [encaminhamentos, busca, filtro]);
+
+  const mostrarEstado = carregando || Boolean(erroApi) || encaminhamentosFiltrados.length === 0;
 
   function mostrarMensagem(texto, tipo = "sucesso") {
     setMensagem(texto);
@@ -177,11 +248,7 @@ export default function DashboardProfissional() {
   }
 
   function abrirModal() {
-    setFormulario({
-      servico: "",
-      destino: "",
-      observacoes: "",
-    });
+    setFormulario({ servico: "", destino: "", observacoes: "" });
     setErros({});
     setModalAberto(true);
     setMenuAberto(false);
@@ -194,18 +261,11 @@ export default function DashboardProfissional() {
   }
 
   function alterarCampo(campo, valor) {
-    setFormulario((anterior) => ({
-      ...anterior,
-      [campo]: valor,
-    }));
-
-    setErros((anteriores) => ({
-      ...anteriores,
-      [campo]: "",
-    }));
+    setFormulario((anterior) => ({ ...anterior, [campo]: valor }));
+    setErros((anteriores) => ({ ...anteriores, [campo]: "" }));
   }
 
-  function registrarEncaminhamento(evento) {
+  async function registrarEncaminhamento(evento) {
     evento.preventDefault();
 
     const novosErros = {};
@@ -224,31 +284,34 @@ export default function DashboardProfissional() {
       return;
     }
 
-    const maiorCodigo = encaminhamentos.reduce((maior, item) => {
-      const numero = Number(item.codigo.replace("AM-", ""));
-      return Math.max(maior, numero);
-    }, 0);
+    setEnviando(true);
 
-    const novoEncaminhamento = {
-      codigo: `AM-${String(maiorCodigo + 1).padStart(3, "0")}`,
-      servico: formulario.servico,
-      destino: formulario.destino,
-      data: new Date().toLocaleDateString("pt-BR"),
-      status: "Pendente",
-      observacoes: formulario.observacoes.trim(),
-    };
+    try {
+      const codigoCaso = `AM-${Date.now()}`;
 
-    setEncaminhamentos((anteriores) => [
-      novoEncaminhamento,
-      ...anteriores,
-    ]);
+      // O profissional é identificado pelo token, não pelo corpo da requisição.
+      await registrarEncaminhamentoApi({
+        codigoCaso,
+        tipoAtendimento: formulario.servico,
+        unidadeDestinoId: formulario.destino,
+        observacoes: formulario.observacoes.trim(),
+      });
 
-    setBusca("");
-    setFiltro("Todos");
-    fecharModal();
-    mostrarMensagem(
-      `Encaminhamento ${novoEncaminhamento.codigo} registrado nesta demonstração.`
-    );
+      await carregarDados();
+
+      setBusca("");
+      setFiltro("Todos");
+      fecharModal();
+
+      mostrarMensagem(`Encaminhamento ${codigoCaso} registrado com sucesso.`);
+    } catch (erro) {
+      mostrarMensagem(
+        erro.message || "Não foi possível registrar o encaminhamento.",
+        "erro"
+      );
+    } finally {
+      setEnviando(false);
+    }
   }
 
   function limparFiltros() {
@@ -262,7 +325,7 @@ export default function DashboardProfissional() {
   }
 
   return (
-    <div className="min-h-screen bg-[#F5F0FC] font-inter text-[#241D45] md:flex">
+    <div className="min-h-screen bg-purple-50/50 font-inter text-[#241D45] md:flex">
       {/* Fundo escuro para o menu em telas pequenas */}
       {menuAberto && (
         <button
@@ -275,17 +338,13 @@ export default function DashboardProfissional() {
 
       {/* MENU LATERAL */}
       <aside
-        className={`fixed inset-y-0 left-0 z-50 flex w-64 flex-col bg-[#241D45] text-white transition-transform duration-300 md:sticky md:top-0 md:h-screen md:translate-x-0 ${
+        className={`fixed inset-y-0 left-0 z-50 flex w-64 flex-col bg-slate-900 text-white transition-transform duration-300 md:sticky md:top-0 md:h-screen md:translate-x-0 ${
           menuAberto ? "translate-x-0" : "-translate-x-full"
         }`}
       >
         <div className="flex h-[76px] items-center justify-between border-b border-white/10 px-5">
           <div className="flex items-center gap-2.5">
-            <Heart
-              size={21}
-              fill="#C9A0F0"
-              className="text-[#C9A0F0]"
-            />
+            <Heart size={21} fill="#C9A0F0" className="text-[#C9A0F0]" />
             <span className="font-poppins text-sm font-bold tracking-tight">
               AcolheMulher
             </span>
@@ -301,27 +360,24 @@ export default function DashboardProfissional() {
           </button>
         </div>
 
-        <nav
-          aria-label="Menu principal"
-          className="flex-1 space-y-1.5 px-3 py-5"
-        >
+        <nav aria-label="Menu principal" className="flex-1 space-y-1.5 px-3 py-5">
           <a
             href="#inicio"
             onClick={() => setMenuAberto(false)}
-            className="flex items-center gap-3 rounded-lg bg-[#7B3FA6] px-3 py-3 text-sm font-medium text-white transition hover:bg-[#8C4DB7]"
+            className="flex items-center gap-3 rounded-lg bg-purple-600 px-3 py-3 text-sm font-medium text-white transition hover:bg-[#8C4DB7]"
           >
             <House size={17} />
             Início
           </a>
 
-          <button
-            type="button"
-            onClick={abrirModal}
+          <Link
+            to="/registrar-encaminhamento"
+            onClick={() => setMenuAberto(false)}
             className="flex w-full items-center gap-3 rounded-lg px-3 py-3 text-left text-sm text-white/75 transition hover:bg-white/10 hover:text-white"
           >
             <ClipboardList size={17} />
             Registrar encaminhamento
-          </button>
+          </Link>
 
           <a
             href="/rede-de-atendimento"
@@ -333,14 +389,14 @@ export default function DashboardProfissional() {
             <ArrowUpRight className="ml-auto" size={15} />
           </a>
 
-          <button
-            type="button"
-            onClick={abrirPerfil}
+          <Link
+            to="/meu-perfil"
+            onClick={() => setMenuAberto(false)}
             className="flex w-full items-center gap-3 rounded-lg px-3 py-3 text-left text-sm text-white/75 transition hover:bg-white/10 hover:text-white"
           >
             <UserRound size={17} />
             Meu perfil
-          </button>
+          </Link>
         </nav>
 
         <div className="border-t border-white/10 p-3">
@@ -352,25 +408,25 @@ export default function DashboardProfissional() {
               </span>
             </div>
             <p className="mt-2 text-xs leading-5 text-white/65">
-              Cada atendimento merece cuidado, respeito e
-              confidencialidade.
+              Cada atendimento merece cuidado, respeito e confidencialidade.
             </p>
           </div>
 
-          <a
-            href="/login"
+          <button
+            type="button"
+            onClick={handleSair}
             className="flex items-center gap-3 rounded-lg px-3 py-3 text-sm text-white/70 transition hover:bg-white/10 hover:text-white"
           >
             <LogOut size={17} />
             Sair
-          </a>
+          </button>
         </div>
       </aside>
 
       {/* CONTEÚDO PRINCIPAL */}
       <main id="inicio" className="min-w-0 flex-1">
         {/* CABEÇALHO */}
-        <header className="sticky top-0 z-30 flex min-h-[76px] items-center justify-between gap-3 border-b border-[#EAE3F4] bg-white px-4 py-3 sm:px-6 lg:px-8">
+        <header className="sticky top-0 z-30 flex min-h-[76px] items-center justify-between gap-3 border-b border-purple-100 bg-white px-4 py-3 sm:px-6 lg:px-8">
           <div className="flex min-w-0 items-center gap-3">
             <button
               type="button"
@@ -383,10 +439,10 @@ export default function DashboardProfissional() {
             </button>
 
             <div className="min-w-0">
-              <h1 className="font-poppins text-base font-bold sm:text-lg">
-                Olá, Ana Paula
+              <h1 className="text-2xl font-bold text-slate-900">
+                Olá, {primeiroNome}
               </h1>
-              <p className="mt-0.5 text-xs text-[#827A99]">
+              <p className="text-sm text-slate-500 mt-1">
                 Painel do Profissional da Rede
               </p>
             </div>
@@ -398,9 +454,7 @@ export default function DashboardProfissional() {
                 type="button"
                 aria-label="Ver notificações"
                 aria-expanded={notificacoesAbertas}
-                onClick={() =>
-                  setNotificacoesAbertas((aberto) => !aberto)
-                }
+                onClick={() => setNotificacoesAbertas((aberto) => !aberto)}
                 className="relative rounded-full p-2.5 transition hover:bg-[#F5F0FC]"
               >
                 <Bell size={19} />
@@ -437,7 +491,7 @@ export default function DashboardProfissional() {
                         </p>
                         <p className="mt-1 text-xs leading-5 text-gray-600">
                           Você tem {pendentes} registro(s) aguardando
-                          acompanhamento nesta demonstração.
+                          acompanhamento.
                         </p>
                         <button
                           type="button"
@@ -459,10 +513,6 @@ export default function DashboardProfissional() {
                       Não há encaminhamentos pendentes.
                     </p>
                   )}
-
-                  <p className="mt-3 text-[11px] leading-4 text-gray-400">
-                    Avisos gerados a partir dos dados fictícios desta página.
-                  </p>
                 </div>
               )}
             </div>
@@ -473,14 +523,14 @@ export default function DashboardProfissional() {
               className="flex items-center gap-2 rounded-xl p-1.5 text-left transition hover:bg-[#F5F0FC] sm:gap-3 sm:px-2"
             >
               <span className="flex h-9 w-9 items-center justify-center rounded-full bg-[#F0E5FA] text-xs font-bold text-[#7B3FA6]">
-                AP
+                {iniciais(nomeUsuario)}
               </span>
               <span className="hidden sm:block">
                 <span className="block text-xs font-semibold">
-                  Ana Paula
+                  {nomeUsuario}
                 </span>
                 <span className="mt-1 block text-[10px] text-[#827A99]">
-                  Assistente Social · CRAS Centro
+                  {cargoUsuario}
                 </span>
               </span>
               <ChevronDown
@@ -516,53 +566,60 @@ export default function DashboardProfissional() {
             </button>
           </section>
 
-          {/* INDICADORES */}
+          {/* INDICADORES (calculados pelo servidor) */}
           <section
             aria-label="Indicadores do painel"
-            className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3"
+            className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4"
           >
             <CartaoMetrica
               titulo="Atendimentos registrados"
-              valor={String(encaminhamentos.length).padStart(2, "0")}
+              valor={formatarValor(resumo?.totalEncaminhamentos)}
               icone={<FileText size={20} />}
               cor="bg-[#F0E5FA] text-[#7B3FA6]"
             />
 
             <CartaoMetrica
               titulo="Encaminhamentos pendentes"
-              valor={String(pendentes).padStart(2, "0")}
+              valor={formatarValor(resumo?.encaminhamentosPendentes)}
               icone={<Clock3 size={20} />}
               cor="bg-[#FFF1D9] text-[#B87512]"
             />
 
             <CartaoMetrica
               titulo="Encaminhamentos concluídos"
-              valor={String(concluidos).padStart(2, "0")}
+              valor={formatarValor(resumo?.encaminhamentosConcluidos)}
               icone={<CircleCheck size={20} />}
               cor="bg-[#E3F5EA] text-[#2E9E5B]"
+            />
+
+            <CartaoMetrica
+              titulo="Atendimentos de hoje"
+              valor={formatarValor(resumo?.atendimentosHoje)}
+              icone={<CalendarDays size={20} />}
+              cor="bg-[#E6EEFB] text-[#2F66C2]"
             />
           </section>
 
           {/* TABELA E FILTROS */}
           <section
             id="encaminhamentos"
-            className="scroll-mt-24 overflow-hidden rounded-xl border border-[#EAE3F4] bg-white shadow-[0_3px_14px_rgba(36,29,69,0.05)]"
+            className="scroll-mt-24 overflow-hidden rounded-2xl border border-purple-100 bg-white shadow-sm"
           >
-            <div className="flex flex-col gap-4 border-b border-[#EAE3F4] p-4 sm:p-5 lg:flex-row lg:items-center lg:justify-between">
+            <div className="flex flex-col gap-4 border-b border-slate-100 p-6 lg:flex-row lg:items-center lg:justify-between">
               <div>
                 <h2 className="font-poppins text-base font-bold">
                   Últimos atendimentos
                 </h2>
                 <p className="mt-1 text-xs leading-5 text-[#827A99]">
-                  {encaminhamentosFiltrados.length} registro(s) encontrado(s)
+                  {carregando
+                    ? "Carregando..."
+                    : `${encaminhamentosFiltrados.length} registro(s) encontrado(s)`}
                 </p>
               </div>
 
               <div className="flex flex-col gap-3 sm:flex-row">
                 <label className="relative block">
-                  <span className="sr-only">
-                    Buscar encaminhamentos
-                  </span>
+                  <span className="sr-only">Buscar encaminhamentos</span>
                   <Search
                     size={17}
                     className="absolute left-3 top-1/2 -translate-y-1/2 text-[#948CA8]"
@@ -572,7 +629,7 @@ export default function DashboardProfissional() {
                     value={busca}
                     onChange={(evento) => setBusca(evento.target.value)}
                     placeholder="Buscar código ou serviço"
-                    className="min-h-10 w-full rounded-lg border border-[#E5DFEF] bg-white py-2.5 pl-9 pr-3 text-sm outline-none transition placeholder:text-[#A19AAF] focus:border-[#7B3FA6] focus:ring-2 focus:ring-[#7B3FA6]/15 sm:w-56"
+                    className="min-h-10 w-full rounded-xl border border-slate-200 bg-white py-2.5 pl-9 pr-3 text-sm text-slate-700 outline-none transition placeholder:text-slate-400 focus:border-purple-500 focus:ring-2 focus:ring-purple-100 sm:w-56"
                   />
                 </label>
 
@@ -581,12 +638,11 @@ export default function DashboardProfissional() {
                   <select
                     value={filtro}
                     onChange={(evento) => setFiltro(evento.target.value)}
-                    className="min-h-10 w-full appearance-none rounded-lg border border-[#E5DFEF] bg-white py-2.5 pl-3 pr-9 text-sm outline-none transition focus:border-[#7B3FA6] focus:ring-2 focus:ring-[#7B3FA6]/15 sm:w-40"
+                    className="min-h-10 w-full appearance-none rounded-xl border border-slate-200 bg-white py-2.5 pl-3 pr-9 text-sm text-slate-700 outline-none transition focus:border-purple-500 focus:ring-2 focus:ring-purple-100 sm:w-40"
                   >
                     <option value="Todos">Todas as situações</option>
                     <option value="Pendente">Pendente</option>
                     <option value="Concluído">Concluído</option>
-                    <option value="Cancelado">Cancelado</option>
                   </select>
                   <ChevronDown
                     size={15}
@@ -598,7 +654,7 @@ export default function DashboardProfissional() {
                   <button
                     type="button"
                     onClick={limparFiltros}
-                    className="rounded-lg px-3 py-2 text-sm font-semibold text-[#7B3FA6] transition hover:bg-[#F5F0FC]"
+                    className="rounded-lg px-3 py-2 text-sm font-semibold text-purple-700 transition hover:bg-purple-50"
                   >
                     Limpar
                   </button>
@@ -609,7 +665,7 @@ export default function DashboardProfissional() {
             {/* TABELA PARA COMPUTADOR */}
             <div className="hidden overflow-x-auto md:block">
               <table className="w-full min-w-[650px] text-left text-sm">
-                <thead className="bg-white text-[11px] uppercase tracking-wide text-[#827A99]">
+                <thead className="border-b border-slate-100 text-[11px] uppercase tracking-wider text-slate-400">
                   <tr>
                     <th scope="col" className="px-6 py-4 font-semibold">
                       Data
@@ -629,53 +685,41 @@ export default function DashboardProfissional() {
                   </tr>
                 </thead>
 
-                <tbody className="divide-y divide-[#EEE8F5]">
-                  {encaminhamentosFiltrados.map((item) => (
-                    <tr
-                      key={item.codigo}
-                      className="transition-colors hover:bg-[#FAF8FD]"
-                    >
-                      <td className="whitespace-nowrap px-6 py-4 text-xs text-[#716A88]">
-                        {item.data}
-                      </td>
-                      <td className="px-6 py-4 text-xs font-medium text-[#241D45]">
-                        {item.destino}
-                      </td>
-                      <td className="px-6 py-4 text-xs text-[#716A88]">
-                        {item.servico}
-                      </td>
-                      <td className="px-6 py-4">
-                        <BadgeStatus status={item.status} />
-                      </td>
-                      <td className="whitespace-nowrap px-6 py-4 text-xs font-semibold text-[#7B3FA6]">
-                        {item.codigo}
-                      </td>
-                    </tr>
-                  ))}
-
-                  {encaminhamentosFiltrados.length === 0 && (
-                    <tr>
-                      <td
-                        colSpan={5}
-                        className="px-6 py-12 text-center"
+                <tbody className="divide-y divide-slate-50 text-slate-700">
+                  {!mostrarEstado &&
+                    encaminhamentosFiltrados.map((item) => (
+                      <tr
+                        key={item.id}
+                        className="transition-colors hover:bg-purple-50/30"
                       >
-                        <Search
-                          size={24}
-                          className="mx-auto text-[#A19AAF]"
+                        <td className="whitespace-nowrap px-6 py-4 text-xs text-slate-500">
+                          {item.data}
+                        </td>
+                        <td className="px-6 py-4 text-xs font-semibold text-slate-800">
+                          {item.destino}
+                        </td>
+                        <td className="px-6 py-4 text-xs text-slate-500">
+                          {item.servico}
+                        </td>
+                        <td className="px-6 py-4">
+                          <BadgeStatus status={item.status} />
+                        </td>
+                        <td className="whitespace-nowrap px-6 py-4 text-xs font-semibold text-purple-700">
+                          {item.codigo}
+                        </td>
+                      </tr>
+                    ))}
+
+                  {mostrarEstado && (
+                    <tr>
+                      <td colSpan={5} className="px-6 py-12 text-center">
+                        <EstadoDaLista
+                          carregando={carregando}
+                          erro={erroApi}
+                          semRegistros={encaminhamentos.length === 0}
+                          aoTentarNovamente={carregarDados}
+                          aoLimpar={limparFiltros}
                         />
-                        <p className="mt-3 text-sm font-semibold">
-                          Nenhum registro encontrado
-                        </p>
-                        <p className="mt-1 text-xs text-[#827A99]">
-                          Tente outro termo ou limpe os filtros.
-                        </p>
-                        <button
-                          type="button"
-                          onClick={limparFiltros}
-                          className="mt-3 text-sm font-semibold text-[#7B3FA6] hover:underline"
-                        >
-                          Limpar filtros
-                        </button>
                       </td>
                     </tr>
                   )}
@@ -685,43 +729,41 @@ export default function DashboardProfissional() {
 
             {/* CARTÕES PARA CELULAR */}
             <div className="space-y-3 p-4 md:hidden">
-              {encaminhamentosFiltrados.map((item) => (
-                <article
-                  key={item.codigo}
-                  className="rounded-xl border border-[#EAE3F4] p-4 transition hover:bg-[#FAF8FD]"
-                >
-                  <div className="flex flex-wrap items-center justify-between gap-2">
-                    <span className="text-xs font-semibold text-[#7B3FA6]">
-                      {item.codigo}
-                    </span>
-                    <BadgeStatus status={item.status} />
-                  </div>
-
-                  <h3 className="mt-3 text-sm font-semibold">
-                    {item.servico}
-                  </h3>
-                  <p className="mt-1 text-xs leading-5 text-[#716A88]">
-                    {item.destino}
-                  </p>
-                  <p className="mt-3 flex items-center gap-1.5 text-xs text-[#827A99]">
-                    <CalendarDays size={14} />
-                    {item.data}
-                  </p>
-                </article>
-              ))}
-
-              {encaminhamentosFiltrados.length === 0 && (
-                <div className="px-3 py-8 text-center">
-                  <p className="text-sm font-semibold">
-                    Nenhum registro encontrado
-                  </p>
-                  <button
-                    type="button"
-                    onClick={limparFiltros}
-                    className="mt-2 text-sm font-semibold text-[#7B3FA6] hover:underline"
+              {!mostrarEstado &&
+                encaminhamentosFiltrados.map((item) => (
+                  <article
+                    key={item.id}
+                    className="rounded-xl border border-[#EAE3F4] p-4 transition hover:bg-[#FAF8FD]"
                   >
-                    Limpar filtros
-                  </button>
+                    <div className="flex flex-wrap items-center justify-between gap-2">
+                      <span className="text-xs font-semibold text-[#7B3FA6]">
+                        {item.codigo}
+                      </span>
+                      <BadgeStatus status={item.status} />
+                    </div>
+
+                    <h3 className="mt-3 text-sm font-semibold">
+                      {item.servico}
+                    </h3>
+                    <p className="mt-1 text-xs leading-5 text-[#716A88]">
+                      {item.destino}
+                    </p>
+                    <p className="mt-3 flex items-center gap-1.5 text-xs text-[#827A99]">
+                      <CalendarDays size={14} />
+                      {item.data}
+                    </p>
+                  </article>
+                ))}
+
+              {mostrarEstado && (
+                <div className="px-3 py-8 text-center">
+                  <EstadoDaLista
+                    carregando={carregando}
+                    erro={erroApi}
+                    semRegistros={encaminhamentos.length === 0}
+                    aoTentarNovamente={carregarDados}
+                    aoLimpar={limparFiltros}
+                  />
                 </div>
               )}
             </div>
@@ -732,9 +774,9 @@ export default function DashboardProfissional() {
                   size={15}
                   className="mt-0.5 shrink-0 text-[#7B3FA6]"
                 />
-                Demonstração acadêmica: todos os registros são fictícios.
-                Os novos encaminhamentos existem apenas enquanto esta página
-                permanecer aberta e não são enviados a um banco de dados.
+                Os registros ficam armazenados no banco de dados da
+                plataforma. Nunca informe nome, CPF, telefone ou outros dados
+                que identifiquem a pessoa atendida.
               </p>
             </div>
           </section>
@@ -771,7 +813,7 @@ export default function DashboardProfissional() {
                   Novo encaminhamento
                 </h2>
                 <p className="mt-1 text-sm leading-5 text-[#827A99]">
-                  Preencha os dados demonstrativos do encaminhamento.
+                  Preencha os dados do encaminhamento.
                 </p>
               </div>
 
@@ -804,9 +846,7 @@ export default function DashboardProfissional() {
                     alterarCampo("servico", evento.target.value)
                   }
                   aria-invalid={Boolean(erros.servico)}
-                  aria-describedby={
-                    erros.servico ? "erro-servico" : undefined
-                  }
+                  aria-describedby={erros.servico ? "erro-servico" : undefined}
                   className={`w-full rounded-xl border bg-white px-3 py-3 text-sm outline-none transition focus:ring-2 focus:ring-[#7B3FA6]/15 ${
                     erros.servico
                       ? "border-[#DC3B57]"
@@ -845,9 +885,7 @@ export default function DashboardProfissional() {
                     alterarCampo("destino", evento.target.value)
                   }
                   aria-invalid={Boolean(erros.destino)}
-                  aria-describedby={
-                    erros.destino ? "erro-destino" : undefined
-                  }
+                  aria-describedby={erros.destino ? "erro-destino" : undefined}
                   className={`w-full rounded-xl border bg-white px-3 py-3 text-sm outline-none transition focus:ring-2 focus:ring-[#7B3FA6]/15 ${
                     erros.destino
                       ? "border-[#DC3B57]"
@@ -855,9 +893,9 @@ export default function DashboardProfissional() {
                   }`}
                 >
                   <option value="">Selecione uma unidade</option>
-                  {unidadesDisponiveis.map((unidade) => (
-                    <option key={unidade} value={unidade}>
-                      {unidade}
+                  {unidades.map((unidade) => (
+                    <option key={unidade.id} value={unidade.id}>
+                      {unidade.nome}
                     </option>
                   ))}
                 </select>
@@ -877,7 +915,8 @@ export default function DashboardProfissional() {
                   htmlFor="observacoes"
                   className="mb-2 block text-sm font-semibold"
                 >
-                  Observações <span className="font-normal text-gray-400">(opcional)</span>
+                  Observações{" "}
+                  <span className="font-normal text-gray-400">(opcional)</span>
                 </label>
                 <textarea
                   id="observacoes"
@@ -902,8 +941,7 @@ export default function DashboardProfissional() {
                     className="mt-0.5 shrink-0 text-[#7B3FA6]"
                   />
                   Não informe nomes, CPF, endereços ou outros dados que
-                  identifiquem a pessoa atendida. Este formulário é apenas
-                  demonstrativo.
+                  identifiquem a pessoa atendida.
                 </p>
               </div>
 
@@ -917,10 +955,11 @@ export default function DashboardProfissional() {
                 </button>
                 <button
                   type="submit"
-                  className="inline-flex min-h-11 items-center justify-center gap-2 rounded-full bg-[#7B3FA6] px-5 py-3 text-sm font-semibold text-white transition hover:bg-[#63308A] focus:outline-none focus:ring-4 focus:ring-[#7B3FA6]/20"
+                  disabled={enviando}
+                  className="inline-flex min-h-11 items-center justify-center gap-2 rounded-full bg-[#7B3FA6] px-5 py-3 text-sm font-semibold text-white transition hover:bg-[#63308A] focus:outline-none focus:ring-4 focus:ring-[#7B3FA6]/20 disabled:cursor-not-allowed disabled:opacity-60"
                 >
                   <Send size={16} />
-                  Registrar encaminhamento
+                  {enviando ? "Registrando..." : "Registrar encaminhamento"}
                 </button>
               </div>
             </form>
@@ -928,7 +967,7 @@ export default function DashboardProfissional() {
         </div>
       )}
 
-      {/* MODAL: PERFIL DEMONSTRATIVO */}
+      {/* MODAL: PERFIL DO USUÁRIO LOGADO */}
       {perfilAberto && (
         <div
           className="fixed inset-0 z-[70] flex items-center justify-center bg-[#18132F]/55 p-4 backdrop-blur-[2px]"
@@ -946,7 +985,7 @@ export default function DashboardProfissional() {
           >
             <div className="flex items-start justify-between">
               <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#F0E5FA] font-bold text-[#7B3FA6]">
-                AP
+                {iniciais(nomeUsuario)}
               </div>
               <button
                 type="button"
@@ -962,27 +1001,24 @@ export default function DashboardProfissional() {
               id="titulo-modal-perfil"
               className="mt-4 font-poppins text-lg font-bold"
             >
-              Ana Paula
+              {nomeUsuario}
             </h2>
-            <p className="mt-1 text-sm text-[#827A99]">
-              Assistente Social
-            </p>
+            <p className="mt-1 text-sm text-[#827A99]">{cargoUsuario}</p>
 
             <div className="mt-5 space-y-3 rounded-xl bg-[#F8F5FC] p-4">
               <div>
-                <p className="text-xs text-[#827A99]">Unidade de referência</p>
-                <p className="mt-1 text-sm font-semibold">CRAS Centro</p>
+                <p className="text-xs text-[#827A99]">E-mail</p>
+                <p className="mt-1 text-sm font-semibold">
+                  {usuario?.email || "—"}
+                </p>
               </div>
               <div>
                 <p className="text-xs text-[#827A99]">Perfil de acesso</p>
-                <p className="mt-1 text-sm font-semibold">Profissional da rede</p>
+                <p className="mt-1 text-sm font-semibold">
+                  Profissional da rede
+                </p>
               </div>
             </div>
-
-            <p className="mt-4 text-xs leading-5 text-[#827A99]">
-              Perfil fictício utilizado para apresentação acadêmica.
-              Não representa uma conta autenticada.
-            </p>
 
             <button
               type="button"
@@ -1024,9 +1060,7 @@ export default function DashboardProfissional() {
             <p className="text-sm font-bold">
               {tipoMensagem === "sucesso" ? "Tudo certo!" : "Atenção"}
             </p>
-            <p className="mt-1 text-xs leading-5 text-[#716A88]">
-              {mensagem}
-            </p>
+            <p className="mt-1 text-xs leading-5 text-[#716A88]">{mensagem}</p>
           </div>
 
           <button
