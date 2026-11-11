@@ -1,0 +1,38 @@
+// schema.prisma — AcolheMulher
+// Modelo de dados alinhado com o schema existente (tabela usuario).
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+/// ENUM — Perfil do usuário
+enum Perfil {
+  PROFISSIONAL
+  ADMINISTRADOR
+}
+
+/// Tabela — usuario
+/// Armazena profissionais e administradores (RF007, RN004, RN005).
+model Usuario {
+  id              String    @id @default(uuid()) @db.VarChar(36)
+  nome            String    @db.VarChar(100)
+  email           String    @unique @db.VarChar(150)
+  senhaHash       String    @db.VarChar(255)
+  perfil          Perfil
+  cargo           String?   @db.VarChar(100)
+  unidadeId       String?   @db.VarChar(36)
+  ativo           Boolean   @default(true)
+  tentativasLogin Int       @default(0)
+  bloqueadoAte    DateTime? @db.DateTime
+  criadoEm        DateTime  @db.Timestamp
+  atualizadoEm    DateTime  @updatedAt @db.Timestamp
+
+  @@index([email])
+  @@index([perfil])
+  @@index([unidadeId])
+}
