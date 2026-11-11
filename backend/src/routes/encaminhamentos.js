@@ -7,10 +7,13 @@ const router = express.Router();
 // Todas as rotas exigem login de profissional ou administrador.
 router.use(autenticar, autorizar("PROFISSIONAL", "ADMINISTRADOR"));
 
-// Somente profissionais registram encaminhamentos.
-router.post("/", autorizar("PROFISSIONAL"), controller.cadastrar);
+// Listar e detalhar: profissionais e administradores.
 router.get("/", controller.listar);
 router.get("/:id", controller.buscar);
-router.patch("/:id/status", controller.atualizarStatus);
+
+// Criar, editar e inativar (status): somente profissionais.
+router.post("/", autorizar("PROFISSIONAL"), controller.cadastrar);
+router.put("/:id", autorizar("PROFISSIONAL"), controller.editar);
+router.patch("/:id/status", autorizar("PROFISSIONAL"), controller.atualizarStatus);
 
 module.exports = router;
