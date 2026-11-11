@@ -95,11 +95,32 @@ export default function App() {
 
       <Route path="/ajuda" element={<Ajuda />} />
 
-      <Route path="/gestao-profissionais" element={<GestaoProfissionais />} />
+      <Route
+        path="/gestao-profissionais"
+        element={
+          <ProtectedRoute perfil="ADMINISTRADOR">
+            <GestaoProfissionais />
+          </ProtectedRoute>
+        }
+      />
 
-      <Route path="/relatorios" element={<Relatorios />} />
+      <Route
+        path="/relatorios"
+        element={
+          <ProtectedRoute perfil="ADMINISTRADOR">
+            <Relatorios />
+          </ProtectedRoute>
+        }
+      />
 
-      <Route path="/configuracoes" element={<Configuracoes />} />
+      <Route
+        path="/configuracoes"
+        element={
+          <ProtectedRoute perfil="ADMINISTRADOR">
+            <Configuracoes />
+          </ProtectedRoute>
+        }
+      />
 
       <Route path="/como-funciona" element={<ComoFunciona />} />
 
@@ -132,10 +153,21 @@ export default function App() {
 
 <Route
   path="/registrar-encaminhamento"
-  element={<RegistrarEncaminhamento />}
+  element={
+    <ProtectedRoute perfil="PROFISSIONAL">
+      <RegistrarEncaminhamento />
+    </ProtectedRoute>
+  }
 />
 
-<Route path="/meu-perfil" element={<MeuPerfil />} />
+<Route
+  path="/meu-perfil"
+  element={
+    <ProtectedRoute>
+      <MeuPerfil />
+    </ProtectedRoute>
+  }
+/>
 
 <Route
   path="/admin/unidades/:id/editar"
