@@ -81,16 +81,18 @@ export default function CadastroUnidade() {
           </div>
 
           <nav className="space-y-2 text-sm font-medium">
-            <Link to="/cadastrar-unidade" className="flex items-center gap-3 text-slate-400 hover:text-white hover:bg-slate-800 px-4 py-3 rounded-xl transition">Gestão da Rede</Link>
+            <Link to="/dashboard-admin" className="flex items-center gap-3 text-slate-400 hover:text-white hover:bg-slate-800 px-4 py-3 rounded-xl transition">Início Admin</Link>
+            <Link to="/cadastrar-unidade" className="flex items-center gap-3 bg-purple-600 text-white px-4 py-3 rounded-xl transition">Cadastrar Unidade</Link>
+            <Link to="/admin/unidades" className="flex items-center gap-3 text-slate-400 hover:text-white hover:bg-slate-800 px-4 py-3 rounded-xl transition">Gerenciar Unidades</Link>
             <Link to="/gestao-profissionais" className="flex items-center gap-3 text-slate-400 hover:text-white hover:bg-slate-800 px-4 py-3 rounded-xl transition">Gestão de Profissionais</Link>
             <Link to="/relatorios" className="flex items-center gap-3 text-slate-400 hover:text-white hover:bg-slate-800 px-4 py-3 rounded-xl transition">Relatórios</Link>
             <Link to="/configuracoes" className="flex items-center gap-3 text-slate-400 hover:text-white hover:bg-slate-800 px-4 py-3 rounded-xl transition">Configurações</Link>
           </nav>
         </div>
 
-        <button className="flex items-center gap-3 text-slate-400 hover:text-red-400 px-4 py-3 font-medium text-sm transition">
+        <Link to="/login" className="flex items-center gap-3 text-slate-400 hover:text-red-400 px-4 py-3 font-medium text-sm transition">
           Sair
-        </button>
+        </Link>
       </aside>
 
       {/* Conteúdo Principal */}
