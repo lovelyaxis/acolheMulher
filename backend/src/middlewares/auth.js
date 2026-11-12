@@ -9,9 +9,15 @@ async function autenticar(req, res, next) {
     return res.status(401).json({ erro: "Autenticação necessária." });
   }
 
+  const segredo = process.env.JWT_SECRET;
+  if (!segredo) {
+    console.error("JWT_SECRET não configurada no .env");
+    return res.status(500).json({ erro: "Servidor mal configurado." });
+  }
+
   let dados;
   try {
-    dados = jwt.verify(token, process.env.JWT_SECRET);
+    dados = jwt.verify(token, segredo, { algorithms: ["HS256"] });
   } catch (erro) {
     return res.status(401).json({
       erro: "Sessão inválida ou expirada. Faça login novamente."

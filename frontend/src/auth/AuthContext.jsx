@@ -7,8 +7,10 @@ import {
   tokenSessao,
   verificarSessao,
 } from "./authService";
+import { CHAVE_SESSION, lerSession } from "./session";
 
 const AuthContext = createContext(null);
+const MAX_TENTATIVAS = 5;
 
 /**
  * Provedor de autenticação da aplicação.
@@ -17,13 +19,18 @@ const AuthContext = createContext(null);
  *
  * O token é emitido pelo back-end. Ao abrir a página, a sessão guardada
  * é conferida no servidor (GET /api/auth/me).
+ *
+ * `carregando` cobre apenas a verificação inicial da sessão.
+ * `entrando` cobre o envio do formulário de login.
  */
 export function AuthProvider({ children }) {
   const [usuario, setUsuario] = useState(null);
   const [token, setToken] = useState(null);
   const [carregando, setCarregando] = useState(true);
+  const [entrando, setEntrando] = useState(false);
   const [erro, setErro] = useState(null);
-  const [tentativas, setTentativas] = useState(0);
+  const [tentativasRestantes, setTentativasRestantes] =
+    useState(MAX_TENTATIVAS);
   const [bloqueadoAte, setBloqueadoAte] = useState(null);
 
   useEffect(() => {
@@ -62,8 +69,52 @@ export function AuthProvider({ children }) {
     };
   }, []);
 
+  // Mantém as abas sincronizadas quando a sessão muda em outra aba.
+  useEffect(() => {
+    function sincronizar(evento) {
+      if (evento.key !== null && evento.key !== CHAVE_SESSION) return;
+
+      const sessao = lerSession();
+      setUsuario(sessao ? sessao.usuario : null);
+      setToken(sessao ? sessao.token : null);
+    }
+
+    window.addEventListener("storage", sincronizar);
+    return () => window.removeEventListener("storage", sincronizar);
+  }, []);
+
+  // Encerra a sessão quando o token vence, mesmo sem chamada de API.
+  useEffect(() => {
+    if (!token) return;
+
+    const sessao = lerSession();
+    const restante = sessao ? sessao.expiraEm - Date.now() : 0;
+
+    const timer = setTimeout(() => {
+      serviceLogout();
+      setUsuario(null);
+      setToken(null);
+    }, restante);
+
+    return () => clearTimeout(timer);
+  }, [token]);
+
+  // Libera o formulário quando o bloqueio de 15 minutos termina.
+  useEffect(() => {
+    if (!bloqueadoAte) return;
+
+    const restante = Math.max(0, bloqueadoAte - Date.now());
+
+    const timer = setTimeout(() => {
+      setBloqueadoAte(null);
+      setTentativasRestantes(MAX_TENTATIVAS);
+    }, restante);
+
+    return () => clearTimeout(timer);
+  }, [bloqueadoAte]);
+
   async function handleLogin(email, senha) {
-    setCarregando(true);
+    setEntrando(true);
     setErro(null);
 
     try {
@@ -72,12 +123,14 @@ export function AuthProvider({ children }) {
       if (resultado.ok) {
         setUsuario(resultado.usuario);
         setToken(resultado.token);
-        setTentativas(0);
+        setTentativasRestantes(MAX_TENTATIVAS);
         setBloqueadoAte(null);
         return { ok: true, usuario: resultado.usuario };
       }
 
-      setTentativas(resultado.tentativas ?? 0);
+      if (typeof resultado.tentativasRestantes === "number") {
+        setTentativasRestantes(resultado.tentativasRestantes);
+      }
       if (resultado.bloqueadoAte) {
         setBloqueadoAte(resultado.bloqueadoAte);
       }
@@ -88,7 +141,7 @@ export function AuthProvider({ children }) {
         mensagem: resultado.mensagem,
       };
     } finally {
-      setCarregando(false);
+      setEntrando(false);
     }
   }
 
@@ -96,7 +149,7 @@ export function AuthProvider({ children }) {
     serviceLogout();
     setUsuario(null);
     setToken(null);
-    setTentativas(0);
+    setTentativasRestantes(MAX_TENTATIVAS);
     setBloqueadoAte(null);
     setErro(null);
   }
@@ -107,9 +160,10 @@ export function AuthProvider({ children }) {
     perfil: usuario ? usuario.perfil : null,
     estaAutenticado: !!usuario,
     carregando,
+    entrando,
     erro,
-    tentativas,
-    tentativasRestantes: Math.max(0, 5 - tentativas),
+    tentativas: Math.max(0, MAX_TENTATIVAS - tentativasRestantes),
+    tentativasRestantes,
     bloqueadoAte,
     login: handleLogin,
     logout: handleLogout,
@@ -118,6 +172,7 @@ export function AuthProvider({ children }) {
   return <AuthContext.Provider value={valor}>{children}</AuthContext.Provider>;
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export function useAuth() {
   const contexto = useContext(AuthContext);
   if (!contexto) {

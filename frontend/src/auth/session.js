@@ -1,9 +1,9 @@
 // Guarda e lê a sessão (token + usuário) no navegador.
 // O token é emitido pelo servidor; o front-end nunca gera token.
 
-const CHAVE_SESSION = "am_session";
+export const CHAVE_SESSION = "am_session";
 
-// Mesma validade do token emitido pelo servidor: 8 horas (em ms).
+// Usada apenas como reserva quando a API não informa o prazo real do token.
 const TEMPO_EXPIRACAO_TOKEN = 8 * 60 * 60 * 1000;
 
 export function limparSession() {
@@ -24,17 +24,25 @@ export function lerSession() {
       return null;
     }
     return session;
-  } catch (erro) {
+  } catch {
     limparSession();
     return null;
   }
 }
 
-export function gravarSession(token, usuario) {
+/**
+ * Grava a sessão usando o vencimento informado pelo servidor.
+ * Se a API não enviar um `expiraEm` válido, usa 8 horas como reserva.
+ */
+export function gravarSession(token, usuario, expiraEm) {
+  const agora = Date.now();
+  const expiracaoValida =
+    Number.isFinite(expiraEm) && expiraEm > agora;
+
   const session = {
     token,
     usuario,
-    expiraEm: Date.now() + TEMPO_EXPIRACAO_TOKEN,
+    expiraEm: expiracaoValida ? expiraEm : agora + TEMPO_EXPIRACAO_TOKEN,
   };
   localStorage.setItem(CHAVE_SESSION, JSON.stringify(session));
 }

@@ -5,6 +5,11 @@ const prisma = require("../config/prisma");
 const MAX_TENTATIVAS = 5;
 const MINUTOS_BLOQUEIO = 15;
 
+// Hash bcrypt válido usado apenas para igualar o tempo de resposta
+// quando o e-mail não existe. Nunca corresponde a uma senha real.
+const HASH_FICTICIO =
+  "$2b$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy";
+
 function dadosPublicos(usuario) {
   return {
     id: usuario.id,
@@ -41,6 +46,9 @@ async function login(req, res) {
     });
 
     if (!usuario) {
+      // Compara com um hash fictício para que o tempo de resposta não
+      // revele se o e-mail existe (proteção contra enumeração de contas).
+      await bcrypt.compare(senha, HASH_FICTICIO);
       return res.status(401).json({ erro: "E-mail ou senha inválidos." });
     }
 
@@ -54,7 +62,8 @@ async function login(req, res) {
       const minutos = Math.ceil((usuario.bloqueadoAte - agora) / 60000);
       return res.status(429).json({
         erro: `Conta temporariamente bloqueada. Tente novamente em ${minutos} minuto(s).`,
-        bloqueadoAte: usuario.bloqueadoAte.getTime()
+        bloqueadoAte: usuario.bloqueadoAte.getTime(),
+        tentativasRestantes: 0
       });
     }
 
@@ -67,9 +76,14 @@ async function login(req, res) {
       const novasTentativas = tentativasAtuais + 1;
       const bloquear = novasTentativas >= MAX_TENTATIVAS;
 
-            const bloqueioAte = bloquear
+      const bloqueioAte = bloquear
         ? new Date(agora.getTime() + MINUTOS_BLOQUEIO * 60 * 1000)
         : null;
+
+      const tentativasRestantes = Math.max(
+        0,
+        MAX_TENTATIVAS - novasTentativas
+      );
 
       await prisma.usuario.update({
         where: { id: usuario.id },
@@ -82,11 +96,15 @@ async function login(req, res) {
       if (bloquear) {
         return res.status(429).json({
           erro: `Conta bloqueada por ${MINUTOS_BLOQUEIO} minutos após ${MAX_TENTATIVAS} tentativas incorretas.`,
-          bloqueadoAte: bloqueioAte.getTime()
+          bloqueadoAte: bloqueioAte.getTime(),
+          tentativasRestantes
         });
       }
 
-      return res.status(401).json({ erro: "E-mail ou senha inválidos." });
+      return res.status(401).json({
+        erro: "E-mail ou senha inválidos.",
+        tentativasRestantes
+      });
     }
 
     if (usuario.tentativasLogin !== 0 || usuario.bloqueadoAte) {
@@ -96,13 +114,25 @@ async function login(req, res) {
       });
     }
 
+    const expiracaoToken = process.env.JWT_EXPIRES_IN || "8h";
+
     const token = jwt.sign(
       { id: usuario.id, perfil: usuario.perfil },
       process.env.JWT_SECRET,
-      { expiresIn: "8h" }
+      { expiresIn: expiracaoToken }
     );
 
-    return res.status(200).json({ token, usuario: dadosPublicos(usuario) });
+    // O prazo real vem do token emitido, não de uma constante no front-end.
+    const tokenDecodificado = jwt.decode(token);
+    const expiraEm = tokenDecodificado?.exp
+      ? tokenDecodificado.exp * 1000
+      : null;
+
+    return res.status(200).json({
+      token,
+      expiraEm,
+      usuario: dadosPublicos(usuario)
+    });
   } catch (erro) {
     console.error("Erro no login:", erro.message);
     return res.status(500).json({ erro: "Erro interno ao realizar o login." });

@@ -4,8 +4,6 @@ import logo from "../assets/logo-acolhemulher.png"
 import { useAuth } from "../auth/AuthContext";
 
 const URL_SAIDA_RAPIDA = "https://www.google.com.br";
-// Mesma chave de sessão definida em src/auth/authService.js (CHAVE_SESSION).
-const CHAVE_SESSAO = "am_session";
 
 const navItems = [
     {to: '/', label: 'Home'},
@@ -23,14 +21,19 @@ export default function Header() {
 
     const acionarSaidaRapida = useCallback(() => {
         try {
-            // Remove apenas a sessão. am_tentativas e am_bloqueado_ate permanecem
-            // para preservar o bloqueio de login da RN005.
-            localStorage.removeItem(CHAVE_SESSAO);
+            // Encerra a sessão no contexto e no armazenamento antes de sair.
+            logout();
             sessionStorage.clear();
         } finally {
             window.location.replace(URL_SAIDA_RAPIDA);
         }
-    }, []);
+    }, [logout]);
+
+    function handleSair() {
+        logout();
+        setMenuOpen(false);
+        navigate("/login");
+    }
 
     useEffect(() => {
         function aoPressionar(evento) {
@@ -120,10 +123,7 @@ export default function Header() {
               </span>
               <button
                 type="button"
-                onClick={() => {
-                  logout();
-                  navigate("/login");
-                }}
+                onClick={handleSair}
                 className="flex items-center gap-2 rounded-full border border-gray-200 px-5 py-2.5 text-sm font-semibold text-[#DC3B57] hover:bg-[#FCE7EC] font-inter"
               >
                 Sair
@@ -185,6 +185,24 @@ export default function Header() {
               {item.label}
             </NavLink>
           ))}
+
+          {estaAutenticado ? (
+            <button
+              type="button"
+              onClick={handleSair}
+              className="border-b border-[#E7E1F5] py-3 text-left text-sm font-semibold text-[#DC3B57]"
+            >
+              Sair
+            </button>
+          ) : (
+            <Link
+              to="/login"
+              onClick={() => setMenuOpen(false)}
+              className="border-b border-[#E7E1F5] py-3 text-sm font-semibold text-[#7B3FA6]"
+            >
+              Entrar
+            </Link>
+          )}
         </nav>
       )}
     </header>

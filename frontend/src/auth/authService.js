@@ -45,9 +45,11 @@ export function lerBloqueioAte() {
  * Autentica o usuário com e-mail e senha.
  *
  * Retorna:
- *  { ok: true, token, usuario }
- *  { ok: false, codigo: "bloqueado", bloqueadoAte, minutosRestantes, mensagem }
- *  { ok: false, codigo: "credenciais_invalidas" | "conta_inativa" |
+ *  { ok: true, token, usuario, expiraEm }
+ *  { ok: false, codigo: "bloqueado", bloqueadoAte, minutosRestantes,
+ *      tentativasRestantes, mensagem }
+ *  { ok: false, codigo: "credenciais_invalidas", tentativasRestantes, mensagem }
+ *  { ok: false, codigo: "conta_inativa" | "dados_invalidos" |
  *      "erro_conexao" | "erro_servidor" | "campos_obrigatorios", mensagem }
  */
 export async function login(email, senha) {
@@ -67,9 +69,14 @@ export async function login(email, senha) {
     );
 
     const usuario = converterUsuario(dados.usuario);
-    gravarSession(dados.token, usuario);
+    gravarSession(dados.token, usuario, dados.expiraEm);
 
-    return { ok: true, token: dados.token, usuario };
+    return {
+      ok: true,
+      token: dados.token,
+      usuario,
+      expiraEm: dados.expiraEm ?? null,
+    };
   } catch (erro) {
     if (!(erro instanceof ErroApi)) throw erro;
 
@@ -77,15 +84,28 @@ export async function login(email, senha) {
       return { ok: false, codigo: "erro_conexao", mensagem: erro.message };
     }
 
+    if (erro.status === 400) {
+      return {
+        ok: false,
+        codigo: "dados_invalidos",
+        mensagem: erro.message || "Informe um e-mail e uma senha válidos.",
+      };
+    }
+
     if (erro.status === 429) {
       const bloqueadoAte =
         erro.dados && erro.dados.bloqueadoAte
           ? Number(erro.dados.bloqueadoAte)
           : null;
+      const tentativasRestantes =
+        erro.dados && typeof erro.dados.tentativasRestantes === "number"
+          ? erro.dados.tentativasRestantes
+          : 0;
       return {
         ok: false,
         codigo: "bloqueado",
         bloqueadoAte,
+        tentativasRestantes,
         minutosRestantes: bloqueadoAte
           ? Math.max(1, Math.ceil((bloqueadoAte - Date.now()) / 60000))
           : undefined,
@@ -94,9 +114,14 @@ export async function login(email, senha) {
     }
 
     if (erro.status === 401) {
+      const tentativasRestantes =
+        erro.dados && typeof erro.dados.tentativasRestantes === "number"
+          ? erro.dados.tentativasRestantes
+          : undefined;
       return {
         ok: false,
         codigo: "credenciais_invalidas",
+        tentativasRestantes,
         mensagem: erro.message,
       };
     }
