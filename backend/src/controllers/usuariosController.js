@@ -1,7 +1,8 @@
 const bcrypt = require("bcrypt");
 const prisma = require("../config/prisma");
 
-const PERFIS = ["PROFISSIONAL", "ADMINISTRADOR"];
+const PERFIL_GERENCIADO = "PROFISSIONAL";
+const PERFIS = [PERFIL_GERENCIADO, "ADMINISTRADOR"];
 const SALT_ROUNDS = 10;
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -49,6 +50,12 @@ async function validar(corpo, senhaObrigatoria) {
     if (!PERFIS.includes(corpo.perfil)) {
       return { erro: `Perfil inválido. Use: ${PERFIS.join(", ")}.` };
     }
+    if (senhaObrigatoria && corpo.perfil === "ADMINISTRADOR") {
+      return { erro: "Esta operação permite cadastrar somente profissionais." };
+    }
+    if (!senhaObrigatoria) {
+      return { erro: "O perfil de acesso não pode ser alterado." };
+    }
     perfil = corpo.perfil;
   }
 
@@ -92,6 +99,7 @@ async function validar(corpo, senhaObrigatoria) {
 async function listar(req, res) {
   try {
     const usuarios = await prisma.usuario.findMany({
+      where: { perfil: PERFIL_GERENCIADO },
       select: CAMPOS,
       orderBy: { nome: "asc" }
     });
@@ -104,8 +112,8 @@ async function listar(req, res) {
 // GET /api/usuarios/:id
 async function buscar(req, res) {
   try {
-    const usuario = await prisma.usuario.findUnique({
-      where: { id: req.params.id },
+    const usuario = await prisma.usuario.findFirst({
+      where: { id: req.params.id, perfil: PERFIL_GERENCIADO },
       select: CAMPOS
     });
     if (!usuario) {
@@ -134,7 +142,7 @@ async function cadastrar(req, res) {
     const criado = await prisma.usuario.create({
       data: {
         ...dados,
-        perfil: dados.perfil || "PROFISSIONAL",
+        perfil: PERFIL_GERENCIADO,
         senhaHash: await bcrypt.hash(senha, SALT_ROUNDS),
         ativo: true,
         criadoEm: new Date()
@@ -154,8 +162,8 @@ async function cadastrar(req, res) {
 // PUT /api/usuarios/:id
 async function editar(req, res) {
   try {
-    const existente = await prisma.usuario.findUnique({
-      where: { id: req.params.id },
+    const existente = await prisma.usuario.findFirst({
+      where: { id: req.params.id, perfil: PERFIL_GERENCIADO },
       select: { id: true, perfil: true }
     });
     if (!existente) {
@@ -164,17 +172,6 @@ async function editar(req, res) {
 
     const { erro, dados, senha } = await validar(req.body || {}, false);
     if (erro) return res.status(400).json({ erro });
-
-    // Ninguém altera o próprio perfil (evita se promover ou se rebaixar).
-    if (
-      existente.id === req.usuario.id &&
-      dados.perfil !== undefined &&
-      dados.perfil !== existente.perfil
-    ) {
-      return res.status(400).json({
-        erro: "Você não pode alterar o seu próprio perfil."
-      });
-    }
 
     const outro = await prisma.usuario.findUnique({
       where: { email: dados.email },
@@ -185,7 +182,7 @@ async function editar(req, res) {
     }
 
     const novosDados = { ...dados };
-    if (novosDados.perfil === undefined) delete novosDados.perfil;
+    delete novosDados.perfil;
     if (senha) novosDados.senhaHash = await bcrypt.hash(senha, SALT_ROUNDS);
 
     const atualizado = await prisma.usuario.update({
@@ -206,19 +203,19 @@ async function editar(req, res) {
 // PATCH /api/usuarios/:id/status  (corpo: { "ativo": true | false })
 async function alterarStatus(req, res) {
   try {
+    const existente = await prisma.usuario.findFirst({
+      where: { id: req.params.id, perfil: PERFIL_GERENCIADO },
+      select: { id: true }
+    });
+    if (!existente) {
+      return res.status(404).json({ erro: "Usuário não encontrado." });
+    }
+
     const { ativo } = req.body || {};
     if (typeof ativo !== "boolean") {
       return res.status(400).json({
         erro: "Informe o campo ativo como true ou false."
       });
-    }
-
-    const existente = await prisma.usuario.findUnique({
-      where: { id: req.params.id },
-      select: { id: true }
-    });
-    if (!existente) {
-      return res.status(404).json({ erro: "Usuário não encontrado." });
     }
 
     if (existente.id === req.usuario.id && ativo === false) {
@@ -246,8 +243,8 @@ async function alterarStatus(req, res) {
 // DELETE /api/usuarios/:id
 async function excluir(req, res) {
   try {
-    const existente = await prisma.usuario.findUnique({
-      where: { id: req.params.id },
+    const existente = await prisma.usuario.findFirst({
+      where: { id: req.params.id, perfil: PERFIL_GERENCIADO },
       select: { id: true }
     });
     if (!existente) {
