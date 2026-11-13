@@ -8,6 +8,7 @@ import {
   inativarUnidade,
   excluirUnidade,
 } from '../services/unidadesService';
+import Sidebar from '../components/Sidebar';
 
 const MENSAGEM_ERRO_LISTA =
   'Não foi possível carregar as unidades agora. Tente novamente em instantes.';
@@ -34,8 +35,6 @@ export default function GerenciarUnidades() {
     }
   }, []);
 
-  // Carga inicial: evita setState síncrono no corpo do effect (regra do
-  // react-hooks). O estado de carregamento já começa como true.
   useEffect(() => {
     let desmontado = false;
 
@@ -105,8 +104,6 @@ export default function GerenciarUnidades() {
       });
       await carregarUnidades();
     } catch (erroExcluir) {
-      // RN003: unidade com encaminhamentos só pode ser inativada. O service já
-      // devolve uma mensagem orientando a inativar; exibimos essa mensagem.
       const mensagem =
         erroExcluir?.codigo === 'UNIDADE_COM_ENCAMINHAMENTOS'
           ? erroExcluir.message
@@ -120,45 +117,7 @@ export default function GerenciarUnidades() {
 
   return (
     <div className="flex min-h-screen bg-purple-50/50 font-sans">
-      {/* Sidebar */}
-      <aside className="w-64 bg-slate-900 text-white flex flex-col justify-between p-6 hidden md:flex">
-        <div>
-          <div className="flex items-center gap-2 mb-10">
-            <div className="w-8 h-8 rounded-full bg-purple-600 flex items-center justify-center font-bold text-white">
-              ♥
-            </div>
-            <span className="font-bold text-lg tracking-wide">AcolheMulher</span>
-          </div>
-
-          <nav className="space-y-2 text-sm font-medium">
-            <Link
-              to="/dashboard-admin"
-              className="flex items-center gap-3 text-slate-400 hover:text-white hover:bg-slate-800 px-4 py-3 rounded-xl transition"
-            >
-              Início
-            </Link>
-            <Link
-              to="/admin/unidades"
-              aria-current="page"
-              className="flex items-center gap-3 bg-purple-600 text-white px-4 py-3 rounded-xl transition"
-            >
-              Gestão da Rede
-            </Link>
-            <Link
-              to="/cadastrar-unidade"
-              className="flex items-center gap-3 text-slate-400 hover:text-white hover:bg-slate-800 px-4 py-3 rounded-xl transition"
-            >
-              Cadastrar Unidade
-            </Link>
-            <Link
-              to="/gestao-profissionais"
-              className="flex items-center gap-3 text-slate-400 hover:text-white hover:bg-slate-800 px-4 py-3 rounded-xl transition"
-            >
-              Gestão de Profissionais
-            </Link>
-          </nav>
-        </div>
-      </aside>
+      <Sidebar activePath="/admin/unidades" />
 
       {/* Conteúdo principal */}
       <main className="flex-1 p-6 md:p-10">
@@ -183,11 +142,7 @@ export default function GerenciarUnidades() {
         {feedback && (
           <div
             role={feedback.tipo === 'erro' ? 'alert' : 'status'}
-            className={`mb-6 rounded-xl border px-4 py-3 text-xs font-medium ${
-              feedback.tipo === 'erro'
-                ? 'border-red-200 bg-red-50 text-red-700'
-                : 'border-emerald-200 bg-emerald-50 text-emerald-700'
-            }`}
+            className={`mb-6 rounded-xl border px-4 py-3 text-xs font-medium ${feedback.tipo === 'erro' ? 'border-red-200 bg-red-50 text-red-700' : 'border-emerald-200 bg-emerald-50 text-emerald-700'}`}
           >
             {feedback.mensagem}
           </div>
@@ -199,19 +154,13 @@ export default function GerenciarUnidades() {
           </h2>
 
           {carregando && (
-            <p
-              role="status"
-              className="rounded-xl border border-purple-100 bg-purple-50/50 px-4 py-3 text-xs font-medium text-slate-700"
-            >
+            <p role="status" className="rounded-xl border border-purple-100 bg-purple-50/50 px-4 py-3 text-xs font-medium text-slate-700">
               Carregando unidades da rede...
             </p>
           )}
 
           {!carregando && erro && (
-            <div
-              role="alert"
-              className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-xs font-medium text-red-700"
-            >
+            <div role="alert" className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-xs font-medium text-red-700">
               <p>{erro}</p>
               <button
                 type="button"
@@ -224,12 +173,8 @@ export default function GerenciarUnidades() {
           )}
 
           {!carregando && !erro && unidades.length === 0 && (
-            <div
-              role="status"
-              className="rounded-xl border border-purple-100 bg-purple-50/50 px-4 py-6 text-center text-xs font-medium text-slate-600"
-            >
-              Nenhuma unidade cadastrada ainda. Use “Cadastrar unidade” para
-              começar.
+            <div role="status" className="rounded-xl border border-purple-100 bg-purple-50/50 px-4 py-6 text-center text-xs font-medium text-slate-600">
+              Nenhuma unidade cadastrada ainda. Use “Cadastrar unidade” para começar.
             </div>
           )}
 
@@ -269,10 +214,7 @@ export default function GerenciarUnidades() {
                     const processando = processandoId === unidade.id;
 
                     return (
-                      <tr
-                        key={unidade.id}
-                        className="hover:bg-purple-50/30 transition"
-                      >
+                      <tr key={unidade.id} className="hover:bg-purple-50/30 transition">
                         <td className="py-4 font-medium text-slate-800">
                           {unidade.nome}
                         </td>
@@ -284,13 +226,7 @@ export default function GerenciarUnidades() {
                           {unidade.totalEncaminhamentos ?? 'Não informado'}
                         </td>
                         <td className="py-4">
-                          <span
-                            className={`inline-block px-3 py-1 rounded-full text-[11px] font-semibold ${
-                              unidade.ativa
-                                ? 'bg-emerald-100 text-emerald-700'
-                                : 'bg-slate-200 text-slate-600'
-                            }`}
-                          >
+                          <span className={`inline-block px-3 py-1 rounded-full text-[11px] font-semibold ${unidade.ativa ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-200 text-slate-600'}`}>
                             {unidade.ativa ? 'Ativa' : 'Inativa'}
                           </span>
                         </td>
@@ -334,9 +270,7 @@ export default function GerenciarUnidades() {
               </table>
 
               <p className="mt-4 text-xs leading-5 text-slate-500">
-                Unidades com encaminhamentos vinculados não podem ser excluídas
-                (RN003) — apenas inativadas, preservando o histórico para
-                relatórios.
+                Unidades com encaminhamentos vinculados não podem ser excluídas (RN003) — apenas inativadas, preservando o histórico para relatórios.
               </p>
             </div>
           )}

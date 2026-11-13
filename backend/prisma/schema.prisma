@@ -42,8 +42,9 @@ model Usuario {
   criadoEm        DateTime  @db.Timestamp
   atualizadoEm    DateTime  @updatedAt @db.Timestamp
 
-  unidade         Unidade?     @relation(fields: [unidadeId], references: [id], onDelete: SetNull)
+  unidade         Unidade?      @relation(fields: [unidadeId], references: [id], onDelete: SetNull)
   encaminhamentos Encaminhamento[]
+  ocorrencias     Ocorrencia[]
 
   @@index([email])
   @@index([perfil])
@@ -101,5 +102,19 @@ model OrientacaoAnonima {
   categoria String   @db.VarChar(100)
   criadoEm  DateTime @db.Timestamp
 
+  @@index([criadoEm])
+}
+
+model Ocorrencia {
+  id            String   @id @default(uuid()) @db.VarChar(36)
+  tipoEvento    String   @db.VarChar(100)
+  observacoes   String?  @db.Text
+  profissionalId String @db.VarChar(36)
+  criadoEm      DateTime @db.Timestamp
+
+  profissional Usuario   @relation(fields: [profissionalId], references: [id], onDelete: Restrict)
+
+  @@index([profissionalId])
+  @@index([tipoEvento])
   @@index([criadoEm])
 }
