@@ -1,9 +1,9 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
 import {
   TIPOS_UNIDADE,
   cadastrarUnidade,
 } from '../services/unidadesService';
+import Sidebar from '../components/Sidebar';
 
 const FORMULARIO_INICIAL = {
   nome: '',
@@ -38,14 +38,12 @@ export default function CadastroUnidade() {
       tipo: formData.tipo,
       endereco: formData.endereco,
       bairro: formData.bairro,
-  cep: formData.cep,
+      cep: formData.cep,
       telefone: formData.telefone,
       horario: formData.horario,
       vagasTotal: formData.capacidade,
       vagasDisponiveis: formData.vagasDisponiveis,
     };
-
-   
 
     setEnviando(true);
 
@@ -69,29 +67,7 @@ export default function CadastroUnidade() {
 
   return (
     <div className="flex min-h-screen bg-purple-50/50 font-sans">
-
-      {/* Sidebar */}
-      <aside className="w-64 bg-slate-900 text-white flex flex-col justify-between p-6 hidden md:flex">
-        <div>
-          <div className="flex items-center gap-2 mb-10">
-            <div className="w-8 h-8 rounded-full bg-purple-600 flex items-center justify-center font-bold text-white">
-              ♥
-            </div>
-            <span className="font-bold text-lg tracking-wide">AcolheMulher</span>
-          </div>
-
-          <nav className="space-y-2 text-sm font-medium">
-            <Link to="/cadastrar-unidade" className="flex items-center gap-3 text-slate-400 hover:text-white hover:bg-slate-800 px-4 py-3 rounded-xl transition">Gestão da Rede</Link>
-            <Link to="/gestao-profissionais" className="flex items-center gap-3 text-slate-400 hover:text-white hover:bg-slate-800 px-4 py-3 rounded-xl transition">Gestão de Profissionais</Link>
-            <Link to="/relatorios" className="flex items-center gap-3 text-slate-400 hover:text-white hover:bg-slate-800 px-4 py-3 rounded-xl transition">Relatórios</Link>
-            <Link to="/configuracoes" className="flex items-center gap-3 text-slate-400 hover:text-white hover:bg-slate-800 px-4 py-3 rounded-xl transition">Configurações</Link>
-          </nav>
-        </div>
-
-        <button className="flex items-center gap-3 text-slate-400 hover:text-red-400 px-4 py-3 font-medium text-sm transition">
-          Sair
-        </button>
-      </aside>
+      <Sidebar activePath="/cadastrar-unidade" />
 
       {/* Conteúdo Principal */}
       <main className="flex-1 p-6 md:p-10">
@@ -120,11 +96,7 @@ export default function CadastroUnidade() {
           {feedback && (
             <div
               role={feedback.tipo === 'erro' ? 'alert' : 'status'}
-              className={`mb-5 rounded-xl border px-4 py-3 text-xs font-medium ${
-                feedback.tipo === 'erro'
-                  ? 'border-red-200 bg-red-50 text-red-700'
-                  : 'border-emerald-200 bg-emerald-50 text-emerald-700'
-              }`}
+              className={`mb-5 rounded-xl border px-4 py-3 text-xs font-medium ${feedback.tipo === 'erro' ? 'border-red-200 bg-red-50 text-red-700' : 'border-emerald-200 bg-emerald-50 text-emerald-700'}`}
             >
               {feedback.mensagem}
             </div>
@@ -156,9 +128,7 @@ export default function CadastroUnidade() {
                 >
                   <option value="">Selecione o tipo</option>
                   {TIPOS_UNIDADE.map((item) => (
-                    <option key={item} value={item}>
-                      {item}
-                    </option>
+                    <option key={item} value={item}>{item}</option>
                   ))}
                 </select>
               </div>
@@ -189,38 +159,38 @@ export default function CadastroUnidade() {
               />
             </div>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-  <div>
-    <label className="block text-xs font-semibold text-slate-700 mb-1">
-      Bairro*
-    </label>
-    <input
-      type="text"
-      name="bairro"
-      value={formData.bairro}
-      onChange={handleChange}
-      placeholder="Ex.: Centro"
-      required
-      className="w-full px-4 py-2.5 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:bg-white transition"
-    />
-  </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 mb-1">
+                  Bairro*
+                </label>
+                <input
+                  type="text"
+                  name="bairro"
+                  value={formData.bairro}
+                  onChange={handleChange}
+                  placeholder="Ex.: Centro"
+                  required
+                  className="w-full px-4 py-2.5 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:bg-white transition"
+                />
+              </div>
 
-  <div>
-    <label className="block text-xs font-semibold text-slate-700 mb-1">
-      CEP*
-    </label>
-    <input
-      type="text"
-      name="cep"
-      value={formData.cep}
-      onChange={handleChange}
-      placeholder="Ex.: 11660000"
-      maxLength={9}
-      required
-      className="w-full px-4 py-2.5 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:bg-white transition"
-    />
-  </div>
-</div>
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 mb-1">
+                  CEP*
+                </label>
+                <input
+                  type="text"
+                  name="cep"
+                  value={formData.cep}
+                  onChange={handleChange}
+                  placeholder="Ex.: 11660000"
+                  maxLength={9}
+                  required
+                  className="w-full px-4 py-2.5 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:bg-white transition"
+                />
+              </div>
+            </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
