@@ -25,8 +25,13 @@ function converterEncaminhamento(item) {
 }
 
 // Lista os encaminhamentos do profissional logado (o servidor usa o token).
-export async function listarEncaminhamentos() {
-  const lista = await api.get("/encaminhamentos");
+export async function listarEncaminhamentos(status) {
+  const parametros = new URLSearchParams();
+  if (status) parametros.set("status", status);
+  const consulta = parametros.toString();
+  const lista = await api.get(
+    `/encaminhamentos${consulta ? `?${consulta}` : ""}`,
+  );
   return lista.map(converterEncaminhamento);
 }
 
