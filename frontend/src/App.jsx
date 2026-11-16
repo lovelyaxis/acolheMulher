@@ -20,7 +20,6 @@ import ComoFunciona from './pages/ComoFunciona';
 import GestaoEncaminhamentos from './pages/GestaoEncaminhamentos';
 import VagasAbrigos from './pages/VagasAbrigos';
 import RegistroOcorrencias from './pages/RegistroOcorrencias';
-import CadastroLuna from './pages/CadastroLuna'
 import RegistrarEncaminhamento from "./pages/RegistrarEncaminhamento";
 import CanalOrientacaoAnonima from "./pages/CanalOrientacaoAnonima";
 import MeuPerfil from "./pages/MeuPerfil";
@@ -58,8 +57,6 @@ export default function App() {
         }
       />
       <Route path="*" element={<Navigate to="/login" replace />} />
-      <Route path="/cadastro-luna" element={<CadastroLuna />} />
-
       {/* ADICIONANDO AS PAGINAS DO MATHEUS */}
 
       <Route
