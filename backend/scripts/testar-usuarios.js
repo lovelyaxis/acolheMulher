@@ -106,6 +106,11 @@ async function main() {
     400
   );
   conferir(
+    "Não cadastra administrador",
+    (await chamar("POST", "/usuarios", admin, { ...novo, email: "novo-admin@teste.com", perfil: "ADMINISTRADOR" })).status,
+    400
+  );
+  conferir(
     "Unidade inexistente",
     (await chamar("POST", "/usuarios", admin, { ...novo, email: "outro@teste.com", unidadeId: "nao-existe" })).status,
     400
@@ -125,10 +130,11 @@ async function main() {
     (await chamar("PUT", `/usuarios/${id}`, admin, { nome: "Profissional Editada", email: EMAIL, cargo: "Assistente social" })).status,
     200
   );
+  conferir("Não busca administrador", (await chamar("GET", `/usuarios/${adminId}`, admin)).status, 404);
   conferir(
-    "Admin não altera o próprio perfil",
-    (await chamar("PUT", `/usuarios/${adminId}`, admin, { nome: "Maria Silva", email: "admin@acolhemulher.com.br", perfil: "PROFISSIONAL" })).status,
-    400
+    "Não altera administrador",
+    (await chamar("PUT", `/usuarios/${adminId}`, admin, { nome: "Maria Silva", email: "admin@acolhemulher.com.br" })).status,
+    404
   );
 
   // Bloqueio e desbloqueio
@@ -145,13 +151,13 @@ async function main() {
     200
   );
   conferir(
-    "Admin não bloqueia a si mesmo",
+    "Não desativa administrador",
     (await chamar("PATCH", `/usuarios/${adminId}/status`, admin, { ativo: false })).status,
-    400
+    404
   );
 
   // Exclusão
-  conferir("Admin não exclui a si mesmo", (await chamar("DELETE", `/usuarios/${adminId}`, admin)).status, 400);
+  conferir("Não exclui administrador", (await chamar("DELETE", `/usuarios/${adminId}`, admin)).status, 404);
 
   const comEnc = await prisma.encaminhamento.count({ where: { profissionalId: profId } });
   if (comEnc > 0) {

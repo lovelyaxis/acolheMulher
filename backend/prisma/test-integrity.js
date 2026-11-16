@@ -1,8 +1,20 @@
 /**
  * Testes de integridade do banco de dados AcolheMulher (Tarefa 7)
  */
-const { PrismaClient } = require("@prisma/client");
+const path = require("node:path");
+const configuracao = require("dotenv").config({
+  path: path.join(__dirname, "..", ".env.test"),
+  override: true,
+});
 
+const urlDoBanco = configuracao.parsed?.DATABASE_URL || "";
+if (configuracao.error || !/_teste(?:\?.*)?$/i.test(urlDoBanco)) {
+  throw new Error(
+    "Integridade recusada: DATABASE_URL precisa apontar para um banco terminado em _teste."
+  );
+}
+
+const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
 
 let passed = 0;
@@ -210,7 +222,7 @@ async function main() {
   await test("Impedir exclusão de unidade com encaminhamentos vinculados", async () => {
     const unidComEnc = await prisma.unidade.findFirst({
       where: {
-        encaminhamentosDestino: { some: {} },
+        encaminhamentos: { some: {} },
       },
     });
     if (!unidComEnc) {

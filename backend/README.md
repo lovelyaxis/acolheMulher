@@ -62,7 +62,12 @@ Não é necessário criar um arquivo `.env` para executar a configuração padr�
 | Método | Rota | Descrição |
 |---|---|---|
 | GET | `/api` | Verifica se a API está funcionando. |
-| GET | `/api/usuarios` | Lista usuários fictícios. |
+| GET | `/api/usuarios` | Lista contas PROFISSIONAL (somente administrador autenticado). |
+| GET | `/api/usuarios/:id` | Busca profissional por ID; administradores não são expostos neste CRUD (404). |
+| POST | `/api/usuarios` | Cadastra conta PROFISSIONAL; tentativa de criar ADMINISTRADOR é recusada. |
+| PUT | `/api/usuarios/:id` | Edita profissional, sem permitir alterar o papel de acesso. |
+| PATCH | `/api/usuarios/:id/status` | Ativa/desativa profissional. |
+| DELETE | `/api/usuarios/:id` | Exclui profissional sem encaminhamentos vinculados. |
 | GET | `/api/unidades` | Lista unidades de atendimento. |
 | GET | `/api/encaminhamentos?profissionalId=ID` | Lista encaminhamentos do profissional informado. |
 | GET | `/api/dashboard-profissional?profissionalId=ID` | Retorna indicadores do dashboard profissional. |

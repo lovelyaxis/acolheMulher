@@ -128,17 +128,19 @@ function validarCorpo(corpo) {
   };
 }
 
+
 async function buscarDuplicada(nome, endereco) {
-  return prisma.unidade.findUnique({
+  return prisma.unidade.findFirst({
     where: {
-      unidade_duplicidade_unique: {
-        nomeNormalizado: normalizarTexto(nome),
-        enderecoNormalizado: normalizarTexto(endereco)
-      }
+      nomeNormalizado: nome,
+      enderecoNormalizado: endereco,
     },
-    select: { id: true }
+    select: {
+      id: true,
+    },
   });
 }
+
 
 function erroInterno(res, contexto, erro) {
   console.error(`Erro em unidades (${contexto}):`, erro.message);

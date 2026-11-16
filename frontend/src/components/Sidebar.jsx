@@ -1,6 +1,8 @@
 import { Link } from 'react-router-dom';
+import { useAuth } from '../auth/AuthContext';
 
 export default function Sidebar({ activePath }) {
+  const { usuario } = useAuth();
   const menuItems = [
     { to: '/dashboard-admin', label: 'Início' },
     { to: '/admin/encaminhamentos', label: 'Gestão de Encaminhamentos' },
@@ -8,6 +10,9 @@ export default function Sidebar({ activePath }) {
     { to: '/admin/registro-ocorrencias', label: 'Registro de Ocorrências' },
     { to: '/cadastrar-unidade', label: 'Cadastrar Unidade' },
     { to: '/admin/unidades', label: 'Gerenciar Unidades' },
+    ...(usuario?.perfil === 'ADMINISTRADOR'
+      ? [{ to: '/gestao-profissionais', label: 'Gestão de Profissionais' }]
+      : []),
   ];
 
   const isActive = (to) => activePath === to;

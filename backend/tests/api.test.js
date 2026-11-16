@@ -29,6 +29,7 @@ let tokenAdmin;
 let tokenProf;
 let tokenProf2;
 let profId;
+let adminId;
 let unidadeBaseId;
 let unidadeInativaId;
 
@@ -93,7 +94,8 @@ async function entrar(email, senha = SENHA) {
 before(async () => {
   await limparBanco();
 
-  await criarUsuario("Admin Teste", "admin@teste.com", "ADMINISTRADOR");
+  const admin = await criarUsuario("Admin Teste", "admin@teste.com", "ADMINISTRADOR");
+  adminId = admin.id;
   const prof = await criarUsuario("Profissional Teste", "prof@teste.com", "PROFISSIONAL");
   await criarUsuario("Profissional Dois", "prof2@teste.com", "PROFISSIONAL");
   profId = prof.id;
@@ -318,6 +320,58 @@ describe("Unidades", () => {
 });
 
 describe("Profissionais", () => {
+  it("lista somente profissionais e oculta administradores", async () => {
+    const r = await chamar("GET", "/api/usuarios", { token: tokenAdmin });
+    assert.equal(r.status, 200);
+    assert.ok(r.dados.length > 0);
+    assert.ok(r.dados.every((usuario) => usuario.perfil === "PROFISSIONAL"));
+    assert.equal(r.dados.some((usuario) => usuario.id === adminId), false);
+    assert.equal(JSON.stringify(r.dados).includes("senhaHash"), false);
+  });
+
+  it("não permite consultar, editar, desativar ou excluir administrador pelo CRUD", async () => {
+    const buscar = await chamar("GET", `/api/usuarios/${adminId}`, { token: tokenAdmin });
+    const editar = await chamar("PUT", `/api/usuarios/${adminId}`, {
+      token: tokenAdmin,
+      corpo: { nome: "Tentativa", email: "admin@teste.com" },
+    });
+    const status = await chamar("PATCH", `/api/usuarios/${adminId}/status`, {
+      token: tokenAdmin,
+      corpo: { ativo: false },
+    });
+    const statusInvalido = await chamar("PATCH", `/api/usuarios/${adminId}/status`, {
+      token: tokenAdmin,
+      corpo: { ativo: "não" },
+    });
+    const excluir = await chamar("DELETE", `/api/usuarios/${adminId}`, { token: tokenAdmin });
+
+    assert.equal(buscar.status, 404);
+    assert.equal(editar.status, 404);
+    assert.equal(status.status, 404);
+    assert.equal(statusInvalido.status, 404);
+    assert.equal(excluir.status, 404);
+
+    const administrador = await prisma.usuario.findUnique({ where: { id: adminId } });
+    assert.equal(administrador.perfil, "ADMINISTRADOR");
+    assert.equal(administrador.ativo, true);
+    assert.equal(administrador.nome, "Admin Teste");
+  });
+
+  it("rejeita tentativa de cadastrar administrador pela API", async () => {
+    const r = await chamar("POST", "/api/usuarios", {
+      token: tokenAdmin,
+      corpo: {
+        nome: "Admin Não Permitido",
+        email: "novo-admin@teste.com",
+        senha: SENHA,
+        perfil: "ADMINISTRADOR",
+      },
+    });
+    assert.equal(r.status, 400);
+    assert.equal(r.dados.erro, "Esta operação permite cadastrar somente profissionais.");
+    assert.equal(await prisma.usuario.findUnique({ where: { email: "novo-admin@teste.com" } }), null);
+  });
+
   it("administrador cadastra profissional (senha com hash, sem devolvê-la)", async () => {
     const r = await chamar("POST", "/api/usuarios", {
       token: tokenAdmin,
@@ -331,10 +385,24 @@ describe("Profissionais", () => {
     assert.equal(r.status, 201);
     assert.equal(r.dados.perfil, "PROFISSIONAL");
     assert.equal(JSON.stringify(r.dados).includes("senhaHash"), false);
+    assert.equal(JSON.stringify(r.dados).includes(SENHA), false);
 
     const noBanco = await prisma.usuario.findUnique({ where: { email: "nova@teste.com" } });
     assert.notEqual(noBanco.senhaHash, SENHA);
     assert.ok(noBanco.senhaHash.startsWith("$2"));
+  });
+
+  it("não permite alterar o perfil de um profissional", async () => {
+    const r = await chamar("PUT", `/api/usuarios/${profId}`, {
+      token: tokenAdmin,
+      corpo: {
+        nome: "Profissional Teste",
+        email: "prof@teste.com",
+        perfil: "ADMINISTRADOR",
+      },
+    });
+    assert.equal(r.status, 400);
+    assert.equal(r.dados.erro, "O perfil de acesso não pode ser alterado.");
   });
 
   it("impede e-mail duplicado", async () => {
@@ -348,6 +416,14 @@ describe("Profissionais", () => {
   it("a nova profissional consegue entrar", async () => {
     const r = await entrar("nova@teste.com");
     assert.equal(r.status, 200);
+  });
+
+  it("login recusa profissional desativado", async () => {
+    const usuario = await prisma.usuario.findUnique({ where: { email: "nova@teste.com" } });
+    await prisma.usuario.update({ where: { id: usuario.id }, data: { ativo: false } });
+    const r = await entrar("nova@teste.com");
+    assert.equal(r.status, 403);
+    await prisma.usuario.update({ where: { id: usuario.id }, data: { ativo: true } });
   });
 });
 
