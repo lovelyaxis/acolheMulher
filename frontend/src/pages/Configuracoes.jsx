@@ -1,31 +1,10 @@
 import React from 'react';
+import Sidebar from '../components/Sidebar';
 
 export default function Configuracoes() {
   return (
     <div className="flex min-h-screen bg-purple-50/50 font-sans">
-      
-      {/* Sidebar */}
-      <aside className="w-64 bg-slate-900 text-white flex flex-col justify-between p-6  md:flex">
-        <div>
-          <div className="flex items-center gap-2 mb-10">
-            <div className="w-8 h-8 rounded-full bg-purple-600 flex items-center justify-center font-bold text-white">
-              ♥
-            </div>
-            <span className="font-bold text-lg tracking-wide">AcolheMulher</span>
-          </div>
-
-          <nav className="space-y-2 text-sm font-medium">
-            <a href="/cadastrar-unidade" className="flex items-center gap-3 text-slate-400 hover:text-white hover:bg-slate-800 px-4 py-3 rounded-xl transition">Gestão da Rede</a>
-            <a href="/gestao-profissionais" className="flex items-center gap-3 text-slate-400 hover:text-white hover:bg-slate-800 px-4 py-3 rounded-xl transition">Gestão de Profissionais</a>
-            <a href="/relatorios" className="flex items-center gap-3 text-slate-400 hover:text-white hover:bg-slate-800 px-4 py-3 rounded-xl transition">Relatórios</a>
-            <a href="/configuracoes" className="flex items-center gap-3 bg-purple-600 text-white px-4 py-3 rounded-xl transition">Configurações</a>
-          </nav>
-        </div>
-
-        <a href="/login" className="flex items-center gap-3 text-slate-400 hover:text-red-400 px-4 py-3 font-medium text-sm transition">
-          Sair
-        </a>
-      </aside>
+      <Sidebar activePath="/configuracoes" />
 
       {/* Conteúdo Principal */}
       <main className="flex-1 p-6 md:p-10">
@@ -38,7 +17,7 @@ export default function Configuracoes() {
           <div>
             <h3 className="text-sm font-bold text-slate-900 mb-1">Dados da Conta</h3>
             <p className="text-xs text-slate-500 mb-4">Atualize as suas informações de perfil administrativo.</p>
-            
+
             <div className="space-y-4">
               <div>
                 <label className="block text-xs font-semibold text-slate-700 mb-1">Nome Completo</label>
