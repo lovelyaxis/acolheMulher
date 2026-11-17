@@ -3,6 +3,7 @@ import { Navigate, useLocation, useNavigate } from "react-router-dom";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 import { useAuth } from "../auth/AuthContext";
+import { AlertCircle, Eye, EyeOff, LockKeyhole, Mail, ShieldAlert } from "lucide-react";
 
 function destinoDoPerfil(perfil) {
   return perfil === "ADMINISTRADOR"
@@ -105,11 +106,11 @@ export default function Login() {
     <div className="flex min-h-screen flex-col font-inter">
       <Header />
 
-      <main className="flex flex-1 items-center bg-linear-to-b from-soft to-white py-10">
-        <div className="mx-auto grid w-full max-w-6xl items-center gap-8 px-6 md:grid-cols-2 md:gap-12">
+      <main className="flex flex-1 items-center bg-white py-0 md:bg-soft md:py-10">
+        <div className="mx-auto grid w-full max-w-6xl overflow-hidden bg-white shadow-lg md:min-h-[640px] md:grid-cols-2 md:rounded-3xl">
           {/* Ilustração */}
           <div
-            className="hidden justify-center md:flex"
+            className="hidden flex-col items-center justify-center bg-soft p-8 md:flex lg:p-12"
             aria-hidden="true"
           >
             <svg
@@ -255,27 +256,35 @@ export default function Login() {
                 fill="#F0B18E"
               />
             </svg>
+            <p className="mt-6 max-w-sm text-center text-base leading-7 text-navy/70">
+              Um espaço de acolhimento para quem cuida e protege.
+            </p>
           </div>
 
           {/* Formulário */}
-          <section className="w-full max-w-md justify-self-center rounded-2xl bg-white p-6 shadow-lg sm:p-8 md:justify-self-end">
-            <h1 className="font-poppins text-2xl font-bold text-navy">
-              Bem-vinda de volta!
+          <section className="flex w-full items-center justify-center px-6 py-10 sm:px-10 md:px-8 lg:px-12">
+            <div className="w-full max-w-sm">
+            <h1 className="font-poppins text-3xl font-semibold text-navy sm:text-4xl">
+              Bem-vindo de volta!
             </h1>
 
-            <p className="mt-2 text-sm leading-6 text-gray-500">
-              Faça login para acessar sua conta e continuar seu atendimento.
+            <p className="mt-3 text-sm leading-6 text-navy/70">
+              Acesse sua conta para continuar seu trabalho na rede de acolhimento.
             </p>
 
             {bloqueadoAte && (
-              <p className="text-center text-sm text-[#DC3B57]" role="alert">
-                Sua conta está temporariamente bloqueada por várias tentativas
-                incorretas. Tente novamente em{" "}
-                <strong>{minutosBloqueio} minuto(s)</strong>.
-              </p>
+              <div className="mt-6 flex gap-3 rounded-xl border border-danger/30 bg-danger-soft p-4 text-sm text-danger" role="alert">
+                <ShieldAlert className="mt-0.5 h-5 w-5 shrink-0" aria-hidden="true" />
+                <p>
+                  Sua conta está temporariamente bloqueada por várias tentativas
+                  incorretas. Tente novamente em{" "}
+                  <strong>{minutosBloqueio} minuto(s)</strong>.
+                </p>
+              </div>
             )}
             {!bloqueadoAte && tentativasRestantes < 5 && tentativasRestantes > 0 && (
-              <p className="text-center text-sm text-[#827A99]">
+              <p className="mt-5 flex items-center gap-2 rounded-xl border border-primary/20 bg-soft p-3 text-sm text-navy" role="status">
+                <AlertCircle className="h-4 w-4 shrink-0 text-primary" aria-hidden="true" />
                 Tentativa{tentativasRestantes === 1 ? "" : "s"} restante(s):
                 <strong>{tentativasRestantes}</strong> de 5
               </p>
@@ -283,42 +292,46 @@ export default function Login() {
 
             <form
               onSubmit={handleSubmit}
-              className="mt-6 space-y-4"
+              className="mt-8 space-y-5"
             >
               <div>
                 <label
                   htmlFor="login"
-                  className="mb-1.5 block text-xs font-semibold text-navy"
+                  className="mb-2 block text-sm font-semibold text-navy"
                 >
                   E-mail
                 </label>
 
-                <input
-                  id="login"
-                  name="login"
-                  type="email"
-                  autoComplete="username"
-                  value={login}
-                  onChange={(event) => {
-                    setLogin(event.target.value);
-                    setMensagem("");
-                  }}
-                  placeholder="Digite seu e-mail"
-                  required
-                  disabled={bloqueadoAte || enviando}
-                  className="w-full rounded-full border border-gray-200 px-4 py-3 text-sm outline-none placeholder:text-gray-400 focus:border-primary focus:ring-2 focus:ring-primary/20"
-                />
+                <div className="relative">
+                  <Mail className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-navy/50" aria-hidden="true" />
+                  <input
+                    id="login"
+                    name="login"
+                    type="email"
+                    autoComplete="username"
+                    value={login}
+                    onChange={(event) => {
+                      setLogin(event.target.value);
+                      setMensagem("");
+                    }}
+                    placeholder="Digite seu e-mail"
+                    required
+                    disabled={bloqueadoAte || enviando}
+                    className="h-12 w-full rounded-xl border border-navy/20 bg-white pl-12 pr-4 text-sm text-navy outline-none transition placeholder:text-navy/50 focus:border-primary focus:ring-2 focus:ring-primary/20 focus-visible:ring-2"
+                  />
+                </div>
               </div>
 
               <div>
                 <label
                   htmlFor="senha"
-                  className="mb-1.5 block text-xs font-semibold text-navy"
+                  className="mb-2 block text-sm font-semibold text-navy"
                 >
                   Senha
                 </label>
 
                 <div className="relative">
+                  <LockKeyhole className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-navy/50" aria-hidden="true" />
                   <input
                     id="senha"
                     name="senha"
@@ -332,7 +345,7 @@ export default function Login() {
                     placeholder="Digite sua senha"
                     required
                     disabled={bloqueadoAte || enviando}
-                    className="w-full rounded-full border border-gray-200 px-4 py-3 pr-12 text-sm outline-none placeholder:text-gray-400 focus:border-primary focus:ring-2 focus:ring-primary/20"
+                    className="h-12 w-full rounded-xl border border-navy/20 bg-white pl-12 pr-24 text-sm text-navy outline-none transition placeholder:text-navy/50 focus:border-primary focus:ring-2 focus:ring-primary/20 focus-visible:ring-2"
                   />
 
                   <button
@@ -340,42 +353,18 @@ export default function Login() {
                     onClick={() => setMostrarSenha((visivel) => !visivel)}
                     aria-label={mostrarSenha ? "Ocultar senha" : "Mostrar senha"}
                     aria-pressed={mostrarSenha}
-                    className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 transition hover:text-primary"
+                    className="absolute right-3 top-1/2 inline-flex -translate-y-1/2 items-center gap-1.5 rounded-md px-2 py-1 text-xs font-semibold text-primary transition hover:text-primary-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
                   >
                     {mostrarSenha ? (
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        width="20"
-                        height="20"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        aria-hidden="true"
-                      >
-                        <path d="M3 3l18 18" />
-                        <path d="M10.6 10.6a2 2 0 0 0 2.8 2.8" />
-                        <path d="M9.9 5.2A10.8 10.8 0 0 1 12 5c7 0 11 7 11 7a17.7 17.7 0 0 1-4.1 4.9" />
-                        <path d="M6.2 6.2C2.8 8.3 1 12 1 12s4 7 11 7c1.5 0 2.8-.3 4-.8" />
-                      </svg>
+                      <>
+                        <EyeOff className="h-4 w-4" aria-hidden="true" />
+                        Ocultar
+                      </>
                     ) : (
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        width="20"
-                        height="20"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        aria-hidden="true"
-                      >
-                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8Z" />
-                        <circle cx="12" cy="12" r="3" />
-                      </svg>
+                      <>
+                        <Eye className="h-4 w-4" aria-hidden="true" />
+                        Mostrar
+                      </>
                     )}
                   </button>
                 </div>
@@ -398,28 +387,27 @@ export default function Login() {
               <button
                 type="submit"
                 disabled={bloqueadoAte || enviando}
-                className={`w-full rounded-full py-3 text-sm font-semibold text-white transition focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 ${
+                className={`w-full rounded-xl py-3.5 text-sm font-semibold text-white shadow-sm transition hover:shadow-md focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary ${
                   bloqueadoAte || enviando
-                    ? "bg-gray-400 cursor-not-allowed"
-                    : "bg-primary hover:bg-primary-hover"
+                    ? "cursor-not-allowed bg-gray-400"
+                    : "bg-linear-to-r from-primary to-primary-hover hover:to-primary"
                 }`}
               >
                 {enviando ? "Entrando..." : "Entrar"}
               </button>
 
               {mensagem && (
-                <p
-                  className="text-center text-sm text-[#DC3B57]"
+                <div
+                  className="flex items-start gap-2.5 rounded-xl border border-danger/30 bg-danger-soft p-3.5 text-sm text-danger"
                   role="alert"
                   aria-live="polite"
                 >
-                  {mensagem}
-                </p>
+                  <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" />
+                  <p>{mensagem}</p>
+                </div>
               )}
             </form>
-
-
-            
+            </div>
           </section>
         </div>
       </main>
