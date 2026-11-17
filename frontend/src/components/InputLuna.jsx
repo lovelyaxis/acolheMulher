@@ -14,7 +14,7 @@ export default function InputLuna({
 
   return (
     <div className="w-full">
-      <label htmlFor={id} className="mb-1.5 block text-sm font-medium text-navy">
+      <label htmlFor={id} className="mb-1.5 block text-sm font-medium text-ink">
         {label}
       </label>
       <input
@@ -26,8 +26,8 @@ export default function InputLuna({
         aria-invalid={Boolean(error)}
         aria-describedby={error ? errorId : undefined}
         aria-required="true"
-        className={`w-full rounded-xl border bg-white px-4 py-3 text-sm text-navy outline-none transition placeholder:text-navy/40 focus:border-brand focus:ring-2 focus:ring-brand/15 ${
-          error ? "border-danger" : "border-navy/15"
+        className={`w-full rounded-xl border bg-white px-4 py-3 text-base text-ink outline-none transition placeholder:text-muted focus:border-brand focus:ring-2 focus:ring-brand/20 ${
+          error ? "border-danger" : "border-line"
         }`}
       />
       {error && (

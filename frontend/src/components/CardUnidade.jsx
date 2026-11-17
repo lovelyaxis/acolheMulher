@@ -34,16 +34,16 @@ export default function CardUnidade({ unidade, mostrarVagas = false }) {
       : "Nenhuma vaga disponível no momento";
 
   return (
-    <article className="flex h-full flex-col rounded-2xl border border-brand/15 bg-white p-5 shadow-sm transition hover:border-brand/40 hover:shadow-md">
+    <article className="flex h-full flex-col rounded-2xl border border-line bg-white p-6 transition-colors hover:border-brand/50">
       <p className="inline-flex w-fit rounded-full bg-brand/10 px-3 py-1 text-xs font-semibold text-brand">
         {tipo}
       </p>
 
-      <h3 className="mt-3 text-lg font-semibold leading-snug text-navy">
+      <h3 className="mt-3 text-lg font-semibold leading-snug text-ink">
         {nome}
       </h3>
 
-      <address className="mt-3 flex items-start gap-2 text-sm not-italic leading-6 text-gray-700">
+      <address className="mt-3 flex items-start gap-2 text-sm not-italic leading-6 text-muted">
         <MapPin
           className="mt-0.5 h-4 w-4 shrink-0 text-brand"
           aria-hidden="true"
@@ -52,13 +52,13 @@ export default function CardUnidade({ unidade, mostrarVagas = false }) {
         <span>
           {endereco}
 
-          <span className="block text-gray-600">
+          <span className="block text-muted">
             {bairro} — CEP {formatarCep(cep)}
           </span>
         </span>
       </address>
 
-      <p className="mt-2 flex items-start gap-2 text-sm leading-6 text-gray-700">
+      <p className="mt-2 flex items-start gap-2 text-sm leading-6 text-muted">
         <Phone
           className="mt-0.5 h-4 w-4 shrink-0 text-brand"
           aria-hidden="true"
@@ -73,7 +73,7 @@ export default function CardUnidade({ unidade, mostrarVagas = false }) {
         </a>
       </p>
 
-      <p className="mt-2 flex items-start gap-2 text-sm leading-6 text-gray-700">
+      <p className="mt-2 flex items-start gap-2 text-sm leading-6 text-muted">
         <Clock
           className="mt-0.5 h-4 w-4 shrink-0 text-brand"
           aria-hidden="true"
@@ -83,7 +83,7 @@ export default function CardUnidade({ unidade, mostrarVagas = false }) {
       </p>
 
       {exibirVagas && (
-        <p className="mt-4 flex items-start gap-2 rounded-xl border border-brand/15 bg-page/60 px-4 py-3 text-sm font-medium text-navy">
+        <p className="mt-4 flex items-start gap-2 rounded-xl border border-line bg-page px-4 py-3 text-sm font-medium text-ink">
           <BedDouble
             className="mt-0.5 h-4 w-4 shrink-0 text-brand"
             aria-hidden="true"

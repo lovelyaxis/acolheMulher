@@ -88,7 +88,7 @@ export default function Home() {
           <div>
             
 
-            <h1 className="mt-4 max-w-lg font-[Poppins] text-4xl font-bold leading-tight md:text-5xl">
+            <h1 className="mt-4 max-w-lg font-display text-4xl font-semibold leading-tight md:text-5xl">
               Encontre ajuda perto de você
             </h1>
 
@@ -137,7 +137,7 @@ export default function Home() {
           <span className="text-xs font-bold uppercase tracking-wider text-brand">
             É simples e seguro
           </span>
-          <h2 className="mt-1 font-[Poppins] text-2xl font-bold">
+          <h2 className="mt-1 font-display text-2xl font-semibold">
             Como funciona
           </h2>
           <p className="mt-2 text-sm text-gray-600">
@@ -152,7 +152,7 @@ export default function Home() {
   return (
     <article
       key={etapa.numero}
-      className="rounded-2xl border border-purple-100 bg-[#FCFAFE] p-5"
+      className="rounded-xl border border-line bg-white p-5 transition-colors hover:border-brand/50"
     >
       <div className="flex items-center justify-between">
         <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-purple-100 text-xl text-brand">
@@ -178,7 +178,7 @@ export default function Home() {
           <span className="text-xs font-bold uppercase tracking-wider text-brand">
             Você não está sozinha
           </span>
-          <h2 className="mt-1 font-[Poppins] text-2xl font-bold">
+          <h2 className="mt-1 font-display text-2xl font-semibold">
             Tipos de acolhimento
           </h2>
           <p className="mt-2 text-sm text-gray-600">
@@ -215,7 +215,7 @@ export default function Home() {
             <span className="text-xs font-bold uppercase tracking-wider text-brand">
               Rede de atendimento
             </span>
-            <h2 className="mt-1 font-[Poppins] text-2xl font-bold">
+            <h2 className="mt-1 font-display text-2xl font-semibold">
               Encontre atendimento perto de você
             </h2>
             <p className="mt-2 text-sm leading-6 text-gray-600">
@@ -250,7 +250,7 @@ export default function Home() {
   const Icone = servico.icone;
 
   return (
-    <article key={servico.titulo} className="rounded-2xl border border-purple-100 p-4">
+    <article key={servico.titulo} className="rounded-xl border border-line bg-white p-4 transition-colors hover:border-brand/50">
       <div className="flex items-start gap-3">
         <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-purple-50 text-brand">
           <Icone size={20} aria-hidden="true" />
@@ -280,7 +280,7 @@ export default function Home() {
           </div>
 
           <article>
-            <h3 className="font-[Poppins] text-lg font-bold text-danger">
+            <h3 className="font-display text-lg font-semibold text-danger">
               Ligue 180
             </h3>
             <p className="mt-1 text-sm text-gray-700">
@@ -295,7 +295,7 @@ export default function Home() {
           </article>
 
           <article>
-            <h3 className="font-[Poppins] text-lg font-bold text-danger">
+            <h3 className="font-display text-lg font-semibold text-danger">
               Emergência
             </h3>
             <p className="mt-1 text-sm text-gray-700">

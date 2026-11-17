@@ -325,27 +325,27 @@ export default function DashboardProfissional() {
   }
 
   return (
-    <div className="min-h-screen bg-purple-50/50 font-inter text-[#241D45] md:flex">
+    <div className="min-h-screen bg-page text-ink md:flex">
       {/* Fundo escuro para o menu em telas pequenas */}
       {menuAberto && (
         <button
           type="button"
           aria-label="Fechar menu"
-          className="fixed inset-0 z-40 bg-[#18132F]/50 md:hidden"
+          className="fixed inset-0 z-40 bg-ink/30 md:hidden"
           onClick={() => setMenuAberto(false)}
         />
       )}
 
       {/* MENU LATERAL */}
       <aside
-        className={`fixed inset-y-0 left-0 z-50 flex w-64 flex-col bg-slate-900 text-white transition-transform duration-300 md:sticky md:top-0 md:h-screen md:translate-x-0 ${
+        className={`fixed inset-y-0 left-0 z-50 flex w-64 flex-col border-r border-line bg-white text-ink transition-transform duration-300 md:sticky md:top-0 md:h-screen md:translate-x-0 ${
           menuAberto ? "translate-x-0" : "-translate-x-full"
         }`}
       >
-        <div className="flex h-[76px] items-center justify-between border-b border-white/10 px-5">
+        <div className="flex h-[76px] items-center justify-between border-b border-line px-5">
           <div className="flex items-center gap-2.5">
-            <Heart size={21} fill="#C9A0F0" className="text-[#C9A0F0]" />
-            <span className="font-poppins text-sm font-bold tracking-tight">
+            <Heart size={21} className="text-brand" />
+            <span className="font-display text-sm font-semibold tracking-tight">
               AcolheMulher
             </span>
           </div>
@@ -354,7 +354,7 @@ export default function DashboardProfissional() {
             type="button"
             aria-label="Fechar menu"
             onClick={() => setMenuAberto(false)}
-            className="rounded-lg p-2 text-white/70 transition hover:bg-white/10 md:hidden"
+            className="rounded-lg p-2 text-muted transition hover:bg-page md:hidden focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
           >
             <X size={20} />
           </button>
@@ -364,7 +364,7 @@ export default function DashboardProfissional() {
           <a
             href="#inicio"
             onClick={() => setMenuAberto(false)}
-            className="flex items-center gap-3 rounded-lg bg-purple-600 px-3 py-3 text-sm font-medium text-white transition hover:bg-[#8C4DB7]"
+            className="flex items-center gap-3 rounded-lg bg-soft px-3 py-3 text-sm font-semibold text-brand transition hover:bg-purple-100"
           >
             <House size={17} />
             Início
@@ -373,7 +373,7 @@ export default function DashboardProfissional() {
           <Link
             to="/registrar-encaminhamento"
             onClick={() => setMenuAberto(false)}
-            className="flex w-full items-center gap-3 rounded-lg px-3 py-3 text-left text-sm text-white/75 transition hover:bg-white/10 hover:text-white"
+            className="flex w-full items-center gap-3 rounded-lg px-3 py-3 text-left text-sm text-muted transition hover:bg-soft hover:text-brand focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
           >
             <ClipboardList size={17} />
             Registrar encaminhamento
@@ -382,7 +382,7 @@ export default function DashboardProfissional() {
           <a
             href="/rede-de-atendimento"
             onClick={() => setMenuAberto(false)}
-            className="flex items-center gap-3 rounded-lg px-3 py-3 text-sm text-white/75 transition hover:bg-white/10 hover:text-white"
+            className="flex items-center gap-3 rounded-lg px-3 py-3 text-sm text-muted transition hover:bg-soft hover:text-brand focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
           >
             <MapPin size={17} />
             Consultar rede
@@ -392,22 +392,22 @@ export default function DashboardProfissional() {
           <Link
             to="/meu-perfil"
             onClick={() => setMenuAberto(false)}
-            className="flex w-full items-center gap-3 rounded-lg px-3 py-3 text-left text-sm text-white/75 transition hover:bg-white/10 hover:text-white"
+            className="flex w-full items-center gap-3 rounded-lg px-3 py-3 text-left text-sm text-muted transition hover:bg-soft hover:text-brand focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
           >
             <UserRound size={17} />
             Meu perfil
           </Link>
         </nav>
 
-        <div className="border-t border-white/10 p-3">
-          <div className="mb-3 rounded-lg bg-white/[0.06] p-3">
-            <div className="flex items-center gap-2 text-[#D6B6F2]">
+        <div className="border-t border-line p-3">
+          <div className="mb-3 rounded-lg border border-line bg-page p-3">
+            <div className="flex items-center gap-2 text-brand">
               <HeartHandshake size={18} />
               <span className="text-xs font-semibold">
                 Acolhimento e respeito
               </span>
             </div>
-            <p className="mt-2 text-xs leading-5 text-white/65">
+            <p className="mt-2 text-xs leading-5 text-muted">
               Cada atendimento merece cuidado, respeito e confidencialidade.
             </p>
           </div>
@@ -415,7 +415,7 @@ export default function DashboardProfissional() {
           <button
             type="button"
             onClick={handleSair}
-            className="flex items-center gap-3 rounded-lg px-3 py-3 text-sm text-white/70 transition hover:bg-white/10 hover:text-white"
+            className="flex items-center gap-3 rounded-lg px-3 py-3 text-sm text-danger transition hover:bg-danger-soft focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
           >
             <LogOut size={17} />
             Sair
@@ -466,7 +466,7 @@ export default function DashboardProfissional() {
               {notificacoesAbertas && (
                 <div className="absolute right-0 top-full z-50 mt-2 w-[min(300px,calc(100vw-32px))] rounded-xl border border-[#EAE3F4] bg-white p-4 shadow-xl">
                   <div className="flex items-center justify-between">
-                    <h2 className="font-poppins text-sm font-bold">
+                    <h2 className="font-display text-sm font-semibold">
                       Notificações
                     </h2>
                     <button
@@ -529,7 +529,7 @@ export default function DashboardProfissional() {
                 <span className="block text-xs font-semibold">
                   {nomeUsuario}
                 </span>
-                <span className="mt-1 block text-[10px] text-[#827A99]">
+                <span className="mt-1 block text-xs text-[#827A99]">
                   {cargoUsuario}
                 </span>
               </span>
@@ -548,7 +548,7 @@ export default function DashboardProfissional() {
               <p className="text-xs font-semibold uppercase tracking-wider text-[#7B3FA6]">
                 Visão geral
               </p>
-              <h2 className="mt-1 font-poppins text-xl font-bold sm:text-2xl">
+              <h2 className="mt-1 font-display text-xl font-semibold sm:text-2xl">
                 Acompanhe seus atendimentos
               </h2>
               <p className="mt-1.5 text-sm leading-6 text-[#716A88]">
@@ -607,7 +607,7 @@ export default function DashboardProfissional() {
           >
             <div className="flex flex-col gap-4 border-b border-slate-100 p-6 lg:flex-row lg:items-center lg:justify-between">
               <div>
-                <h2 className="font-poppins text-base font-bold">
+                <h2 className="font-display text-base font-semibold">
                   Últimos atendimentos
                 </h2>
                 <p className="mt-1 text-xs leading-5 text-[#827A99]">
@@ -665,7 +665,7 @@ export default function DashboardProfissional() {
             {/* TABELA PARA COMPUTADOR */}
             <div className="hidden overflow-x-auto md:block">
               <table className="w-full min-w-[650px] text-left text-sm">
-                <thead className="border-b border-slate-100 text-[11px] uppercase tracking-wider text-slate-400">
+                <thead className="border-b border-slate-100 text-xs uppercase tracking-wider text-slate-400">
                   <tr>
                     <th scope="col" className="px-6 py-4 font-semibold">
                       Data
@@ -769,7 +769,7 @@ export default function DashboardProfissional() {
             </div>
 
             <div className="border-t border-[#EAE3F4] bg-[#FEFDFF] px-4 py-3 sm:px-6">
-              <p className="flex items-start gap-2 text-[11px] leading-5 text-[#827A99]">
+              <p className="flex items-start gap-2 text-xs leading-5 text-[#827A99]">
                 <ShieldCheck
                   size={15}
                   className="mt-0.5 shrink-0 text-[#7B3FA6]"
@@ -790,7 +790,7 @@ export default function DashboardProfissional() {
       {/* MODAL: NOVO ENCAMINHAMENTO */}
       {modalAberto && (
         <div
-          className="fixed inset-0 z-[70] flex items-center justify-center overflow-y-auto bg-[#18132F]/55 p-4 backdrop-blur-[2px]"
+          className="fixed inset-0 z-[70] flex items-center justify-center overflow-y-auto bg-ink/20 p-4 backdrop-blur-[2px]"
           onMouseDown={(evento) => {
             if (evento.target === evento.currentTarget) fecharModal();
           }}
@@ -808,7 +808,7 @@ export default function DashboardProfissional() {
                 </div>
                 <h2
                   id="titulo-modal-encaminhamento"
-                  className="mt-3 font-poppins text-lg font-bold"
+                  className="mt-3 font-display text-lg font-semibold"
                 >
                   Novo encaminhamento
                 </h2>
@@ -970,7 +970,7 @@ export default function DashboardProfissional() {
       {/* MODAL: PERFIL DO USUÁRIO LOGADO */}
       {perfilAberto && (
         <div
-          className="fixed inset-0 z-[70] flex items-center justify-center bg-[#18132F]/55 p-4 backdrop-blur-[2px]"
+          className="fixed inset-0 z-[70] flex items-center justify-center bg-ink/20 p-4 backdrop-blur-[2px]"
           onMouseDown={(evento) => {
             if (evento.target === evento.currentTarget) {
               setPerfilAberto(false);
@@ -999,7 +999,7 @@ export default function DashboardProfissional() {
 
             <h2
               id="titulo-modal-perfil"
-              className="mt-4 font-poppins text-lg font-bold"
+              className="mt-4 font-display text-lg font-semibold"
             >
               {nomeUsuario}
             </h2>

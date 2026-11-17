@@ -259,7 +259,7 @@ export default function Login() {
 
           {/* Formulário */}
           <section className="w-full max-w-md justify-self-center rounded-2xl bg-white p-6 shadow-lg sm:p-8 md:justify-self-end">
-            <h1 className="font-poppins text-2xl font-bold text-navy">
+            <h1 className="font-display text-2xl font-semibold text-ink">
               Bem-vinda de volta!
             </h1>
 

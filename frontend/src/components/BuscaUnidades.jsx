@@ -133,15 +133,9 @@ export default function BuscaUnidades({
               onChange={(event) => setTermo(event.target.value)}
               placeholder="Ex.: 00000-001 ou Centro"
               aria-describedby={idDicaTermo}
-              className="mt-2 w-full rounded-xl border border-navy/15 bg-white px-4 py-3 text-sm text-navy transition placeholder:text-navy/50 focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/20"
+              className="mt-2 h-11 w-full rounded-xl border border-navy/15 bg-white px-4 text-sm text-navy transition placeholder:text-navy/50 focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/20"
             />
 
-            <p
-              id={idDicaTermo}
-              className="mt-2 text-xs leading-5 text-gray-600"
-            >
-              O CEP pode ser digitado com ou sem traço.
-            </p>
           </div>
 
           <div>
@@ -157,7 +151,7 @@ export default function BuscaUnidades({
               name="tipo"
               value={tipo}
               onChange={aoTrocarTipo}
-              className="mt-2 w-full rounded-xl border border-navy/15 bg-white px-4 py-3 text-sm text-navy transition focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/20"
+              className="mt-2 h-11 w-full rounded-xl border border-navy/15 bg-white px-4 text-sm text-navy transition focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/20"
             >
               <option value="">Todos os tipos</option>
 
@@ -172,7 +166,7 @@ export default function BuscaUnidades({
           <button
             type="submit"
             disabled={carregando}
-            className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-brand px-6 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-primary-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand disabled:cursor-not-allowed disabled:opacity-60 md:w-auto"
+            className="inline-flex h-11 w-full items-center justify-center gap-2 rounded-xl bg-brand px-6 text-sm font-semibold text-white shadow-sm transition hover:bg-primary-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand disabled:cursor-not-allowed disabled:opacity-60 md:w-auto"
           >
             {carregando ? (
               <LoaderCircle
@@ -186,6 +180,9 @@ export default function BuscaUnidades({
             {carregando ? "Buscando..." : "Buscar"}
           </button>
         </div>
+        <p id={idDicaTermo} className="mt-2 text-xs leading-5 text-gray-600">
+          O CEP pode ser digitado com ou sem traço.
+        </p>
       </form>
 
       <div className="mt-8">

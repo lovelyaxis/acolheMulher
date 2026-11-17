@@ -83,11 +83,11 @@ export default function Ajuda() {
                         ))}
                     </div>
                     <nav className="space-y-2 text-sm font-medium">
-                        <Link to="/dashboard-admin" className="flex items-center gap-3 bg-purple-600 text-white px-4 py-3 rounded-xl transition">Início</Link>
-                        <Link to="/cadastrar-unidade" className="flex items-center gap-3 text-slate-400 hover:text-white hover:bg-slate-800 px-4 py-3 rounded-xl transition">Gestão da Rede</Link>
-                        <Link to="/gestao-profissionais" className="flex items-center gap-3 text-slate-400 hover:text-white hover:bg-slate-800 px-4 py-3 rounded-xl transition">Gestão de Profissionais</Link>
-                        <Link to="/relatorios" className="flex items-center gap-3 text-slate-400 hover:text-white hover:bg-slate-800 px-4 py-3 rounded-xl transition">Relatórios</Link>
-                        <Link to="/configuracoes" className="flex items-center gap-3 text-slate-400 hover:text-white hover:bg-slate-800 px-4 py-3 rounded-xl transition">Configurações</Link>
+                        <Link to="/dashboard-admin" className="flex items-center gap-3 rounded-lg bg-soft px-4 py-3 text-brand transition">Início</Link>
+                        <Link to="/cadastrar-unidade" className="flex items-center gap-3 rounded-lg px-4 py-3 text-muted transition hover:bg-soft hover:text-brand">Gestão da Rede</Link>
+                        <Link to="/gestao-profissionais" className="flex items-center gap-3 rounded-lg px-4 py-3 text-muted transition hover:bg-soft hover:text-brand">Gestão de Profissionais</Link>
+                        <Link to="/relatorios" className="flex items-center gap-3 rounded-lg px-4 py-3 text-muted transition hover:bg-soft hover:text-brand">Relatórios</Link>
+                        <Link to="/configuracoes" className="flex items-center gap-3 rounded-lg px-4 py-3 text-muted transition hover:bg-soft hover:text-brand">Configurações</Link>
                     </nav>
                 </section>
 

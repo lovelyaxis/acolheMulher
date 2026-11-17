@@ -140,7 +140,7 @@ export default function DashboardAdmin() {
                   <tr key={item.id} className="hover:bg-purple-50/30 transition">
                     <td className="py-4 font-medium text-slate-800">{item.unidade}</td>
                     <td className="py-4 text-center">
-                      <span className={`inline-block px-3 py-1 rounded-full text-[11px] font-semibold ${item.statusColor}`}>
+                      <span className={`inline-block px-3 py-1 rounded-full text-xs font-semibold ${item.statusColor}`}>
                         {item.acao}
                       </span>
                     </td>

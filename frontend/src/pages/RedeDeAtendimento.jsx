@@ -89,7 +89,7 @@ export default function RedeDeAtendimento() {
     <main className="min-h-screen bg-page text-navy">
         <Header/>
       {/* Acesso rápido aos canais de emergência */}
-      <div className="flex flex-wrap items-center justify-between gap-3 bg-navy px-5 py-3 text-sm text-white sm:px-8">
+      <div className="flex flex-wrap items-center justify-between gap-3 border-y border-line bg-white px-5 py-3 text-sm text-ink sm:px-8">
         <p className="font-medium">
           Precisa de ajuda imediata?
         </p>
@@ -97,7 +97,7 @@ export default function RedeDeAtendimento() {
         <div className="flex flex-wrap items-center gap-4">
           <a
             href="tel:190"
-            className="rounded-md underline underline-offset-4 hover:text-accent focus-visible:outline-2 focus-visible:outline-white"
+            className="rounded-md font-semibold text-danger underline underline-offset-4 hover:text-primary-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
             aria-label="Ligar para a Polícia Militar pelo 190"
           >
             190 — Emergência
@@ -105,7 +105,7 @@ export default function RedeDeAtendimento() {
 
           <a
             href="tel:180"
-            className="rounded-md underline underline-offset-4 hover:text-accent focus-visible:outline-2 focus-visible:outline-white"
+            className="rounded-md font-semibold text-danger underline underline-offset-4 hover:text-primary-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
             aria-label="Ligar para a Central de Atendimento à Mulher pelo 180"
           >
             180 — Central da Mulher

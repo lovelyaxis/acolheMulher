@@ -1,29 +1,87 @@
-
-@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@500;600;700&display=swap");
 @import "tailwindcss";
 
 @theme {
-  --color-brand: #7B3FA6;
-  --color-page: #F5F0FC;
-  --color-accent: #3AAFA9;
-  --color-navy: #241D45;
-  --color-primary: #7B3FA6;
-  --color-primary-hover: #63308A;
-  --color-soft: #F5F0FC;
-  --color-success: #2E9E5B;
-  --color-success-soft: #E3F5EA;
-  --color-danger: #DC3B57;
-  --color-danger-soft: #FCE7EC;
-  --color-warning: #E8A33D;
+  --color-brand: #7b3fa6;
+  --color-primary: #7b3fa6;
+  --color-primary-hover: #63308a;
+  --color-page: #fafafb;
+  --color-soft: #f5f0f8;
+  --color-line: #e7e3eb;
+  --color-ink: #1f1b2e;
+  --color-muted: #5b5770;
+  --color-accent: #7b3fa6;
+  --color-navy: #1f1b2e;
+  --color-success: #237a45;
+  --color-success-soft: #e8f4ec;
+  --color-danger: #b4233b;
+  --color-danger-soft: #fcecef;
+  --color-warning: #8a5a00;
+  --color-warning-soft: #fff7e8;
 
-  --font-inter: "Inter", sans-serif;
-  --font-poppins: "Poppins", sans-serif;
+  --color-purple-50: #faf7fc;
+  --color-purple-100: #f3ebf8;
+  --color-purple-200: #e8d8f1;
+  --color-purple-300: #d5b9e5;
+  --color-purple-400: #b58acb;
+  --color-purple-500: #9560b3;
+  --color-purple-600: #7b3fa6;
+  --color-purple-700: #63308a;
+  --color-purple-800: #4f286e;
+  --color-purple-900: #3f2058;
+
+  --color-slate-50: #fafafb;
+  --color-slate-100: #f4f3f6;
+  --color-slate-200: #e7e3eb;
+  --color-slate-300: #d2ced9;
+  --color-slate-400: #716b7e;
+  --color-slate-500: #6d6878;
+  --color-slate-600: #5b5770;
+  --color-slate-700: #403b4d;
+  --color-slate-800: #2c2738;
+  --color-slate-900: #1f1b2e;
+  --color-gray-50: #fafafb;
+  --color-gray-100: #f4f3f6;
+  --color-gray-200: #e7e3eb;
+  --color-gray-300: #d2ced9;
+  --color-gray-400: #716b7e;
+  --color-gray-500: #6d6878;
+  --color-gray-600: #5b5770;
+  --color-gray-700: #403b4d;
+  --color-gray-800: #2c2738;
+  --color-gray-900: #1f1b2e;
+
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-inter: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-poppins: "Plus Jakarta Sans", "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Plus Jakarta Sans", "Inter", ui-sans-serif, system-ui, sans-serif;
+
+  --radius-xl: 0.75rem;
+  --radius-2xl: 0.875rem;
+  --radius-3xl: 1rem;
+  --font-weight-bold: 600;
+  --font-weight-extrabold: 600;
+  --shadow-sm: 0 1px 2px rgb(31 27 46 / 4%);
+  --shadow-md: 0 2px 6px rgb(31 27 46 / 6%);
+  --shadow-lg: 0 4px 12px rgb(31 27 46 / 8%);
 }
 
-  header,
-  header a,
-  header button,
-  header nav {
-  margin: 0;
-  font-family: var(--font-inter), sans-serif;
+@layer base {
+  body {
+    min-height: 100vh;
+    background-color: var(--color-page);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    font-size: 16px;
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-display);
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    line-height: 1.25;
+    text-wrap: balance;
+  }
 }

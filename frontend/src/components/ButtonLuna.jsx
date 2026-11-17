@@ -7,7 +7,7 @@ export default function ButtonLuna({
 }) {
   const variants = {
     primary: "bg-primary text-white hover:bg-primary-hover",
-    secondary: "border border-brand bg-white text-brand hover:bg-page",
+    secondary: "border border-line bg-white text-brand hover:border-brand hover:bg-page",
   };
 
   return (

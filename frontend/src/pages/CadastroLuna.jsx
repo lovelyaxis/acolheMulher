@@ -65,7 +65,7 @@ function IlustracaoCadastro() {
         <div className="rounded-2xl bg-white/15 p-3">
           <HeartHandshake size={28} />
         </div>
-        <span className="font-poppins text-lg font-semibold">AcolheMulher</span>
+        <span className="font-display text-lg font-semibold">AcolheMulher</span>
       </div>
 
       <div className="relative z-10 mx-auto flex w-full max-w-sm flex-col items-center py-10">
@@ -81,7 +81,7 @@ function IlustracaoCadastro() {
           </div>
         </div>
 
-        <p className="mt-8 text-center font-poppins text-2xl font-semibold leading-snug">
+        <p className="mt-8 text-center font-display text-2xl font-semibold leading-snug">
           Uma rede de apoio começa com você.
         </p>
         <p className="mt-3 max-w-xs text-center text-sm leading-relaxed text-white/80">
@@ -127,7 +127,7 @@ export default function Cadastro() {
   }
 
   return (
-    <div className="flex min-h-screen flex-col bg-page font-inter text-navy">
+    <div className="flex min-h-screen flex-col bg-page text-ink">
       <Header />
 
       <main className="flex flex-1 items-center justify-center px-4 py-10 sm:px-6 lg:py-14">
@@ -141,7 +141,7 @@ export default function Cadastro() {
             <div className="mb-7">
               <h1
                 id="cadastro-titulo"
-                className="font-poppins text-2xl font-semibold text-navy sm:text-3xl"
+                className="font-display text-2xl font-semibold text-ink sm:text-3xl"
               >
                 Crie sua conta
               </h1>

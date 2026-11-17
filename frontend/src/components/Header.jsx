@@ -56,32 +56,32 @@ export default function Header() {
     }, [acionarSaidaRapida]);
 
     return (
-        <header className='sticky top-0 z-50 border-b border-[#E7E1F5] bg-white font-inter'>
-            <div className='mx-auto flex max-w-[1200] items-center gap-6 px-6 py-4 md:px-8 font-inter'>
+        <header className='sticky top-0 z-50 border-b border-line bg-white'>
+            <div className='mx-auto flex max-w-[1200] items-center gap-6 px-6 py-4 md:px-8'>
                 {/* logo paezão */}
 
-                <Link to='/' className='flex shrink-0 items-center gap-2.5 font-inter'>
-                <img src={logo} alt="logo acolhe mulher" className='h-10 w-auto font-inter'/>
+                <Link to='/' className='flex shrink-0 items-center gap-2.5'>
+                <img src={logo} alt="logo acolhe mulher" className='h-10 w-auto'/>
 
-                <span className='hidden flex-col leading-tight font-inter sm:flex'>
-                    <span className='text-lg font-bold text-navy font-inter'>
+                <span className='hidden flex-col leading-tight sm:flex'>
+                    <span className='text-lg font-semibold text-ink'>
                     AcolheMulher
                     </span>
                 </span>
                 </Link>
 
                         {/* Navegação (desktop) */}
-        <nav className="ml-auto hidden items-center gap-7 md:flex font-inter">
+        <nav className="ml-auto hidden items-center gap-7 md:flex">
           {navItems.map((item) => (
             <NavLink
               key={item.to}
               to={item.to}
               end={item.to === "/"}
               className={({ isActive }) =>
-                `border-b-2 pb-1 text-sm font-medium font-inter ${
+                `border-b-2 pb-1 text-sm font-medium ${
                   isActive
-                    ? "border-brand font-semibold text-brand"
-                    : "border-transparent text-[#5B5770] hover:text-brand"
+                    ? "border-brand/40 font-semibold text-brand"
+                    : "border-transparent text-muted hover:text-brand"
                 }`
               }
             >
@@ -91,12 +91,12 @@ export default function Header() {
         </nav>
 
         {/* Botões (desktop) */}
-        <div className="hidden items-center gap-3 md:flex font-inter">
+        <div className="hidden items-center gap-3 md:flex">
           <button
             type="button"
             onClick={acionarSaidaRapida}
             aria-label="Saída rápida: sair deste site imediatamente"
-            className="flex items-center gap-2 rounded-full bg-[#F1E9FB] px-5 py-2.5 text-sm font-semibold text-brand hover:bg-[#E6D9F7] font-inter"
+            className="flex items-center gap-2 rounded-xl bg-soft px-5 py-2.5 text-sm font-semibold text-brand hover:bg-purple-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
           >
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
@@ -107,7 +107,7 @@ export default function Header() {
           </button>
           <Link
             to="/rede-de-atendimento"
-            className="flex items-center gap-2 rounded-full bg-brand px-5 py-2.5 text-sm font-semibold text-white hover:bg-primary-hover font-inter"
+            className="flex items-center gap-2 rounded-xl bg-brand px-5 py-2.5 text-sm font-semibold text-white hover:bg-primary-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
           >
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <circle cx="11" cy="11" r="8" />
@@ -118,13 +118,13 @@ export default function Header() {
 
           {estaAutenticado ? (
             <div className="flex items-center gap-2">
-              <span className="hidden sm:block text-xs text-[#5B5770]">
+              <span className="hidden sm:block text-xs text-muted">
                 {usuario?.nome}
               </span>
               <button
                 type="button"
                 onClick={handleSair}
-                className="flex items-center gap-2 rounded-full border border-gray-200 px-5 py-2.5 text-sm font-semibold text-[#DC3B57] hover:bg-[#FCE7EC] font-inter"
+                className="flex items-center gap-2 rounded-xl border border-gray-200 px-5 py-2.5 text-sm font-semibold text-danger hover:bg-danger-soft focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
               >
                 Sair
               </button>
@@ -132,7 +132,7 @@ export default function Header() {
           ) : (
             <Link
               to="/login"
-              className="flex items-center gap-2 rounded-full border border-gray-200 px-5 py-2.5 text-sm font-semibold text-[#7B3FA6] hover:bg-[#F0E5FA] font-inter"
+              className="flex items-center gap-2 rounded-xl border border-line px-5 py-2.5 text-sm font-semibold text-brand hover:bg-soft focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
             >
               Entrar
             </Link>
@@ -145,7 +145,7 @@ export default function Header() {
             type="button"
             onClick={acionarSaidaRapida}
             aria-label="Saída rápida: sair deste site imediatamente"
-            className="flex items-center gap-1.5 whitespace-nowrap rounded-full bg-[#F1E9FB] px-2.5 py-2 text-xs font-semibold text-brand hover:bg-[#E6D9F7] font-inter"
+            className="flex items-center gap-1.5 whitespace-nowrap rounded-xl bg-soft px-2.5 py-2 text-xs font-semibold text-brand hover:bg-purple-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
           >
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
@@ -159,26 +159,26 @@ export default function Header() {
             onClick={() => setMenuOpen((open) => !open)}
             aria-label="Abrir menu"
             aria-expanded={menuOpen}
-            className="flex h-9 w-9 flex-col items-center justify-center gap-1.5 md:hidden font-inter"
+            className="flex h-9 w-9 flex-col items-center justify-center gap-1.5 rounded-lg md:hidden focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
           >
-            <span className={`h-0.5 w-6 bg-navy transition-transform font-inter ${menuOpen ? "translate-y-2 rotate-45" : ""}`} />
-            <span className={`h-0.5 w-6 bg-navy transition-opacity font-inter ${menuOpen ? "opacity-0" : ""}`} />
-            <span className={`h-0.5 w-6 bg-navy transition-transform font-inter ${menuOpen ? "-translate-y-2 -rotate-45" : ""}`} />
+            <span className={`h-0.5 w-6 bg-ink transition-transform ${menuOpen ? "translate-y-2 rotate-45" : ""}`} />
+            <span className={`h-0.5 w-6 bg-ink transition-opacity ${menuOpen ? "opacity-0" : ""}`} />
+            <span className={`h-0.5 w-6 bg-ink transition-transform ${menuOpen ? "-translate-y-2 -rotate-45" : ""}`} />
           </button>
         </div>
       </div>
 
       {/* Navegação (mobile, só aparece se menuOpen for true) */}
       {menuOpen && (
-        <nav className="flex flex-col border-t border-[#E7E1F5] bg-white px-6 py-2 md:hidden font-inter">
+        <nav className="flex flex-col border-t border-line bg-white px-6 py-2 md:hidden">
           {navItems.map((item) => (
             <NavLink
               key={item.to}
               to={item.to}
               onClick={() => setMenuOpen(false)}
               className={({ isActive }) =>
-                `border-b border-[#E7E1F5] py-3 text-sm font-medium ${
-                  isActive ? "font-semibold text-brand" : "text-[#5B5770]"
+                `border-b border-line py-3 text-sm font-medium ${
+                  isActive ? "font-semibold text-brand" : "text-muted"
                 }`
               }
             >
@@ -190,7 +190,7 @@ export default function Header() {
             <button
               type="button"
               onClick={handleSair}
-              className="border-b border-[#E7E1F5] py-3 text-left text-sm font-semibold text-[#DC3B57]"
+              className="border-b border-line py-3 text-left text-sm font-semibold text-danger focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
             >
               Sair
             </button>
@@ -198,7 +198,7 @@ export default function Header() {
             <Link
               to="/login"
               onClick={() => setMenuOpen(false)}
-              className="border-b border-[#E7E1F5] py-3 text-sm font-semibold text-[#7B3FA6]"
+              className="border-b border-line py-3 text-sm font-semibold text-brand focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
             >
               Entrar
             </Link>

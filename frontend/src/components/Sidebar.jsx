@@ -18,13 +18,13 @@ export default function Sidebar({ activePath }) {
   const isActive = (to) => activePath === to;
 
   return (
-    <aside className="w-64 bg-slate-900 text-white flex flex-col justify-between p-6 hidden md:flex">
+    <aside className="flex w-64 flex-col justify-between border-r border-line bg-white p-6 text-ink hidden md:flex">
       <div>
         <div className="flex items-center gap-2 mb-10">
-          <div className="w-8 h-8 rounded-full bg-purple-600 flex items-center justify-center font-bold text-white">
+          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-soft font-semibold text-brand">
             ♥
           </div>
-          <span className="font-bold text-lg tracking-wide">AcolheMulher</span>
+          <span className="text-lg font-semibold tracking-wide">AcolheMulher</span>
         </div>
 
         <nav className="space-y-2 text-sm font-medium">
@@ -32,10 +32,10 @@ export default function Sidebar({ activePath }) {
             <Link
               key={item.to}
               to={item.to}
-              className={`flex items-center gap-3 px-4 py-3 rounded-xl transition ${
+              className={`flex items-center gap-3 rounded-lg px-4 py-3 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand ${
                 isActive(item.to)
-                  ? 'bg-purple-600 text-white'
-                  : 'text-slate-400 hover:text-white'
+                  ? 'bg-soft font-semibold text-brand'
+                  : 'text-muted hover:bg-page hover:text-ink'
               }`}
             >
               {item.label}
@@ -46,7 +46,7 @@ export default function Sidebar({ activePath }) {
 
       <button
         type="button"
-        className="flex items-center gap-3 text-slate-400 hover:text-red-400 px-4 py-3 font-medium text-sm transition"
+        className="flex items-center gap-3 rounded-lg px-4 py-3 text-sm font-medium text-muted transition-colors hover:bg-danger-soft hover:text-danger focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
       >
         Sair
       </button>

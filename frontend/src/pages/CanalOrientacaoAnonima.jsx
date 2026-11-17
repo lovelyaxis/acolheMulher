@@ -67,7 +67,7 @@ export default function CanalOrientacaoAnonima() {
   }
 
   return (
-    <div className="min-h-screen bg-white text-navy font-inter">
+    <div className="min-h-screen bg-white text-ink">
       <Header />
 
       <main className="mx-auto max-w-2xl px-5 py-10 sm:px-8 md:py-16">
