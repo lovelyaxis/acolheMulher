@@ -1,8 +1,15 @@
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../auth/AuthContext';
 
 export default function Sidebar({ activePath }) {
-  const { usuario } = useAuth();
+  const { usuario, logout } = useAuth();
+  const navigate = useNavigate();
+
+  const handleSair = () => {
+    if (logout) logout();
+    navigate('/');
+  };
+
   const menuItems = [
     { to: '/dashboard-admin', label: 'Início' },
     { to: '/admin/encaminhamentos', label: 'Gestão de Encaminhamentos' },
@@ -46,7 +53,8 @@ export default function Sidebar({ activePath }) {
 
       <button
         type="button"
-        className="flex items-center gap-3 text-slate-400 hover:text-red-400 px-4 py-3 font-medium text-sm transition"
+        onClick={handleSair}
+        className="flex items-center gap-3 text-slate-400 hover:text-red-400 px-4 py-3 font-medium text-sm transition cursor-pointer"
       >
         Sair
       </button>
