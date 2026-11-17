@@ -34,7 +34,7 @@ export default function Footer() {
           <ul className="flex flex-col gap-3 text-sm">
             <li><Link to="/sobre" className="hover:text-white">Sobre</Link></li>
             <li><Link to="/ajuda" className="hover:text-white">Ajuda</Link></li>
-            <li><a href="#" className="hover:text-white">Fale conosco</a></li>
+            <li><Link to="/ajuda" className="hover:text-white">Fale conosco</Link></li>
           </ul>
         </div>
 
@@ -67,13 +67,6 @@ export default function Footer() {
             </a>
           </div>
         </div>
-
-        {/* Frase */}
-        {/* <div className="col-span-2 flex items-start justify-start md:col-span-1 md:justify-end">
-          <p className="font-serif text-xl italic text-white">
-            Juntas somos <br /> mais fortes <span className="text-[#C9A7E3]">♡</span>
-          </p>
-        </div> */}
       </div>
 
       <div className="border-t border-white/10 py-5">

@@ -33,22 +33,35 @@ export default function Ajuda() {
         <div className="min-h-screen bg-slate-50 flex flex-col font-sans">
             <Header />
 
-            <main className="flex-1 max-w-5xl w-full mx-auto px-4 py-12">
+            <main className="flex-1 max-w-5xl w-full mx-auto px-4 py-12 space-y-10">
+
+                {/* Cabeçalho da Página */}
+                <section className="text-center max-w-2xl mx-auto">
+                    <span className="inline-block px-4 py-1.5 bg-purple-100 text-purple-700 text-xs font-semibold rounded-full mb-3">
+                        Central de Suporte
+                    </span>
+                    <h1 className="text-3xl md:text-4xl font-extrabold text-slate-900 mb-3 tracking-tight">
+                        Como podemos te <span className="text-purple-700">ajudar</span>?
+                    </h1>
+                    <p className="text-sm md:text-base text-slate-600 leading-relaxed">
+                        Tire suas dúvidas, conheça nossos canais de segurança e saiba como acessar a rede de apoio.
+                    </p>
+                </section>
 
                 {/* Banner Emergência */}
-                <section className="bg-rose-50 border border-rose-200 rounded-3xl p-6 md:p-8 mb-12 flex flex-col md:flex-row items-center justify-between gap-6">
+                <section className="bg-rose-50 border border-rose-200 rounded-3xl p-6 md:p-8 shadow-sm flex flex-col md:flex-row items-center justify-between gap-6">
                     <div>
                         <span className="inline-block px-3 py-1 bg-rose-100 text-rose-700 text-xs font-bold rounded-full mb-2">
                             Emergência
                         </span>
                         <h2 className="text-xl font-bold text-slate-900 mb-1">Precisa de ajuda imediata?</h2>
-                        <p className="text-xs text-slate-600">Ligue para os canais de atendimento gratuito e 24 horas.</p>
+                        <p className="text-xs md:text-sm text-slate-600">Ligue para os canais de atendimento gratuito e 24 horas.</p>
                     </div>
                     <div className="flex flex-wrap gap-3 w-full md:w-auto">
-                        <a href="tel:180" className="flex-1 md:flex-none text-center bg-purple-600 hover:bg-purple-700 text-white font-bold text-xs px-5 py-3 rounded-xl shadow-sm transition">
+                        <a href="tel:180" className="flex-1 md:flex-none text-center bg-purple-600 hover:bg-purple-700 text-white font-bold text-xs px-5 py-3 rounded-2xl shadow-sm transition">
                             Ligue 180 (Central da Mulher)
                         </a>
-                        <a href="tel:190" className="flex-1 md:flex-none text-center bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs px-5 py-3 rounded-xl shadow-sm transition">
+                        <a href="tel:190" className="flex-1 md:flex-none text-center bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs px-5 py-3 rounded-2xl shadow-sm transition">
                             Ligue 190 (Polícia Militar)
                         </a>
                     </div>
@@ -57,7 +70,7 @@ export default function Ajuda() {
                 {/* FAQ - Perguntas Frequentes */}
                 <section className="bg-white rounded-3xl border border-purple-100 p-6 md:p-10 shadow-sm">
                     <h2 className="text-2xl font-bold text-slate-900 mb-2">Perguntas Frequentes</h2>
-                    <p className="text-xs text-slate-500 mb-8">Tire suas dúvidas sobre o funcionamento da plataforma e dos serviços de acolhimento.</p>
+                    <p className="text-xs md:text-sm text-slate-500 mb-8">Tire suas dúvidas sobre o funcionamento da plataforma e dos serviços de acolhimento.</p>
 
                     <div className="space-y-4">
                         {faqs.map((faq, idx) => (
@@ -70,25 +83,32 @@ export default function Ajuda() {
                                     className="w-full text-left p-4 md:p-5 font-semibold text-slate-800 text-xs md:text-sm flex justify-between items-center hover:bg-purple-50/50 transition"
                                 >
                                     <span>{faq.pergunta}</span>
-                                    <span className="text-purple-600 font-bold ml-2">
+                                    <span className="text-purple-600 font-bold ml-2 text-base">
                                         {faqAberto === idx ? '−' : '+'}
                                     </span>
                                 </button>
                                 {faqAberto === idx && (
-                                    <div className="px-4 pb-5 pt-1 text-xs text-slate-600 border-t border-slate-100 bg-purple-50/20 leading-relaxed">
+                                    <div className="px-4 pb-5 pt-1 text-xs md:text-sm text-slate-600 border-t border-slate-100 bg-purple-50/20 leading-relaxed">
                                         {faq.resposta}
                                     </div>
                                 )}
                             </div>
                         ))}
                     </div>
-                    <nav className="space-y-2 text-sm font-medium">
-                        <Link to="/dashboard-admin" className="flex items-center gap-3 bg-purple-600 text-white px-4 py-3 rounded-xl transition">Início</Link>
-                        <Link to="/cadastrar-unidade" className="flex items-center gap-3 text-slate-400 hover:text-white hover:bg-slate-800 px-4 py-3 rounded-xl transition">Gestão da Rede</Link>
-                        <Link to="/gestao-profissionais" className="flex items-center gap-3 text-slate-400 hover:text-white hover:bg-slate-800 px-4 py-3 rounded-xl transition">Gestão de Profissionais</Link>
-                        <Link to="/relatorios" className="flex items-center gap-3 text-slate-400 hover:text-white hover:bg-slate-800 px-4 py-3 rounded-xl transition">Relatórios</Link>
-                        <Link to="/configuracoes" className="flex items-center gap-3 text-slate-400 hover:text-white hover:bg-slate-800 px-4 py-3 rounded-xl transition">Configurações</Link>
-                    </nav>
+                </section>
+
+                {/* Link para Rede de Atendimento */}
+                <section className="bg-purple-50 border border-purple-100 rounded-3xl p-6 md:p-8 text-center flex flex-col items-center">
+                    <h3 className="text-base md:text-lg font-bold text-slate-900 mb-1">Precisa encontrar um local de apoio presencial?</h3>
+                    <p className="text-xs md:text-sm text-slate-600 max-w-md mb-5">
+                        Consulte nossa página de unidades parceiras cadastradas na sua região.
+                    </p>
+                    <Link 
+                        to="/rede-de-atendimento" 
+                        className="bg-purple-600 hover:bg-purple-700 text-white font-semibold text-xs md:text-sm px-6 py-3 rounded-xl shadow-sm transition"
+                    >
+                        Ver Rede de Atendimento
+                    </Link>
                 </section>
 
             </main>

@@ -361,14 +361,14 @@ export default function DashboardProfissional() {
         </div>
 
         <nav aria-label="Menu principal" className="flex-1 space-y-1.5 px-3 py-5">
-          <a
-            href="#inicio"
+          <Link
+            to="/dashboard-profissional"
             onClick={() => setMenuAberto(false)}
             className="flex items-center gap-3 rounded-lg bg-purple-600 px-3 py-3 text-sm font-medium text-white transition hover:bg-[#8C4DB7]"
           >
             <House size={17} />
             Início
-          </a>
+          </Link>
 
           <Link
             to="/registrar-encaminhamento"
@@ -379,19 +379,19 @@ export default function DashboardProfissional() {
             Registrar encaminhamento
           </Link>
 
-          <a
-            href="/rede-de-atendimento"
+          <Link
+            to="/profissional/rede"
             onClick={() => setMenuAberto(false)}
             className="flex items-center gap-3 rounded-lg px-3 py-3 text-sm text-white/75 transition hover:bg-white/10 hover:text-white"
           >
             <MapPin size={17} />
-            Consultar rede
+            Consultar rede interna
             <ArrowUpRight className="ml-auto" size={15} />
-          </a>
+          </Link>
 
           <Link
             to="/meu-perfil"
-            onClick={() => setMenuAberto(false)}
+            onClick={() => setMenuAbrevando(false) || setMenuAberto(false)}
             className="flex w-full items-center gap-3 rounded-lg px-3 py-3 text-left text-sm text-white/75 transition hover:bg-white/10 hover:text-white"
           >
             <UserRound size={17} />
