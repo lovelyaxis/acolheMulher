@@ -15,6 +15,7 @@ async function criarOcorrencia(req, res) {
         tipoEvento: tipoEvento.trim(),
         observacoes: observacoes ? observacoes.trim() : null,
         profissionalId,
+        criadoEm: new Date(),
       },
       select: {
         id: true,

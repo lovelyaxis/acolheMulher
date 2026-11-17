@@ -53,6 +53,7 @@ async function chamar(metodo, caminho, { token, corpo } = {}) {
 
 async function limparBanco() {
   await prisma.encaminhamento.deleteMany();
+  await prisma.ocorrencia.deleteMany();
   await prisma.orientacaoAnonima.deleteMany();
   await prisma.usuario.deleteMany();
   await prisma.unidade.deleteMany();
@@ -179,6 +180,8 @@ describe("Proteção de rotas", () => {
     assert.equal((await chamar("GET", "/api/encaminhamentos")).status, 401);
     assert.equal((await chamar("GET", "/api/usuarios")).status, 401);
     assert.equal((await chamar("GET", "/api/unidades/internas")).status, 401);
+    assert.equal((await chamar("GET", "/api/ocorrencias")).status, 401);
+    assert.equal((await chamar("POST", "/api/ocorrencias", { corpo: {} })).status, 401);
   });
 
   it("bloqueia token inválido", async () => {
@@ -200,6 +203,26 @@ describe("Proteção de rotas", () => {
     );
     // Profissional no dashboard do administrador
     assert.equal((await chamar("GET", "/api/dashboard/admin", { token: tokenProf })).status, 403);
+    assert.equal((await chamar("GET", "/api/ocorrencias", { token: tokenProf })).status, 403);
+    assert.equal(
+      (await chamar("POST", "/api/ocorrencias", { token: tokenProf, corpo: { tipoEvento: "Teste" } })).status,
+      403
+    );
+  });
+});
+
+describe("Ocorrências", () => {
+  it("permite ao administrador registrar e listar ocorrências", async () => {
+    const criada = await chamar("POST", "/api/ocorrencias", {
+      token: tokenAdmin,
+      corpo: { tipoEvento: "Acolhimento de urgência", observacoes: "Registro de teste" },
+    });
+    assert.equal(criada.status, 201);
+    assert.equal(criada.dados.ocorrencia.profissional.id, adminId);
+
+    const listagem = await chamar("GET", "/api/ocorrencias", { token: tokenAdmin });
+    assert.equal(listagem.status, 200);
+    assert.ok(listagem.dados.ocorrencias.some((ocorrencia) => ocorrencia.id === criada.dados.ocorrencia.id));
   });
 });
 
