@@ -3,7 +3,8 @@ import { Navigate, useLocation, useNavigate } from "react-router-dom";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 import { useAuth } from "../auth/AuthContext";
-import loginImg from "../assets/login.jpg";
+import { LockKeyhole, Mail } from "lucide-react";
+import loginImg from "../assets/login-definitivo.png";
 
 function destinoDoPerfil(perfil) {
   return perfil === "ADMINISTRADOR"
@@ -106,19 +107,19 @@ export default function Login() {
     <div className="flex min-h-screen flex-col font-inter">
       <Header />
 
-      <main className="flex flex-1 items-center bg-linear-to-b from-soft to-white py-10">
-        <div className="mx-auto grid w-full max-w-6xl items-center gap-8 px-6 md:grid-cols-2 md:gap-12">
+      <main className="flex flex-1 items-center bg-linear-to-b from-soft to-white px-4 py-8 sm:px-6 sm:py-10">
+        <div className="mx-auto grid min-h-[640px] w-full max-w-7xl overflow-hidden rounded-2xl bg-white shadow-lg md:grid-cols-[2fr_1fr]">
           {/* Imagem de Login */}
-          <div className="hidden justify-center md:flex">
+          <div className="hidden min-h-[640px] md:block">
             <img
               src={loginImg}
-              alt="Ilustração de boas-vindas"
-              className="w-full max-w-xl h-auto object-contain mix-blend-multiply scale-110"
+              alt="Logo AcolheMulher"
+              className="h-full w-full object-cover object-center"
             />
           </div>
 
           {/* Formulário */}
-          <section className="w-full max-w-md justify-self-center rounded-2xl bg-white p-6 shadow-lg sm:p-8 md:justify-self-end">
+          <section className="flex w-full flex-col justify-center p-6 sm:p-8 lg:p-12">
             <h1 className="font-poppins text-2xl font-bold text-navy">
               Bem-vinda de volta!
             </h1>
@@ -153,21 +154,27 @@ export default function Login() {
                   E-mail
                 </label>
 
-                <input
-                  id="login"
-                  name="login"
-                  type="email"
-                  autoComplete="username"
-                  value={login}
-                  onChange={(event) => {
-                    setLogin(event.target.value);
-                    setMensagem("");
-                  }}
-                  placeholder="Digite seu e-mail"
-                  required
-                  disabled={bloqueadoAte || enviando}
-                  className="w-full rounded-full border border-gray-200 px-4 py-3 text-sm outline-none placeholder:text-gray-400 focus:border-primary focus:ring-2 focus:ring-primary/20"
-                />
+                <div className="relative">
+                  <Mail
+                    aria-hidden="true"
+                    className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400"
+                  />
+                  <input
+                    id="login"
+                    name="login"
+                    type="email"
+                    autoComplete="username"
+                    value={login}
+                    onChange={(event) => {
+                      setLogin(event.target.value);
+                      setMensagem("");
+                    }}
+                    placeholder="Digite seu e-mail"
+                    required
+                    disabled={bloqueadoAte || enviando}
+                    className="w-full rounded-full border border-gray-200 py-3 pl-11 pr-4 text-sm outline-none placeholder:text-gray-400 focus:border-primary focus:ring-2 focus:ring-primary/20"
+                  />
+                </div>
               </div>
 
               <div>
@@ -179,6 +186,10 @@ export default function Login() {
                 </label>
 
                 <div className="relative">
+                  <LockKeyhole
+                    aria-hidden="true"
+                    className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400"
+                  />
                   <input
                     id="senha"
                     name="senha"
@@ -192,7 +203,7 @@ export default function Login() {
                     placeholder="Digite sua senha"
                     required
                     disabled={bloqueadoAte || enviando}
-                    className="w-full rounded-full border border-gray-200 px-4 py-3 pr-12 text-sm outline-none placeholder:text-gray-400 focus:border-primary focus:ring-2 focus:ring-primary/20"
+                    className="w-full rounded-full border border-gray-200 py-3 pl-11 pr-12 text-sm outline-none placeholder:text-gray-400 focus:border-primary focus:ring-2 focus:ring-primary/20"
                   />
 
                   <button
@@ -200,7 +211,7 @@ export default function Login() {
                     onClick={() => setMostrarSenha((visivel) => !visivel)}
                     aria-label={mostrarSenha ? "Ocultar senha" : "Mostrar senha"}
                     aria-pressed={mostrarSenha}
-                    className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 transition hover:text-primary"
+                    className="absolute right-4 top-1/2 -translate-y-1/2 rounded text-gray-500 transition hover:text-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
                   >
                     {mostrarSenha ? (
                       <svg
