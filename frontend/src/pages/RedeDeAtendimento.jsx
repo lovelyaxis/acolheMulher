@@ -16,6 +16,7 @@ import {
 } from "lucide-react"
 import Footer from "../components/Footer";
 import Header from "../components/Header"
+import redeAtendimentoImage from "../assets/rede-de-atendimento.png";
 import BuscaUnidades from "../components/BuscaUnidades";
 import { buscarUnidades } from "../services/unidadesService";
 
@@ -116,59 +117,53 @@ export default function RedeDeAtendimento() {
 
       {/* Hero */}
       <section className="border-b border-purple-100 bg-white px-5 py-12 sm:px-8 md:py-16">
-        <div className="mx-auto grid max-w-6xl grid-cols-1 items-center gap-10 md:grid-cols-2">
-          <div>
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-purple-100 px-3.5 py-1 text-xs font-bold uppercase tracking-wider text-purple-700">
-              <MapPin size={13} />
-              Rede de atendimento
-            </span>
-
-            <h1 className="mt-4 text-3xl font-extrabold leading-tight text-slate-900 sm:text-4xl lg:text-5xl tracking-tight">
-              Você não está sozinha.
-              <span className="mt-1.5 block text-purple-700">
-                Conheça seus direitos.
+        <div className="mx-auto max-w-6xl">
+          <div className="overflow-hidden rounded-3xl border border-purple-100 shadow-sm md:relative md:min-h-[420px]">
+            <div className="px-5 py-8 sm:px-8 sm:py-10 md:relative md:z-10 md:flex md:min-h-[420px] md:w-1/2 md:flex-col md:justify-center md:px-10 md:py-12">
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-purple-100 px-3.5 py-1 text-xs font-bold uppercase tracking-wider text-purple-700">
+                <MapPin size={13} />
+                Rede de atendimento
               </span>
-            </h1>
 
-            <p className="mt-5 max-w-xl text-sm leading-relaxed text-slate-600 sm:text-base">
-              Conheça os serviços de apoio, saiba quais são seus
-              direitos e descubra onde buscar orientação. Você merece
-              ser ouvida, respeitada e acolhida, sem julgamentos.
-            </p>
+              <h1 className="mt-4 text-3xl font-extrabold leading-tight text-slate-900 sm:text-4xl lg:text-5xl tracking-tight">
+                Você não está sozinha.
+                <span className="mt-1.5 block text-purple-700">
+                  Conheça seus direitos.
+                </span>
+              </h1>
 
-            <div className="mt-7 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
-              <a
-                href="#busca"
-                className="inline-flex items-center justify-center gap-2 rounded-2xl bg-purple-600 px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-purple-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-purple-600"
-              >
-                <Search className="h-4 w-4" />
-                Buscar atendimento
-              </a>
-
-              <a
-                href="#direitos"
-                className="inline-flex items-center justify-center gap-2 rounded-2xl border border-purple-200 bg-white px-5 py-3 text-sm font-semibold text-purple-700 transition hover:bg-purple-50/50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-purple-600"
-              >
-                <BookOpen className="h-4 w-4" />
-                Conhecer meus direitos
-              </a>
-            </div>
-          </div>
-
-          {/* Ilustração / Card Destacado */}
-          <div className="flex aspect-video min-h-60 items-center justify-center overflow-hidden rounded-3xl border border-purple-100 bg-gradient-to-br from-purple-50/60 to-purple-100/40 p-8 shadow-sm">
-            <div className="flex flex-col items-center text-center">
-              <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-white shadow-md text-purple-600 mb-3">
-                <Heart className="h-8 w-8 fill-purple-100 text-purple-600" />
-              </div>
-
-              <h3 className="text-lg font-bold text-slate-900">
-                AcolheMulher
-              </h3>
-
-              <p className="mt-1 text-xs sm:text-sm text-slate-600 max-w-xs leading-relaxed">
-                Informação segura, acolhimento humanizado e proteção para todas as mulheres.
+              <p className="mt-5 max-w-xl text-sm leading-relaxed text-slate-600 sm:text-base">
+                Conheça os serviços de apoio, saiba quais são seus
+                direitos e descubra onde buscar orientação. Você merece
+                ser ouvida, respeitada e acolhida, sem julgamentos.
               </p>
+
+              <div className="mt-7 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+                <a
+                  href="#busca"
+                  className="inline-flex items-center justify-center gap-2 rounded-2xl bg-purple-600 px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-purple-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-purple-600"
+                >
+                  <Search className="h-4 w-4" />
+                  Buscar atendimento
+                </a>
+
+                <a
+                  href="#direitos"
+                  className="inline-flex items-center justify-center gap-2 rounded-2xl border border-purple-200 bg-white px-5 py-3 text-sm font-semibold text-purple-700 transition hover:bg-purple-50/50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-purple-600"
+                >
+                  <BookOpen className="h-4 w-4" />
+                  Conhecer meus direitos
+                </a>
+              </div>
+            </div>
+
+            <div className="aspect-video max-h-64 w-full md:absolute md:inset-0 md:h-full md:max-h-none md:aspect-auto">
+              <img
+                src={redeAtendimentoImage}
+                alt=""
+                aria-hidden="true"
+                className="h-full w-full object-cover object-center"
+              />
             </div>
           </div>
         </div>
