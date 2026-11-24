@@ -1,6 +1,6 @@
 import Header from "../components/Header";
 import Footer from "../components/Footer";
-
+import heroImage from "../assets/hero-image.png";
 
 import { Search, MapPin, FileText } from "lucide-react";
 
@@ -113,20 +113,21 @@ export default function Home() {
             </div>
           </div>
 
-          <div className="flex justify-center">
-            <div className="flex aspect-video min-h-52 items-center justify-center overflow-hidden rounded-2xl border border-brand/15 bg-page p-6">
-              <div className="flex flex-col items-center text-center">
-                <div className="flex h-16 w-16 items-center justify-center rounded-full bg-white shadow-sm">
-                  <Heart size={24} className="text-brand" />
-                </div>
-                <p className="mt-4 text-lg font-semibold text-brand">
-                  AcolheMulher
-                </p>
-                <p className="mt-1 text-sm text-gray-500">
-                  Informação, acolhimento e proteção.
-                </p>
-              </div>
+          <div className="w-full">
+            <div className="aspect-video max-h-72 w-full overflow-hidden rounded-2xl border border-brand/15">
+              <img
+                src={heroImage}
+                alt=""
+                aria-hidden="true"
+                className="h-full w-full object-cover object-center"
+              />
             </div>
+            <p className="mt-4 text-center text-lg font-semibold text-brand">
+              AcolheMulher
+            </p>
+            <p className="mt-1 text-center text-sm text-gray-500">
+              Informação, acolhimento e proteção.
+            </p>
           </div>
         </div>
       </section>
