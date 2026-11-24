@@ -1,56 +1,44 @@
 /**
- * Serviço de autenticação do AcolheMulher.
+ * Serviço de autenticação do AcolheMulher (integração com o back-end).
  *
- * Agora conversa com a API real (POST /api/auth/login e GET /api/auth/me).
- * Validação de senha, token JWT e bloqueio de 5 tentativas / 15 minutos
- * acontecem no servidor (RF007, RN005). O front-end apenas guarda a sessão.
- * Os nomes das funções exportadas foram mantidos para não quebrar as páginas.
+ * Toda chamada vai para a API real (POST /api/auth/login, GET /api/auth/me,
+ * etc.) e o token JWT recebido é guardado na sessão do navegador
+ * (arquivo session.js), nunca em texto puro na variável de código.
+ *
+ * Requisitos atendidos:
+ *  - RF007: login com e-mail e senha, token JWT, bloqueio de 15 min após 5 erros
+ *  - RF009: logout e encerramento de sessão
+ *  - RNF001: senhas verificadas com hash no servidor (bcrypt), nunca no front
  */
-import { api, ErroApi } from "../services/api";
+import { api } from "../services/api";
 import {
-  gravarSession,
   limparSession,
   lerSession,
-  tokenSessao as lerToken,
-  usuarioSessao,
+  gravarSession,
 } from "./session";
 
-// O perfil já vem do servidor em maiúsculas (PROFISSIONAL ou ADMINISTRADOR),
-// o mesmo formato que o ProtectedRoute e as páginas usam.
-function converterUsuario(usuario) {
+// Tempo de reserva para expiração de token, se a API não informar (8 horas).
+const TEMPO_EXPIRACAO_RESERVA = 8 * 60 * 60 * 1000;
+
+// Campos do usuário que interessam ao front-end (sem expor o hash de senha).
+function dadosUsuario(usuario) {
   return {
     id: usuario.id,
     nome: usuario.nome,
     email: usuario.email,
     perfil: usuario.perfil,
+    unidade: usuario.unidadeId ?? null,
     cargo: usuario.cargo ?? null,
-    unidadeId: usuario.unidadeId ?? null,
-    unidade: usuario.unidade ?? null,
   };
-}
-
-export { limparSession };
-
-// Mantidas apenas por compatibilidade: o controle de tentativas agora
-// fica no servidor e no banco, não mais no navegador.
-export function lerTentativas() {
-  return 0;
-}
-
-export function lerBloqueioAte() {
-  return null;
 }
 
 /**
  * Autentica o usuário com e-mail e senha.
  *
  * Retorna:
- *  { ok: true, token, usuario, expiraEm }
- *  { ok: false, codigo: "bloqueado", bloqueadoAte, minutosRestantes,
- *      tentativasRestantes, mensagem }
- *  { ok: false, codigo: "credenciais_invalidas", tentativasRestantes, mensagem }
- *  { ok: false, codigo: "conta_inativa" | "dados_invalidos" |
- *      "erro_conexao" | "erro_servidor" | "campos_obrigatorios", mensagem }
+ *  { ok: true, token, usuario }                         — credenciais válidas
+ *  { ok: false, codigo: "bloqueado", bloqueadoAte }     — conta bloqueada
+ *  { ok: false, codigo: "credenciais_invalidas", ... }  — senha/e-mail inválidos
  */
 export async function login(email, senha) {
   if (!email || !senha) {
@@ -62,113 +50,85 @@ export async function login(email, senha) {
   }
 
   try {
-    const dados = await api.post(
-      "/auth/login",
-      { email: String(email).trim(), senha },
-      { autenticado: false },
-    );
+    const dados = await api.post("/auth/login", { email, senha });
 
-    const usuario = converterUsuario(dados.usuario);
-    gravarSession(dados.token, usuario, dados.expiraEm);
+    const usuario = dadosUsuario(dados.usuario);
+    const expiraEm =
+      dados.expiraEm || Date.now() + TEMPO_EXPIRACAO_RESERVA;
+
+    gravarSession(dados.token, usuario, expiraEm);
 
     return {
       ok: true,
       token: dados.token,
       usuario,
-      expiraEm: dados.expiraEm ?? null,
     };
   } catch (erro) {
-    if (!(erro instanceof ErroApi)) throw erro;
-
-    if (erro.status === 0) {
-      return { ok: false, codigo: "erro_conexao", mensagem: erro.message };
-    }
-
-    if (erro.status === 400) {
-      return {
-        ok: false,
-        codigo: "dados_invalidos",
-        mensagem: erro.message || "Informe um e-mail e uma senha válidos.",
-      };
-    }
-
+    // 429 = conta bloqueada (RN005); 401 = credenciais inválidas.
     if (erro.status === 429) {
-      const bloqueadoAte =
-        erro.dados && erro.dados.bloqueadoAte
-          ? Number(erro.dados.bloqueadoAte)
-          : null;
-      const tentativasRestantes =
-        erro.dados && typeof erro.dados.tentativasRestantes === "number"
-          ? erro.dados.tentativasRestantes
-          : 0;
       return {
         ok: false,
         codigo: "bloqueado",
-        bloqueadoAte,
-        tentativasRestantes,
-        minutosRestantes: bloqueadoAte
-          ? Math.max(1, Math.ceil((bloqueadoAte - Date.now()) / 60000))
-          : undefined,
-        mensagem: erro.message,
+        bloqueadoAte: erro.dados?.bloqueadoAte,
+        tentativasRestantes: Number(erro.dados?.tentativasRestantes) || 0,
+        mensagem:
+          erro.mensagem ||
+          "Conta temporariamente bloqueada por muitas tentativas.",
       };
     }
 
-    if (erro.status === 401) {
-      const tentativasRestantes =
-        erro.dados && typeof erro.dados.tentativasRestantes === "number"
-          ? erro.dados.tentativasRestantes
-          : undefined;
-      return {
-        ok: false,
-        codigo: "credenciais_invalidas",
-        tentativasRestantes,
-        mensagem: erro.message,
-      };
-    }
-
-    if (erro.status === 403) {
-      return { ok: false, codigo: "conta_inativa", mensagem: erro.message };
-    }
-
-    return { ok: false, codigo: "erro_servidor", mensagem: erro.message };
+    return {
+      ok: false,
+      codigo: "credenciais_invalidas",
+      mensagem: erro.mensagem || "E-mail ou senha inválidos.",
+    };
   }
 }
 
 /**
- * Confere no servidor se a sessão guardada ainda é válida (GET /api/auth/me).
- * Retorna { valida: true, usuario } ou { valida: false }.
- * Se o servidor estiver fora do ar, mantém a sessão guardada.
+ * Encerra a sessão. Avisa o servidor (best effort) e limpa o localStorage.
  */
-export async function verificarSessao() {
-  if (!lerSession()) return { valida: false };
-
+export async function logout() {
   try {
-    const dados = await api.get("/auth/me");
-    return { valida: true, usuario: converterUsuario(dados.usuario) };
-  } catch (erro) {
-    if (erro instanceof ErroApi && (erro.status === 401 || erro.status === 403)) {
-      limparSession();
-      return { valida: false };
-    }
-    return { valida: true, usuario: usuarioSessao() };
+    await api.post("/auth/logout");
+  } catch {
+    // Falha ao avisar o servidor: ainda assim encerra a sessão local.
   }
-}
-
-/**
- * Encerra a sessão do usuário (logout), removendo o token do navegador.
- */
-export function logout() {
   limparSession();
 }
 
+/**
+ * Verifica se há uma sessão ativa válida.
+ */
 export function estaAutenticado() {
   return lerSession() !== null;
 }
 
+/**
+ * Retorna os dados do usuário da sessão atual, ou null.
+ */
 export function usuarioLogado() {
-  return usuarioSessao();
+  const session = lerSession();
+  return session ? session.usuario : null;
 }
 
+/**
+ * Retorna o token de sessão atual, ou null.
+ */
 export function tokenSessao() {
-  return lerToken();
+  const session = lerSession();
+  return session ? session.token : null;
+}
+
+/**
+ * Confirma a sessão no servidor (GET /api/auth/me).
+ */
+export async function verificarSessao() {
+  try {
+    const dados = await api.get("/auth/me");
+    return { valida: true, usuario: dadosUsuario(dados.usuario) };
+  } catch {
+    limparSession();
+    return { valida: false };
+  }
 }
