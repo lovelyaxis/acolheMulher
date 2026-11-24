@@ -18,6 +18,13 @@ const CORS_ORIGIN = process.env.CORS_ORIGIN || "http://localhost:5173";
 
 app.disable("x-powered-by");
 
+// API dinâmica: sem ETag/cache, para nunca responder 304 sem corpo JSON.
+app.set("etag", false);
+app.use("/api", (req, res, next) => {
+  res.setHeader("Cache-Control", "no-store");
+  next();
+});
+
 // Cabeçalhos básicos de segurança. Não inclui CSP para não afetar a API.
 app.use((req, res, next) => {
   res.setHeader("X-Content-Type-Options", "nosniff");
