@@ -77,248 +77,252 @@ const servicos = [
 
 
 export default function Home() {
-    return (
-        <>
-        <Header/>
-
-            <main className="min-h-screen bg-white text-navy">
-      {/* Hero */}
-      <section className="bg-page">
-        <div className="mx-auto grid max-w-6xl items-center gap-8 px-5 py-12 md:grid-cols-2 md:py-16">
-          <div>
-            
-
-            <h1 className="mt-4 max-w-lg font-[Poppins] text-4xl font-bold leading-tight md:text-5xl">
-              Encontre ajuda perto de você
-            </h1>
-
-            <p className="mt-4 max-w-lg text-sm leading-6 text-[#514B68] md:text-base">
-              Serviços de acolhimento, orientação e apoio para mulheres.
-              Você merece ser ouvida e receber ajuda com respeito.
-            </p>
-
-            <div className="mt-6 flex flex-wrap gap-3">
-              <a
-                href="#buscar"
-                className="rounded-full bg-brand px-5 py-3 text-sm font-semibold text-white transition hover:bg-primary-hover"
-              >
-                Encontrar atendimento
-              </a>
-              <a
-                href="#acolhimentos"
-                className="rounded-full border border-brand px-5 py-3 text-sm font-semibold text-brand transition hover:bg-white"
-              >
-                Conhecer meus direitos
-              </a>
-            </div>
-          </div>
-
-          <div className="w-full">
-            <div className="aspect-video max-h-72 w-full overflow-hidden rounded-2xl border border-brand/15">
-              <img
-                src={heroImage}
-                alt=""
-                aria-hidden="true"
-                className="h-full w-full object-cover object-center"
-              />
-            </div>
-            <p className="mt-4 text-center text-lg font-semibold text-brand">
-              AcolheMulher
-            </p>
-            <p className="mt-1 text-center text-sm text-gray-500">
-              Informação, acolhimento e proteção.
-            </p>
-          </div>
-        </div>
-      </section>
-
-      {/* Como funciona */}
-      <section className="mx-auto max-w-6xl px-5 py-12">
-        <div className="mb-6">
-          <span className="text-xs font-bold uppercase tracking-wider text-brand">
-            É simples e seguro
-          </span>
-          <h2 className="mt-1 font-[Poppins] text-2xl font-bold">
-            Como funciona
-          </h2>
-          <p className="mt-2 text-sm text-gray-600">
-            Em poucos passos, encontre informações e serviços de apoio.
-          </p>
-        </div>
-
-        <div className="grid gap-4 md:grid-cols-3">
-{etapas.map((etapa) => {
-  const Icone = etapa.icone;
-
   return (
-    <article
-      key={etapa.numero}
-      className="rounded-2xl border border-purple-100 bg-[#FCFAFE] p-5"
-    >
-      <div className="flex items-center justify-between">
-        <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-purple-100 text-xl text-brand">
-          <Icone size={20} aria-hidden="true" />
-        </span>
-        <span className="text-xs font-bold text-purple-300">
-          {etapa.numero}
-        </span>
-      </div>
-      <h3 className="mt-4 font-semibold">{etapa.titulo}</h3>
-      <p className="mt-2 text-sm leading-5 text-gray-600">
-        {etapa.texto}
-      </p>
-    </article>
-  );
-})}
-        </div>
-      </section>
+    <>
+      <Header />
 
-      {/* Tipos de acolhimento */}
-      <section id="acolhimentos" className="mx-auto max-w-6xl px-5 py-10">
-        <div className="mb-6">
-          <span className="text-xs font-bold uppercase tracking-wider text-brand">
-            Você não está sozinha
-          </span>
-          <h2 className="mt-1 font-[Poppins] text-2xl font-bold">
-            Tipos de acolhimento
-          </h2>
-          <p className="mt-2 text-sm text-gray-600">
-            Cada situação é única. Há diferentes formas de receber apoio.
-          </p>
-        </div>
+      <main className="min-h-screen bg-white text-navy">
+        {/* Hero */}
+        <section className="bg-page">
+          <div className="mx-auto grid max-w-6xl items-center gap-8 px-5 py-12 md:grid-cols-2 md:py-16">
+            <div>
 
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-  {acolhimentos.map((item) => {
-    const Icone = item.icone;
 
-    return (
-      <article
-        key={item.titulo}
-        className={`rounded-2xl p-5 ${item.cor}`}
-      >
-        <span className="text-2xl" aria-hidden="true">
-          <Icone />
-        </span>
-        <h3 className="mt-3 font-semibold">{item.titulo}</h3>
-        <p className="mt-2 text-sm leading-5 text-gray-600">
-          {item.texto}
-        </p>
-      </article>
-    );
-  })}
-</div>
-      </section>
+              <h1 className="mt-4 max-w-lg font-[Poppins] text-4xl font-bold leading-tight md:text-5xl">
+                Encontre ajuda perto de você
+              </h1>
 
-      {/* Busca de atendimento */}
-      <section id="buscar" className="mx-auto max-w-6xl px-5 py-12">
-        <div className="grid gap-8 lg:grid-cols-[1.1fr_1fr]">
-          <div>
+              <p className="mt-4 max-w-lg text-sm leading-6 text-[#514B68] md:text-base">
+                Serviços de acolhimento, orientação e apoio para mulheres.
+                Você merece ser ouvida e receber ajuda com respeito.
+              </p>
+
+              <div className="mt-6 flex flex-wrap gap-3">
+                <a
+                  href="#buscar"
+                  className="rounded-full bg-brand px-5 py-3 text-sm font-semibold text-white transition hover:bg-primary-hover"
+                >
+                  Encontrar atendimento
+                </a>
+                <a
+                  href="#acolhimentos"
+                  className="rounded-full border border-brand px-5 py-3 text-sm font-semibold text-brand transition hover:bg-white"
+                >
+                  Conhecer meus direitos
+                </a>
+              </div>
+            </div>
+
+            <div className="w-full">
+              <div className="aspect-video max-h-72 w-full overflow-hidden rounded-2xl border border-brand/15">
+                <img
+                  src={heroImage}
+                  alt=""
+                  aria-hidden="true"
+                  className="h-full w-full object-cover object-center"
+                />
+              </div>
+              <p className="mt-4 text-center text-lg font-semibold text-brand">
+                AcolheMulher
+              </p>
+              <p className="mt-1 text-center text-sm text-gray-500">
+                Informação, acolhimento e proteção.
+              </p>
+            </div>
+          </div>
+        </section>
+
+        {/* Como funciona */}
+        <section className="mx-auto max-w-6xl px-5 py-12">
+          <div className="mb-6">
             <span className="text-xs font-bold uppercase tracking-wider text-brand">
-              Rede de atendimento
+              É simples e seguro
             </span>
             <h2 className="mt-1 font-[Poppins] text-2xl font-bold">
-              Encontre atendimento perto de você
+              Como funciona
             </h2>
-            <p className="mt-2 text-sm leading-6 text-gray-600">
-              Busque serviços de apoio e encontre opções para receber
-              orientação na sua região.
+            <p className="mt-2 text-sm text-gray-600">
+              Em poucos passos, encontre informações e serviços de apoio.
             </p>
-
-            <form
-              className="mt-5 flex flex-col gap-3 sm:flex-row"
-              onSubmit={(event) => event.preventDefault()}
-            >
-              <label htmlFor="localizacao" className="sr-only">
-                Cidade ou CEP
-              </label>
-              <input
-                id="localizacao"
-                type="text"
-                placeholder="Digite sua cidade ou CEP"
-                className="min-w-0 flex-1 rounded-xl border border-gray-200 px-4 py-3 text-sm outline-none focus:border-brand focus:ring-2 focus:ring-purple-100"
-              />
-              <button
-                type="submit"
-                className="rounded-xl bg-brand px-5 py-3 text-sm font-semibold text-white hover:bg-primary-hover"
-              >
-                Buscar atendimento
-              </button>
-            </form>
           </div>
 
-          <div className="grid gap-3 sm:grid-cols-3 lg:grid-cols-1">
-            {servicos.map((servico) => {
-  const Icone = servico.icone;
+          <div className="grid gap-4 md:grid-cols-3">
+            {etapas.map((etapa) => {
+              const Icone = etapa.icone;
 
-  return (
-    <article key={servico.titulo} className="rounded-2xl border border-purple-100 p-4">
-      <div className="flex items-start gap-3">
-        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-purple-50 text-brand">
-          <Icone size={20} aria-hidden="true" />
-        </span>
-
-        <div>
-          <h3 className="font-semibold">{servico.titulo}</h3>
-          <p className="mt-1 text-sm leading-5 text-gray-600">
-            {servico.texto}
-          </p>
-        </div>
-      </div>
-    </article>
-  );
-})}
+              return (
+                <article
+                  key={etapa.numero}
+                  className="rounded-2xl border border-purple-100 bg-[#FCFAFE] p-5"
+                >
+                  <div className="flex items-center justify-between">
+                    <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-purple-100 text-xl text-brand">
+                      <Icone size={20} aria-hidden="true" />
+                    </span>
+                    <span className="text-xs font-bold text-purple-300">
+                      {etapa.numero}
+                    </span>
+                  </div>
+                  <h3 className="mt-4 font-semibold">{etapa.titulo}</h3>
+                  <p className="mt-2 text-sm leading-5 text-gray-600">
+                    {etapa.texto}
+                  </p>
+                </article>
+              );
+            })}
           </div>
-        </div>
-      </section>
+        </section>
 
-      {/* Canais de ajuda */}
-      <section className="bg-danger-soft">
-        <div className="mx-auto grid max-w-6xl gap-5 px-5 py-7 md:grid-cols-3">
-          <div className="md:col-span-3">
-            <span className="text-xs font-bold uppercase tracking-wider text-danger">
-              Precisa de ajuda agora?
+        {/* Tipos de acolhimento */}
+        <section id="acolhimentos" className="mx-auto max-w-6xl px-5 py-10">
+          <div className="mb-6">
+            <span className="text-xs font-bold uppercase tracking-wider text-brand">
+              Você não está sozinha
             </span>
+            <h2 className="mt-1 font-[Poppins] text-2xl font-bold">
+              Tipos de acolhimento
+            </h2>
+            <p className="mt-2 text-sm text-gray-600">
+              Cada situação é única. Há diferentes formas de receber apoio.
+            </p>
           </div>
 
-          <article>
-            <h3 className="font-[Poppins] text-lg font-bold text-danger">
-              Ligue 180
-            </h3>
-            <p className="mt-1 text-sm text-gray-700">
-              Central de Atendimento à Mulher.
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {acolhimentos.map((item) => {
+              const Icone = item.icone;
+
+              return (
+                <article
+                  key={item.titulo}
+                  className={`rounded-2xl p-5 ${item.cor}`}
+                >
+                  <span className="text-2xl" aria-hidden="true">
+                    <Icone />
+                  </span>
+                  <h3 className="mt-3 font-semibold">{item.titulo}</h3>
+                  <p className="mt-2 text-sm leading-5 text-gray-600">
+                    {item.texto}
+                  </p>
+                </article>
+              );
+            })}
+          </div>
+        </section>
+
+        {/* Busca de atendimento */}
+        <section id="buscar" className="mx-auto max-w-6xl px-5 py-12">
+          <div className="grid gap-8 lg:grid-cols-[1.1fr_1fr]">
+            <div>
+              <span className="text-xs font-bold uppercase tracking-wider text-brand">
+                Rede de atendimento
+              </span>
+              <h2 className="mt-1 font-[Poppins] text-2xl font-bold">
+                Encontre atendimento perto de você
+              </h2>
+              <p className="mt-2 text-sm leading-6 text-gray-600">
+                Busque serviços de apoio e encontre opções para receber
+                orientação na sua região.
+              </p>
+
+              <form
+                className="mt-5 flex flex-col gap-3 sm:flex-row"
+                onSubmit={(event) => event.preventDefault()}
+              >
+                <label htmlFor="localizacao" className="sr-only">
+                  Cidade ou CEP
+                </label>
+                <input
+                  id="localizacao"
+                  type="text"
+                  placeholder="Digite sua cidade ou CEP"
+                  className="min-w-0 flex-1 rounded-xl border border-gray-200 px-4 py-3 text-sm outline-none focus:border-brand focus:ring-2 focus:ring-purple-100"
+                />
+                <button
+                  type="submit"
+                  className="rounded-xl bg-brand px-5 py-3 text-sm font-semibold text-white hover:bg-primary-hover"
+                >
+                  Buscar atendimento
+                </button>
+              </form>
+            </div>
+
+            <div className="grid gap-3 sm:grid-cols-3 lg:grid-cols-1">
+              {servicos.map((servico) => {
+                const Icone = servico.icone;
+
+                return (
+                  <article key={servico.titulo} className="rounded-2xl border border-purple-100 p-4">
+                    <div className="flex items-start gap-3">
+                      <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-purple-50 text-brand">
+                        <Icone size={20} aria-hidden="true" />
+                      </span>
+
+                      <div>
+                        <h3 className="font-semibold">{servico.titulo}</h3>
+                        <p className="mt-1 text-sm leading-5 text-gray-600">
+                          {servico.texto}
+                        </p>
+                      </div>
+                    </div>
+                  </article>
+                );
+              })}
+            </div>
+          </div>
+        </section>
+
+        {/* Canais de ajuda */}
+        <section className="bg-danger-soft">
+          <div className="mx-auto grid max-w-6xl gap-5 px-5 py-7 md:grid-cols-3">
+            <div className="md:col-span-3">
+              <span className="text-xs font-bold uppercase tracking-wider text-danger">
+                Precisa de ajuda agora?
+              </span>
+            </div>
+
+            <article className="flex flex-col items-start justify-between">
+              <div>
+                <h3 className="font-[Poppins] text-lg font-bold text-danger">
+                  Ligue 180
+                </h3>
+                <p className="mt-1 text-sm text-gray-700">
+                  Central de Atendimento à Mulher.
+                </p>
+              </div>
+              <a
+                href="tel:180"
+                className="mt-3 inline-block rounded-full bg-danger px-4 py-2 text-sm font-semibold text-white"
+              >
+                Ligar 180
+              </a>
+            </article>
+
+            <article className="flex flex-col items-start justify-between">
+              <div>
+                <h3 className="font-[Poppins] text-lg font-bold text-danger">
+                  Emergência
+                </h3>
+                <p className="mt-1 text-sm text-gray-700">
+                  Em situação de perigo imediato, ligue para a Polícia Militar.
+                </p>
+              </div>
+              <a
+                href="tel:190"
+                className="mt-3 inline-block rounded-full bg-danger px-4 py-2 text-sm font-semibold text-white"
+              >
+                Ligar 190
+              </a>
+            </article>
+
+            <p className="self-center text-sm leading-5 text-gray-700">
+              Se não puder ligar com segurança, tente buscar ajuda de alguém de
+              confiança ou de um serviço próximo.
             </p>
-            <a
-              href="tel:180"
-              className="mt-3 inline-block rounded-full bg-danger px-4 py-2 text-sm font-semibold text-white"
-            >
-              Ligar 180
-            </a>
-          </article>
+          </div>
+        </section>
+      </main>
 
-          <article>
-            <h3 className="font-[Poppins] text-lg font-bold text-danger">
-              Emergência
-            </h3>
-            <p className="mt-1 text-sm text-gray-700">
-              Em situação de perigo imediato, ligue para a Polícia Militar.
-            </p>
-            <a
-              href="tel:190"
-              className="mt-3 inline-block rounded-full bg-danger px-4 py-2 text-sm font-semibold text-white"
-            >
-              Ligar 190
-            </a>
-          </article>
-
-          <p className="self-center text-sm leading-5 text-gray-700">
-            Se não puder ligar com segurança, tente buscar ajuda de alguém de
-            confiança ou de um serviço próximo.
-          </p>
-        </div>
-      </section>
-    </main>
-
-        <Footer/>
-        </>
-    );
+      <Footer />
+    </>
+  );
 }
