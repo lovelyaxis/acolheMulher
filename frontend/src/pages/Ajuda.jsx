@@ -25,6 +25,21 @@ export default function Ajuda() {
         }
     ];
 
+    const pilaresApoio = [
+        {
+            titulo: 'Simplicidade e Clareza',
+            descricao: 'Informações diretas e fáceis de entender, para você encontrar orientação sem complicação.'
+        },
+        {
+            titulo: 'Segurança e Sigilo',
+            descricao: 'Respeito à privacidade e transparência no cuidado com as informações da usuária.'
+        },
+        {
+            titulo: 'Inclusão e Respeito',
+            descricao: 'Acolhimento acessível, humano e livre de julgamentos ou discriminação.'
+        }
+    ];
+
     const toggleFaq = (idx) => {
         setFaqAberto(faqAberto === idx ? null : idx);
     };
@@ -65,6 +80,23 @@ export default function Ajuda() {
                             Ligue 190 (Polícia Militar)
                         </a>
                     </div>
+                </section>
+
+                {/* Clareza, Segurança e Inclusão */}
+                <section className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    {pilaresApoio.map((item) => (
+                        <div
+                            key={item.titulo}
+                            className="bg-white rounded-2xl border border-purple-100 p-5 shadow-sm"
+                        >
+                            <h2 className="text-sm font-bold text-slate-900 mb-1.5">
+                                {item.titulo}
+                            </h2>
+                            <p className="text-xs text-slate-600 leading-relaxed">
+                                {item.descricao}
+                            </p>
+                        </div>
+                    ))}
                 </section>
 
                 {/* FAQ - Perguntas Frequentes */}
