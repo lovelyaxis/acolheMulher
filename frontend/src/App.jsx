@@ -28,6 +28,7 @@ import MeuPerfil from "./pages/MeuPerfil";
 
 import { AuthProvider } from "./auth/AuthContext";
 import ProtectedRoute from "./auth/ProtectedRoute";
+import VLibras from "./components/VLibras";
 
 export default function App() {
   return (
@@ -176,6 +177,7 @@ export default function App() {
         {/* ================= ROTA CORINGA (SEMPRE POR ÚLTIMO) ================= */}
         <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
+      <VLibras />
     </AuthProvider>
   );
 }

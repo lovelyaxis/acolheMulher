@@ -25,32 +25,32 @@ const etapas = [
   },
 ];
 
-import { Shield, Heart, Scale, House } from "lucide-react";
+import { Shield, Scale, House, Brain, Handshake } from "lucide-react";
 
 const acolhimentos = [
   {
-    icone: Shield,
-    titulo: "Física",
-    texto: "Proteção e atendimento em situações de agressão física.",
-    cor: "bg-rose-50 text-rose-700",
-  },
-  {
-    icone: Heart,
-    titulo: "Psicológica",
-    texto: "Apoio emocional e acompanhamento especializado.",
+    icone: Brain,
+    titulo: "Acolhimento Psicológico",
+    texto: "Escuta qualificada e apoio emocional para fortalecer quem vive uma situação de violência.",
     cor: "bg-purple-50 text-purple-700",
   },
   {
     icone: Scale,
-    titulo: "Jurídica",
-    texto: "Orientação sobre direitos e medidas legais.",
+    titulo: "Assistência Jurídica",
+    texto: "Orientação sobre direitos, medidas protetivas e acesso à Justiça.",
     cor: "bg-sky-50 text-sky-700",
   },
   {
-    icone: House,
-    titulo: "Patrimonial",
-    texto: "Orientação em situações de controle ou perda de bens.",
+    icone: Handshake,
+    titulo: "Apoio Social e Assistencial",
+    texto: "Acesso a programas sociais e serviços da rede pública, pelo CRAS/CREAS.",
     cor: "bg-emerald-50 text-emerald-700",
+  },
+  {
+    icone: House,
+    titulo: "Casas de Acolhimento e Abrigos",
+    texto: "Moradia provisória e proteção para mulheres e dependentes em risco.",
+    cor: "bg-rose-50 text-rose-700",
   },
 ];
 
@@ -314,13 +314,40 @@ export default function Home() {
               </a>
             </article>
 
-            <p className="self-center text-sm leading-5 text-gray-700">
-              Se não puder ligar com segurança, tente buscar ajuda de alguém de
-              confiança ou de um serviço próximo.
+          <p className="self-center text-sm leading-5 text-gray-700">
+            Se não puder ligar com segurança, tente buscar ajuda de alguém de
+            confiança ou de um serviço próximo.
+          </p>
+
+          <div className="md:col-span-3 rounded-2xl bg-white/70 p-4">
+            <h3 className="font-[Poppins] text-base font-bold text-danger">
+              Pessoa surda ou com deficiência auditiva?
+            </h3>
+            <p className="mt-1 text-sm text-gray-700">
+              O Ligue 180 também atende por WhatsApp e por videochamada em Libras.
             </p>
+            <div className="mt-3 flex flex-wrap gap-3">
+              <a
+                href="https://wa.me/5561996100180"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-block rounded-full bg-danger px-4 py-2 text-sm font-semibold text-white"
+              >
+                Chamar no WhatsApp
+              </a>
+              <a
+                href="https://www.gov.br/mulheres/pt-br/ligue180/libras"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-block rounded-full border border-danger px-4 py-2 text-sm font-semibold text-danger"
+              >
+                Atendimento em Libras
+              </a>
+            </div>
           </div>
-        </section>
-      </main>
+        </div>
+      </section>
+    </main>
 
       <Footer />
     </>
