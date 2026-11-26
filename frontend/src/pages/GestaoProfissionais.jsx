@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useState } from 'react';
-import Sidebar from '../components/Sidebar';
 import { listarUnidadesInternas } from '../services/unidadesService';
 import {
   listarProfissionais,
@@ -137,8 +136,7 @@ export default function GestaoProfissionais() {
   }
 
   return (
-    <div className="flex min-h-screen bg-purple-50/50 font-sans">
-      <Sidebar activePath="/gestao-profissionais" />
+    <>
       <main className="flex-1 p-6 md:p-10">
         <header className="mb-8 flex flex-col items-start justify-between gap-4 md:flex-row md:items-center">
           <div>
@@ -211,7 +209,7 @@ export default function GestaoProfissionais() {
           {!carregando && !erro && profissionais.length === 0 && <p role="status" className="text-xs text-slate-600">Nenhum profissional cadastrado.</p>}
           {!carregando && !erro && profissionais.length > 0 && (
             <div className="overflow-x-auto">
-              <table className="w-full text-left text-xs">
+              <table className="w-full min-w-[640px] text-left text-xs">
                 <thead><tr className="border-b border-slate-100 text-slate-400 uppercase tracking-wider">
                   <th className="pb-3 font-semibold">Nome / e-mail</th><th className="pb-3 font-semibold">Cargo / unidade</th><th className="pb-3 text-center font-semibold">Status</th><th className="pb-3 text-right font-semibold">Ações</th>
                 </tr></thead>
@@ -236,6 +234,6 @@ export default function GestaoProfissionais() {
           )}
         </section>
       </main>
-    </div>
+    </>
   );
 }

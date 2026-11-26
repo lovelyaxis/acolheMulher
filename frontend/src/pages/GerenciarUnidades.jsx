@@ -8,7 +8,6 @@ import {
   inativarUnidade,
   excluirUnidade,
 } from '../services/unidadesService';
-import Sidebar from '../components/Sidebar';
 
 const MENSAGEM_ERRO_LISTA =
   'Não foi possível carregar as unidades agora. Tente novamente em instantes.';
@@ -116,9 +115,7 @@ export default function GerenciarUnidades() {
   };
 
   return (
-    <div className="flex min-h-screen bg-purple-50/50 font-sans">
-      <Sidebar activePath="/admin/unidades" />
-
+    <>
       {/* Conteúdo principal */}
       <main className="flex-1 p-6 md:p-10">
         <header className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
@@ -179,8 +176,8 @@ export default function GerenciarUnidades() {
           )}
 
           {!carregando && !erro && unidades.length > 0 && (
-            <div className="overflow-x-auto">
-              <table className="w-full text-left text-xs">
+            <div className="relative overflow-x-auto">
+              <table className="w-full min-w-[640px] text-left text-xs">
                 <caption className="sr-only">
                   Lista de unidades de atendimento cadastradas, com tipo,
                   endereço, encaminhamentos, status e ações disponíveis.
@@ -276,6 +273,6 @@ export default function GerenciarUnidades() {
           )}
         </section>
       </main>
-    </div>
+    </>
   );
 }

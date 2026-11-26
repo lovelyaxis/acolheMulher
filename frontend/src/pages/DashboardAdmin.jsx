@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../auth/AuthContext';
 import { obterDashboardAdmin } from '../services/dashboardService';
-import Sidebar from '../components/Sidebar';
 
 export default function DashboardAdmin() {
   const navigate = useNavigate();
@@ -48,9 +47,7 @@ export default function DashboardAdmin() {
   ];
 
   return (
-    <div className="flex min-h-screen bg-purple-50/50 font-sans">
-      <Sidebar activePath="/dashboard-admin" />
-
+    <>
       {/* Conteúdo Principal */}
       <main className="flex-1 p-6 md:p-10">
 
@@ -127,7 +124,7 @@ export default function DashboardAdmin() {
         <section className="bg-white rounded-2xl border border-purple-100 shadow-sm p-6">
           <h2 className="text-sm font-bold text-slate-900 mb-6">Últimas atualizações na rede</h2>
           <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs">
+            <table className="w-full min-w-[640px] text-left text-xs">
               <thead>
                 <tr className="border-b border-slate-100 text-slate-400 uppercase tracking-wider">
                   <th className="pb-3 font-semibold">Unidade</th>
@@ -153,6 +150,6 @@ export default function DashboardAdmin() {
         </section>
 
       </main>
-    </div>
+    </>
   );
 }

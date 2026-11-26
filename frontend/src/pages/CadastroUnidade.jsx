@@ -3,7 +3,6 @@ import {
   TIPOS_UNIDADE,
   cadastrarUnidade,
 } from '../services/unidadesService';
-import Sidebar from '../components/Sidebar';
 
 const FORMULARIO_INICIAL = {
   nome: '',
@@ -66,9 +65,7 @@ export default function CadastroUnidade() {
   };
 
   return (
-    <div className="flex min-h-screen bg-purple-50/50 font-sans">
-      <Sidebar activePath="/cadastrar-unidade" />
-
+    <>
       {/* Conteúdo Principal */}
       <main className="flex-1 p-6 md:p-10">
 
@@ -256,6 +253,6 @@ export default function CadastroUnidade() {
         </section>
 
       </main>
-    </div>
+    </>
   );
 }

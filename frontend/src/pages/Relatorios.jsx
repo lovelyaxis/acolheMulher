@@ -1,11 +1,8 @@
 import React from 'react';
-import Sidebar from '../components/Sidebar';
 
 export default function Relatorios() {
   return (
-    <div className="flex min-h-screen bg-purple-50/50 font-sans">
-      <Sidebar activePath="/relatorios" />
-
+    <>
       {/* Conteúdo Principal */}
       <main className="flex-1 p-6 md:p-10">
         <header className="mb-8">
@@ -31,6 +28,6 @@ export default function Relatorios() {
           </div>
         </div>
       </main>
-    </div>
+    </>
   );
 }

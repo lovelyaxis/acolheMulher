@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useState } from 'react';
-import Sidebar from '../components/Sidebar';
 import {
   atualizarStatusEncaminhamento,
   listarEncaminhamentos,
@@ -67,9 +66,7 @@ export default function GestaoEncaminhamentos() {
   }
 
   return (
-    <div className="flex min-h-screen bg-purple-50/50 font-sans">
-      <Sidebar activePath="/admin/encaminhamentos" />
-
+    <>
       <main className="flex-1 p-6 md:p-10">
         <h1 className="mb-2 text-2xl font-bold text-slate-900">
           Gestão de Encaminhamentos
@@ -125,8 +122,8 @@ export default function GestaoEncaminhamentos() {
               Nenhum encaminhamento encontrado para este filtro.
             </p>
           ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full text-left text-xs">
+            <div className="relative overflow-x-auto">
+              <table className="w-full min-w-[640px] text-left text-xs">
                 <caption className="sr-only">
                   Encaminhamentos com código do caso, data, tipo, unidade de destino e status.
                 </caption>
@@ -188,6 +185,6 @@ export default function GestaoEncaminhamentos() {
           )}
         </section>
       </main>
-    </div>
+    </>
   );
 }

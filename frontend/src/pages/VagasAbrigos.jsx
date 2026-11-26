@@ -1,6 +1,5 @@
 // frontend/src/pages/VagasAbrigos.jsx
 import React from 'react';
-import Sidebar from '../components/Sidebar';
 
 export default function VagasAbrigos() {
   const abrigos = [
@@ -13,9 +12,7 @@ export default function VagasAbrigos() {
   const totalLivres = abrigos.reduce((soma, a) => soma + a.disponiveis, 0);
 
   return (
-    <div className="flex min-h-screen bg-purple-50/50 font-sans">
-      <Sidebar activePath="/admin/vagas-abrigos" />
-
+    <>
       <main className="flex-1 p-6 md:p-10">
         <div className="mb-8">
           <h1 className="text-2xl font-bold text-slate-900">Monitoramento de Vagas em Abrigos</h1>
@@ -41,14 +38,14 @@ export default function VagasAbrigos() {
         </div>
 
         {/* Lista de Abrigos */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
           {abrigos.map((a, i) => {
             const porcentagem = Math.round((a.ocupadas / a.capacidade) * 100);
             const lotado = a.disponiveis === 0;
 
             return (
               <div key={i} className="bg-white p-6 rounded-3xl border border-purple-100 shadow-sm">
-                <div className="flex justify-between items-start gap-2 mb-2">
+                <div className="mb-2 flex flex-wrap items-start justify-between gap-2">
                   <h3 className="font-bold text-slate-900 text-sm">{a.nome}</h3>
                   <span
                     className={`text-[11px] font-semibold px-2.5 py-0.5 rounded-full ${
@@ -84,6 +81,6 @@ export default function VagasAbrigos() {
           })}
         </div>
       </main>
-    </div>
+    </>
   );
 }
