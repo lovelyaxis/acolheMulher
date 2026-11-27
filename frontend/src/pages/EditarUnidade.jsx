@@ -10,7 +10,6 @@ import {
   editarUnidade,
   listarUnidadesInternas,
 } from '../services/unidadesService';
-import Sidebar from '../components/Sidebar';
 
 const FORMULARIO_INICIAL = {
   nome: '',
@@ -133,9 +132,7 @@ export default function EditarUnidade() {
   };
 
   return (
-    <div className="flex min-h-screen bg-purple-50/50 font-sans">
-      <Sidebar activePath="/admin/unidades" />
-
+    <>
       {/* Conteúdo principal */}
       <main className="flex-1 p-6 md:p-10">
         <header className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
@@ -334,6 +331,6 @@ export default function EditarUnidade() {
           </section>
         )}
       </main>
-    </div>
+    </>
   );
 }

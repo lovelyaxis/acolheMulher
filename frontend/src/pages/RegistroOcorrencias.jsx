@@ -1,6 +1,5 @@
 // frontend/src/pages/RegistroOcorrencias.jsx
 import { useEffect, useState } from "react";
-import Sidebar from "../components/Sidebar";
 import {
   listarOcorrencias,
   registrarOcorrencia,
@@ -92,9 +91,7 @@ export default function RegistroOcorrencias() {
   }
 
   return (
-    <div className="flex min-h-screen bg-purple-50/50 font-sans">
-      <Sidebar activePath="/admin/registro-ocorrencias" />
-
+    <>
       <main className="flex-1 p-6 md:p-10">
         <h1 className="text-2xl font-bold text-slate-900 mb-2">
           Registro de Ocorrências
@@ -251,6 +248,6 @@ export default function RegistroOcorrencias() {
           </div>
         )}
       </main>
-    </div>
+    </>
   );
 }

@@ -28,6 +28,7 @@ import MeuPerfil from "./pages/MeuPerfil";
 
 import { AuthProvider } from "./auth/AuthContext";
 import ProtectedRoute from "./auth/ProtectedRoute";
+import AdminLayout from "./components/AdminLayout";
 import VLibras from "./components/VLibras";
 
 export default function App() {
@@ -85,94 +86,32 @@ export default function App() {
 
         {/* ================= ROTAS PROTEGIDAS (ADMINISTRADOR) ================= */}
         <Route
-          path="/dashboard-admin"
           element={
             <ProtectedRoute perfil="ADMINISTRADOR">
-              <DashboardAdmin />
+              <AdminLayout />
             </ProtectedRoute>
           }
-        />
-
-        <Route
-          path="/cadastrar-unidade"
-          element={
-            <ProtectedRoute perfil="ADMINISTRADOR">
-              <CadastroUnidade />
-            </ProtectedRoute>
-          }
-        />
-
-        <Route
-          path="/admin/unidades"
-          element={
-            <ProtectedRoute perfil="ADMINISTRADOR">
-              <GerenciarUnidades />
-            </ProtectedRoute>
-          }
-        />
-
-        <Route
-          path="/admin/unidades/:id/editar"
-          element={
-            <ProtectedRoute perfil="ADMINISTRADOR">
-              <EditarUnidade />
-            </ProtectedRoute>
-          }
-        />
-
-        <Route
-          path="/gestao-profissionais"
-          element={
-            <ProtectedRoute perfil="ADMINISTRADOR">
-              <GestaoProfissionais />
-            </ProtectedRoute>
-          }
-        />
-
-        <Route
-          path="/relatorios"
-          element={
-            <ProtectedRoute perfil="ADMINISTRADOR">
-              <Relatorios />
-            </ProtectedRoute>
-          }
-        />
-
-        <Route
-          path="/configuracoes"
-          element={
-            <ProtectedRoute perfil="ADMINISTRADOR">
-              <Configuracoes />
-            </ProtectedRoute>
-          }
-        />
-
-        <Route
-          path="/admin/encaminhamentos"
-          element={
-            <ProtectedRoute perfil="ADMINISTRADOR">
-              <GestaoEncaminhamentos />
-            </ProtectedRoute>
-          }
-        />
-
-        <Route
-          path="/admin/vagas-abrigos"
-          element={
-            <ProtectedRoute perfil="ADMINISTRADOR">
-              <VagasAbrigos />
-            </ProtectedRoute>
-          }
-        />
-
-        <Route
-          path="/admin/registro-ocorrencias"
-          element={
-            <ProtectedRoute perfil="ADMINISTRADOR">
-              <RegistroOcorrencias />
-            </ProtectedRoute>
-          }
-        />
+        >
+          <Route path="/dashboard-admin" element={<DashboardAdmin />} />
+          <Route path="/cadastrar-unidade" element={<CadastroUnidade />} />
+          <Route path="/admin/unidades" element={<GerenciarUnidades />} />
+          <Route
+            path="/admin/unidades/:id/editar"
+            element={<EditarUnidade />}
+          />
+          <Route path="/gestao-profissionais" element={<GestaoProfissionais />} />
+          <Route path="/relatorios" element={<Relatorios />} />
+          <Route path="/configuracoes" element={<Configuracoes />} />
+          <Route
+            path="/admin/encaminhamentos"
+            element={<GestaoEncaminhamentos />}
+          />
+          <Route path="/admin/vagas-abrigos" element={<VagasAbrigos />} />
+          <Route
+            path="/admin/registro-ocorrencias"
+            element={<RegistroOcorrencias />}
+          />
+        </Route>
 
         {/* ================= ROTA CORINGA (SEMPRE POR ÚLTIMO) ================= */}
         <Route path="*" element={<Navigate to="/login" replace />} />
